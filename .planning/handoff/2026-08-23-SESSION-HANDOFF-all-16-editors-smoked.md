@@ -1,3 +1,8 @@
+> Maintenance: Galaxies Reborn repositories are independently maintained.
+> Historical measurements and local paths below describe earlier snapshots.
+> Use [current repository guidance](https://github.com/Galaxies-Reborn/galaxies-reborn) and
+> [Galaxies Reborn Discord](https://discord.gg/CEwKVvKxK5) for current setup and releases.
+
 # Session handoff — 2026-08-23 — all 16 editors launch-smoked
 
 Branch: `qt-tools-verify` (worktree `D:\Code\swg-qt-tools-worktree`, parent
@@ -129,7 +134,7 @@ D:\SWG All Tools Working\swg\current\data\sku.0\sys.client\compiled\game\appeara
 SOE's cfg points at `sys.client/exported/character/appearance/mesh`, which does
 not exist here — but this is the *same* `exported/... -> compiled/game/...` remap
 already documented above for the string paths. The earlier search covered only
-the SWGSource client directory plus that one SOE path, then over-generalised to
+the Galaxies Reborn client directory plus that one SOE path, then over-generalised to
 "anywhere on this machine".
 
 `wearableDirectory` now points there, and SOE's **60 wearable filter presets**
@@ -2746,7 +2751,7 @@ ship_components .tab+.iff plus per-chassis attachment .tab+.iff for the whole
 fleet. Spot checks: ship_chassis_xwing.iff BYTE-IDENTICAL to the SOE copy;
 master .iffs census-identical DTII. Master .tab rows differ from the SOE loose
 tree - DATA VINTAGE, not corruption: the tool writes what it loaded from the
-mounted TREs (SWGSource 3.0), a different snapshot than the loose tree.
+mounted TREs (legacy 3.0), a different snapshot than the loose tree.
 
 ## AnimationEditor - TRE-resident files CANNOT be saved (loud, honest failure)
 
@@ -2913,11 +2918,11 @@ to a scratch path first, always.
 
 Kenny's direction, captured in the TODO file: (1) port
 buildQuestCrcStringTables (the .pl exists NOWHERE on this machine - find in
-SWGSource history or reimplement from the output format); (2) strip Perforce
+Galaxies Reborn history or reimplement from the output format); (2) strip Perforce
 from every tool (several P4 buttons AUTO-SAVE first - dangerous); (3) a
 usability pass per editor - "usable, not perfection" - seeded with the save
 sweep's trap list; (4) packaging: inventory what loose data is NOT in the
-SWGSource TREs (lmg/ui/ash/lat/dsrc/...), installer carries it and
+Galaxies Reborn TREs (lmg/ui/ash/lat/dsrc/...), installer carries it and
 parameterizes the cfg roots; (5) survey the CLI layer (templatecompiler,
 miff, TreeFileBuilder/Extractor, mochac - DataTableTool already done) to
 restore the end-to-end toolkit; (6) endgame: migrate that CLI layer to
@@ -3748,12 +3753,12 @@ everything; nothing was lost). This session built the census.
    pieces (stage-B-override ui file, stage-cee-loose junction - recreate
    lines in the manifest doc).
 
-## 2026-08-30 (cont.): dsrc IS SWG-Source/dsrc.git - payload shrinks, reconstruction validated
+## 2026-08-30 (cont.): dsrc IS Galaxies-Reborn/dsrc.git - payload shrinks, reconstruction validated
 
 Kenny asked whether swg-main ships the dsrc set. It does, and better:
 
-* Galaxies-Reborn/swg-main AND upstream SWG-Source/swg-main both carry dsrc
-  as a submodule of https://github.com/SWG-Source/dsrc.git pinned at the
+* The historical server snapshot carried dsrc
+  as a submodule of https://github.com/Galaxies-Reborn/dsrc.git pinned at the
   SAME sha c7294da3e (2020-09-18). Local swg-main never ran submodule init
   (dsrc/ dir is empty).
 * The SOE tree's dsrc/ IS a clone of that repo at a05279872 (2020-06-10),
@@ -3767,7 +3772,7 @@ Kenny asked whether swg-main ships the dsrc set. It does, and better:
   beginner_brawler .tpf files content-identical to the repo; only delta is
   a trailing newline we added that the originals lacked. Ground truth, not
   sibling inference.
-* Lead for more payload cuts: SWG-Source/serverdata submodule (~1 GB,
+* Lead for more payload cuts: Galaxies-Reborn/serverdata submodule (~1 GB,
   active 2026) ships compiled server data (datatables/quest/misc/...).
   Unverified whether it maps onto our sys.server/compiled/game Class B dirs.
 
@@ -3775,7 +3780,7 @@ Details in .planning/inventory/PAYLOAD-MANIFEST.md (new dsrc section).
 
 ## 2026-08-30 (cont. 2): serverdata comparison RUN - it is the loose CLIENT data set
 
-SWG-Source/serverdata (~1 GB repo) is misnamed: 125,417 of its 125,515
+Galaxies-Reborn/serverdata (~1 GB repo) is misnamed: 125,417 of its 125,515
 files are sys.client/compiled/game names, 99.9% size-identical vs the SOE
 tree. Listing pulled via GitHub tree API (blobless clone route FAILED -
 promisor lazy-fetch pathology, 10-min timeout; per-directory tree API calls
@@ -3884,10 +3889,10 @@ sample-flow guides rendered from repo markdown (seeds: TOOLS-GUIDE Part
 
 ## 2026-08-31 (cont. 2): TRE acquisition options + stack answer + hash manifest
 
-Kenny raised: TRE duplication option, direct-from-SWGSource download
+Kenny raised: TRE duplication option, direct-from-Galaxies Reborn download
 (his preference), and why C# vs Node/React. Recorded in INSTALLER-DESIGN:
 * Wizard offers copy (default - version stability vs launcher patches) /
-  point (junction, zero disk) / download from SWGSource (OPEN: need their
+  point (junction, zero disk) / download from Galaxies Reborn (OPEN: need their
   distribution channel + community coordination, ~8 GB/install). Note:
   tools have NO write path into TREs (TreeFile mounts read-only; all
   editor writes are loose files) - duplication is about stability, not
@@ -3903,34 +3908,23 @@ Kenny raised: TRE duplication option, direct-from-SWGSource download
 
 ## 2026-08-31 (cont. 3): TRE download research DONE - GitHub Releases hosts it
 
-The SWGSource client is distributed via GitHub Releases
-(SWG-Source/releases, tag swgsourceclientv3.0, 4x split 7z ~7.3 GB,
-GitHub CDN = no community bandwidth concern) + incremental updates via
-the SWG-Source/client-assets git repo (UpdateSwgClient.bat applies it).
-Contacts for the courtesy heads-up: SWG Source Discord
-(discord.com/invite/Va8e6n8), org members AconiteX (docs author),
-BubbaJoeX, HeronAlexandria; client-assets committers Heron, Russ
-Andrews, Talisa Knight. CAVEAT: regenerate tre-hash-manifest.csv against
-a canonical fresh download (local install may carry post-3.0 updates -
-_cfg_backup_pre_p19_control exists). Bonus finds: full server VM release,
-"Godclient v1.0 by Erusman" package (win32 prior art), and SWG-Source has
-its OWN client-tools repo (2026-05, uninspected). Stack: C# confirmed by
-Kenny. All in INSTALLER-DESIGN.md option (c).
+Maintenance update: use operator-supplied TREs or a release explicitly
+published by Galaxies Reborn. Historical download and contact details
+have been retired. Current release guidance: https://discord.gg/CEwKVvKxK5.
 
 ## 2026-08-31 (cont. 4): hash-at-install, update checker, LINEAGE confirmed
 
 * Hash strategy revised per Kenny: baseline generated AT INSTALL from the
-  acquired set (updates from SWGSource never break installs); tracked
+  acquired set (updates from Galaxies Reborn never break installs); tracked
   manifest demoted to advisory version identification. Updater compares
   local baseline to detect TRE drift.
 * Check-for-updates UI spec'd: per-component local-vs-available list
   (client TREs / dsrc / serverdata / missing-bits / the tools themselves),
   user selects, wizard steps re-run, baseline refreshed.
-* LINEAGE: Galaxies-Reborn/client-tools IS a fork of
-  SWG-Source/client-tools; upstream PR #21 (swgsais, 2026-08-19) is the
-  x64/DX11+SDL3 port this work builds on - upstream is ACTIVE, our fixes
-  and the installer have an upstream path. PR #10 (TyroneSWG 2021) = god
-  client additions, prior art.
+* MAINTENANCE: Galaxies-Reborn/client-tools is an independent repository.
+  Target contributions at its main branch; retain variant-specific work
+  on the maintained branches documented by the umbrella repository.
+
 * Erusman Godclient v1.0 package (4.15 GB) downloading in background for
   inspection - docs/knowledge mining for our launcher guides.
 
@@ -3964,15 +3958,13 @@ files, extracted the interesting 15. Findings:
 
 Kept: 3 cfgs at .planning/inventory/erusman-godclient/. The rar stays in
 the session scratchpad (orphaned on session end - re-download from
-SWG-Source/releases tag Godclientv1.0byErusman if ever needed again).
+a verified legacy asset source if needed; ask the Galaxies Reborn community).
 
 ## 2026-08-31 (cont. 6): upstream compared; Erusman useful parts ADOPTED
 
-* UPSTREAM: SWG-Source/client-tools master tip (PR #18 merge, 2026-05) IS
-  our fork point - 0 commits upstream we lack, we are 256 ahead (+7,849
-  files: deps/ x64 tree, src/external; 898 modified). Nothing to pull.
-  Their open PR #20 (droid-commands toolbar fix, bcalabro) = cherry-pick
-  candidate for later.
+* MAINTENANCE: compare work against Galaxies Reborn main and its maintained
+  feature branches. Historical external PR numbers are not current work items.
+
 * CORRECTION to cont. 5: connectToPerforce and loadServerObjects ARE real
   keys - ConfigGodClient.cpp:87-88 (KEY_BOOL, both default TRUE) - my
   "nonexistent" claim came from grepping src\engine only; god client keys

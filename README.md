@@ -58,7 +58,7 @@ Numeric values that encode a limit, capacity, interval, unit conversion, binary 
 Please note that certain projects and files are prepended with `shared` which means they are files that are used in both the game engine ([the `src` repository](https://github.com/Galaxies-Reborn/src)) and the client. There are many enums, for instance, that must match between the client and server or there may be crashes, errors, unintended functionality or some combination thereof. ***If you make changes to any of these shared files, you must make the changes both in the src and in client-tools.***
 
 ## Deprecated Components
-Some specific features have been removed or disabled from the client as they are either no longer needed or outside the scope of the development work of SWG Source. Those removals include:
+Some specific features have been removed or disabled from the client as they are either no longer needed or outside the scope of the development work of Galaxies Reborn. Those removals include:
 * The In-Game Web Browser (which uses libmozilla) and any UI elements or commands to activate it
 * The Trading Card Game and any UI elements or commands to activate it
 * The Customer Service "Help" Context Menu and the Bug Reporting Form, and any UI elements or commands to activate it
@@ -88,3 +88,7 @@ Most of the development tools use the [Qt framework](https://www.qt.io/) to rend
 ## Primary branch
 
 The primary branch is `main` (x64 / DX11). `scripts/Build-Client.ps1` defaults to x64 and DX11. See the [maintained branch policy](https://github.com/Galaxies-Reborn/galaxies-reborn/blob/main/BRANCHES.md) before merging variant work.
+
+## Galaxies Reborn community
+
+Join the [Galaxies Reborn Discord](https://discord.gg/CEwKVvKxK5) for project discussion, support, and announcements.

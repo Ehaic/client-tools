@@ -1,3 +1,8 @@
+> Maintenance: Galaxies Reborn repositories are independently maintained.
+> Historical measurements and local paths below describe earlier snapshots.
+> Use [current repository guidance](https://github.com/Galaxies-Reborn/galaxies-reborn) and
+> [Galaxies Reborn Discord](https://discord.gg/CEwKVvKxK5) for current setup and releases.
+
 # TODO — tools productization (Kenny, 2026-08-28)
 
 Started as QuestEditor notes; the scope is all 16 editors. Goal per Kenny:
@@ -22,7 +27,7 @@ mode is reusable for the object-template/planet CRC tables in item 5.
 The `Build Quest CRC Tables` button shells `perl buildQuestCrcStringTables.pl
 --local <branch>` (ToolProcess.cpp:148-160), same missing-perl problem the
 QuestChecker had. **FOUND (2026-08-28, after searching the TREs and both
-drives)**: three identical copies, in the SWGSource repos' tools/ dirs —
+drives)**: three identical copies, in the Galaxies Reborn repos' tools/ dirs —
 `D:\Code\Galaxies-Reborn\swg-main\tools\`, `D:\Code\swg-main\tools\`,
 `D:\Code\swg-client\tools\`. (NOT in the SOE tree — its tools/ dir is the
 documented absence — and NOT in any archive: client TREs have zero .pl
@@ -109,7 +114,7 @@ full trap table):
 
 ## 4. Packaging / installer
 
-Most SWG data ships in the SWGSource TREs — the tools additionally need the
+Most SWG data ships in the Galaxies Reborn TREs — the tools additionally need the
 LOOSE data that is NOT in any TRE. Plan:
 - **Build the "not in TREs" inventory — DONE 2026-08-30.**
   `scripts/not_in_tres_inventory.py` (exhaustive: trelist.py reads v0005 AND

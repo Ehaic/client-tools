@@ -1,3 +1,8 @@
+> Maintenance: Galaxies Reborn repositories are independently maintained.
+> Historical measurements and local paths below describe earlier snapshots.
+> Use [current repository guidance](https://github.com/Galaxies-Reborn/galaxies-reborn) and
+> [Galaxies Reborn Discord](https://discord.gg/CEwKVvKxK5) for current setup and releases.
+
 # Installer design — single-root tools distribution (Kenny's direction, 2026-08-30)
 
 Kenny: ship an installer that pulls from the git repos (dsrc, serverdata, a
@@ -36,7 +41,7 @@ hardcoded behavior then work WITHOUT code changes:
   data\sku.0\sys.client\compiled\game\   loose client data (serverdata clone + missing-bits repo)
   data\sku.0\sys.server\compiled\game\   REBUILT at install from dsrc
   data\sku.0\sys.shared\compiled\game\   REBUILT at install from dsrc
-  dsrc\                SWG-Source/dsrc clone (editors read AND write here)
+  dsrc\                Galaxies-Reborn/dsrc clone (editors read AND write here)
   tre\                 the 209 base TREs (or junction/config pointer to an existing client install)
   compiled_shader\     generated on first runs (or pre-warmed by installer)
 ```
@@ -88,10 +93,10 @@ minus rebuildable) — the census script already produces everything needed.
 
 1. Pick/create root; write nothing machine-specific into cfgs (they're
    relative + tracked). At most: record the base-TRE location if external.
-2. git clone: SWG-Source/dsrc, SWG-Source/serverdata, missing-bits repo
+2. git clone: Galaxies-Reborn/dsrc, Galaxies-Reborn/serverdata, missing-bits repo
    (pin shas; the pin-vs-latest choice applies to each).
 3. Lay serverdata + missing bits into data\sku.0\sys.client\compiled\game.
-4. Acquire base TREs (copy from an existing SWGSource install or download).
+4. Acquire base TREs (copy from an existing Galaxies Reborn install or download).
 5. Rebuild compiled server/shared data from dsrc (TemplateCompiler,
    DataTableTool, CRC scripts; javac optional for script/) — see
    PAYLOAD-MANIFEST rebuild section.
@@ -134,7 +139,7 @@ the launcher in first-run mode.
 **Stage 2 — the launcher's first-run wizard** does the long haul with
 progress bars and a step checklist:
   1. Acquire base TREs — three options (refined 2026-08-31 with Kenny):
-     a) COPY from an existing SWGSource client install (default when disk
+     a) COPY from an existing Galaxies Reborn client install (default when disk
         allows): isolates the tools from launcher patches to the game
         install, and removes even theoretical write risk. Note the tools
         have NO write path into TREs anyway — TreeFile mounts are
@@ -142,47 +147,15 @@ progress bars and a step checklist:
         is about VERSION STABILITY more than clobber protection.
      b) POINT at the existing install (junction; zero disk cost) for the
         space-constrained.
-     c) DOWNLOAD from SWGSource directly (Kenny's preferred option; clean
-        room, no game install needed). RESEARCHED 2026-08-31 — feasible
-        and technically trivial:
-        - The client is distributed via **GitHub Releases** on
-          `SWG-Source/releases`, tag `swgsourceclientv3.0` (2024-02-09):
-          4 split 7z parts, ~7.3 GB total, stable download URLs served by
-          GITHUB'S CDN — so the bandwidth concern largely evaporates
-          (public release assets are free/unlimited on GitHub's side).
-          ~1,200-1,350 downloads per part to date.
-        - Incremental updates are a git repo: `SWG-Source/client-assets`
-          (active, pushed 2026-06) holding SwgClient_r.exe + dlls +
-          client.cfg + swgsource_3.0.tre + loose dirs; the community's
-          UpdateSwgClient.bat applies it over the extracted client.
-        - Wizard flow: download 4 assets (resumable), extract (bundle
-          7za.exe), optionally apply client-assets, verify against
-          tre-hash-manifest.csv. CAVEAT: our manifest was hashed from
-          Kenny's local install which may include post-3.0 updates (a
-          _cfg_backup_pre_p19_control dir exists there) — regenerate the
-          manifest once against a canonical fresh download + update.
-        - WHO TO TALK TO (courtesy heads-up + possible blessing/adoption,
-          not strictly required since GitHub hosts the bits): the SWG
-          Source Discord (invite discord.com/invite/Va8e6n8, ~1.8k
-          members; their `!client` command hands out the download link).
-          Org public members: AconiteX (also the docs author —
-          aconitedocs.readthedocs.io), BubbaJoeX, HeronAlexandria; recent
-          client-assets committers: Heron, Russ Andrews, Talisa Knight.
-          Site: swg-source.github.io; setup wiki:
-          github.com/SWG-Source/swg-main/wiki.
-        - Bonus finds in the same releases repo: the full server VM
-          (swgsourcevmv3.0.2) and "Godclient v1.0 by Erusman" (~4 GB
-          win32 god client package — prior art worth a look vs our x64
-          god client work).
-        - LINEAGE (confirmed 2026-08-31): Galaxies-Reborn/client-tools is
-          a FORK of SWG-Source/client-tools; upstream's open PR #21
-          (swgsais, 2026-08-19) is the x64/DX11+SDL3 port this work sits
-          on. Upstream is active — our tools fixes and this installer
-          have a plausible upstream path. PR #10 "God Client Additions"
-          (TyroneSWG, 2021) is further god-client prior art.
+     c) DOWNLOAD: use only a release explicitly published or approved by
+        Galaxies Reborn. Ask the community at https://discord.gg/CEwKVvKxK5
+        for current availability. Do not assume historical release URLs,
+        archive names, or download sizes still describe our releases.
+        Existing operator-supplied TREs remain the supported input.
+        Source and contributions belong at https://github.com/Galaxies-Reborn.
      Hash strategy (REVISED 2026-08-31, Kenny): generate the TRE hash
      BASELINE AT INSTALL TIME from whatever set was acquired — that way
-     SWGSource shipping updated TREs never breaks installs. The baseline
+     Galaxies Reborn shipping updated TREs never breaks installs. The baseline
      (name/size/sha256, stored beside the install state file) is what the
      updater later compares against to detect "their TREs changed" (or
      bitrot) and offer a re-sync + rebuild. The tracked
@@ -224,7 +197,7 @@ Small C#/.NET (WinForms or WPF + WebView2 for markdown) app in exe\win32:
 - Check-for-updates (Kenny, 2026-08-31): one UI listing each updatable
   component with its local vs available state, user SELECTS what to take:
   * base client TREs — install-time hash baseline vs current source
-    (game-install copy drifted, or a newer SWGSource client release /
+    (game-install copy drifted, or a newer Galaxies Reborn client release /
     client-assets push)
   * dsrc / serverdata / missing-bits — pinned sha vs remote head
   * the tools themselves — installed version vs our repo's GitHub Releases
@@ -264,7 +237,7 @@ Non-admin runtime inventory (everything per-user):
 
 ## Open questions
 
-1. Base TREs: copy from user's existing SWGSource client vs host somewhere.
+1. Base TREs: copy from user's existing Galaxies Reborn client vs host somewhere.
    7 GB-ish — probably "point at your client install" with a junction.
 2. Texture payload: ship all 1 GB vs closure-trim first. (Closure walk still
    the pending analysis.)

@@ -7,7 +7,7 @@ Generated 2026-08-30 by `scripts/not_in_tres_inventory.py`. Regenerate any time
 python scripts/not_in_tres_inventory.py
 ```
 
-Inputs: the 209 SWGSource v3.0 TREs (`D:\Code\SWGSource Client v3.0`, 217,533
+Inputs: the 209 legacy v3.0 TREs (`D:\Code\SWGSource Client v3.0`, 217,533
 entries, 150,575 unique names — trelist.py now reads BOTH v0005 and v0006, so
 this census is exhaustive, unlike the pre-guard sweeps) vs the SOE loose tree
 (`D:\SWG All Tools Working\swg\current`). Full per-file results:
@@ -131,9 +131,9 @@ file that exists in a TRE is extracted at install, never shipped.
 ## dsrc DROPS OUT OF THE PAYLOAD — it is a public git repo (found 2026-08-30)
 
 The SOE tree's `dsrc/` is not loose data at all: it is a clone of
-**https://github.com/SWG-Source/dsrc.git** at `a05279872` (2020-06-10), a
+**https://github.com/Galaxies-Reborn/dsrc.git** at `a05279872` (2020-06-10), a
 strict ancestor of the commit both swg-main repos pin (`c7294da3e`,
-2020-09-18 — Galaxies-Reborn/swg-main and upstream SWG-Source/swg-main pin
+2020-09-18 — The historical server snapshots pin
 the SAME sha; local delta is 21 commits behind, 0 ahead). The installer can
 `git clone` (or `git submodule update --init dsrc` in swg-main) instead of
 shipping 258 MB. Open choice: stay at a05279872 (what every tool was
@@ -151,7 +151,7 @@ Bonus uses of that clone being a git repo:
 
 ## serverdata IS THE LOOSE CLIENT DATA SET — 745 MB more drops out (verified 2026-08-30)
 
-swg-main's `serverdata` submodule (SWG-Source/serverdata) is misnamed:
+swg-main's `serverdata` submodule (Galaxies-Reborn/serverdata) is misnamed:
 125,417 of its 125,515 files match our **sys.client**/compiled/game names,
 99.9% size-identical (full listing pulled via the GitHub tree API — master
 @ `3ee03ed3`; note swg-main pins `df41a07ed`, and the repo is active,

@@ -8,7 +8,7 @@ This is the prototype of the launcher's first-run wizard. Configs, scripts,
 and the exe\win32 store come from the client-tools clone you run it from.
 Two inputs are still machine-local until the real installer ships/downloads
 them: the built tools (`-AppSource`, default the D: dev build) and the TRE
-set (`-TreSource`, default the local SWGSource client dir).
+set (`-TreSource`, default the local Galaxies Reborn client dir).
 
 ## Prerequisites
 
@@ -85,7 +85,7 @@ rerun. To force everything, delete `C:\swg` and rerun.
   `D:\Code\Galaxies-Reborn\stage-B-override` — it has no repo home yet, so
   that directory must exist.
 - The built tools (exes/dlls) come from the D: dev tree and the TREs from
-  the local SWGSource client dir (`-AppSource` / `-TreSource` parameters if
+  the local Galaxies Reborn client dir (`-AppSource` / `-TreSource` parameters if
   they ever move) — a clone alone does not carry binaries yet.
 - A clean install intentionally lacks ~440 orphaned 2016-era files whose
   dsrc sources no longer exist; nothing in the tools needs them.
