@@ -51,7 +51,7 @@ Stage the built runtime into an existing client data directory:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Stage-X64Client.ps1 `
-  -ClientRoot "E:\SWG\SWGSource\SWGSource Client v3.0"
+  -ClientRoot "E:\SWG\Reborn\client-runtime-x64-dx11"
 ```
 
 For the dedicated Publish 14.1 client, stage the tracked Pre-CU configuration
