@@ -54,7 +54,7 @@ bool RecentDirectory::update(const char *type, const char *fileName)
 	if (slash)
 		*slash = '\0';
 
-	const LONG result = RegSetValueEx(registryKey, type, 0, REG_SZ, reinterpret_cast<const BYTE*>(buffer), strlen(buffer)+1);
+	const LONG result = RegSetValueEx(registryKey, type, 0, REG_SZ, reinterpret_cast<const BYTE*>(buffer), static_cast<DWORD>(strlen(buffer) + 1));
 	return (result == ERROR_SUCCESS);
 }
 

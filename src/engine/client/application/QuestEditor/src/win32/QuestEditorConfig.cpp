@@ -58,7 +58,7 @@ bool QuestEditorConfig::install()
 		IGNORE_RETURN(QMessageBox::critical(0, QObject::tr("Critical Error"),
 			QObject::tr(
 			"The config file [%1] is the wrong version!\n"
-			"Sync the config file from Perforce or get a newer bootleg.\n"
+			"Get a newer copy of the config file.\n"
 			"The minimum version supported is [%2].\n"
 			"The version of the config file is [%3].\n")
 			.arg(cs_questEditorConfigFile)
@@ -73,7 +73,7 @@ bool QuestEditorConfig::install()
 		IGNORE_RETURN(QMessageBox::critical(0, QObject::tr("Critical Error"),
 			QObject::tr(
 			"The config file [%1] is the wrong version!\n"
-			"Get a new version of the QuestEditor application from the all branch in Perforce.\n"
+			"Get a new version of the QuestEditor application.\n"
 			"The version supported is [%2].\n"
 			"The version of the config file is [%3].\n")
 			.arg(cs_questEditorConfigFile)

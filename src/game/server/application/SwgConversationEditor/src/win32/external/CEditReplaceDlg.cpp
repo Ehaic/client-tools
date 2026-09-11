@@ -119,7 +119,7 @@ BOOL CEditReplaceDlg::DoHighlightText()
 	if (! bFound)
 	{
 		CString prompt;
-		prompt.Format(IDS_EDIT_TEXT_NOT_FOUND, m_sText);
+		prompt.Format(IDS_EDIT_TEXT_NOT_FOUND, m_sText.GetString());
 		AfxMessageBox(prompt);
 		m_ptCurrentPos = m_nScope == 0 ? m_ptBlockBegin : CPoint(0, 0);
 		return FALSE;

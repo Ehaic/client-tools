@@ -36,14 +36,14 @@ bool ObjectTemplateWriter::write(char const *outputFileName, char const *templat
 	FILE *templateFile = fopen(templateFileName, "r");
 	if(!templateFile)
 	{
-		DEBUG_WARNING(true, ("Failed to open file [%s] for reading.", templateFile));
+		WARNING(true, ("ObjectTemplateWriter::write() - Failed to open template source [%s] for reading.", templateFileName));
 		return false;
 	}
 
 	FILE *outputFile = fopen(outputFileName, "w");
 	if(!outputFile)
 	{
-		DEBUG_WARNING(true, ("Failed to open file [%s] for reading.", outputFile));
+		WARNING(true, ("ObjectTemplateWriter::write() - Failed to open output file [%s] for writing.", outputFileName));
 		fclose(templateFile);
 		return false;
 	}

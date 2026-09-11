@@ -184,7 +184,7 @@ const CString EnvironmentView::CreateUniqueFamilyName (const CString* base) cons
 
 	if (base)
 	{
-		familyName.Format ("%s", *base);
+		familyName.Format ("%s", base->GetString ());
 	}
 	else
 	{
@@ -197,7 +197,7 @@ const CString EnvironmentView::CreateUniqueFamilyName (const CString* base) cons
 	{
 		if (base)
 		{
-			familyName.Format ("%s_%i", *base, familyIndex);
+			familyName.Format ("%s_%i", base->GetString (), familyIndex);
 		}
 		else
 		{

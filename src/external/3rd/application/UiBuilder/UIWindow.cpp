@@ -84,7 +84,7 @@ extern UIDirect3DPrimaryCanvas  *gPrimaryDisplay;
 
 const char *gVisualEditLockPropertyName = "VisualEditLock";
 
-void AddTooltipFromControlID( HWND TooltipWindow, HWND ParentWindow, UINT ControlID, char *Tooltip );
+void AddTooltipFromControlID( HWND TooltipWindow, HWND ParentWindow, UINT ControlID, const char *Tooltip );
 void ClearDefPushButtonLook( HWND hwndDlg, UINT nControlID );
 void CopySelectedObjectInTreeToClipboard( HWND hTree );
 void PasteObjectFromClipboard( HWND hTree );
@@ -1392,7 +1392,7 @@ void InitializeButtonGraphicAndState( HWND hwndDlg, UINT ControlID, UINT Resourc
 		CheckDlgButton( hwndDlg, ControlID, BST_UNCHECKED );
 }
 
-BOOL CALLBACK UIWindowDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR CALLBACK UIWindowDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch( uMsg )
 	{
@@ -1421,9 +1421,10 @@ BOOL CALLBACK UIWindowDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
 			MapWindowPoints( gTabControlWindow, hwndDlg, (LPPOINT)&rcCanvas, 2 );
 			CopyRect( &rcCanvasClient, &rcCanvas );
 			
+			char sizeTestText[] = "Size Test";
 			TCITEM tci;
 			tci.mask    = TCIF_TEXT;
-			tci.pszText = "Size Test";
+			tci.pszText = sizeTestText;
 			TabCtrl_InsertItem( gTabControlWindow, 0, &tci );
 			TabCtrl_AdjustRect( gTabControlWindow, FALSE, &rcCanvasClient );
 			TabCtrl_DeleteAllItems( gTabControlWindow );

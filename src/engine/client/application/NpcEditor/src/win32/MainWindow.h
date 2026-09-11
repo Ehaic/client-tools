@@ -50,7 +50,6 @@ public slots:
 	
 	void slotToolConfigureTemplatesAction();
 	void slotToolCompileAction();
-	void slotToolAddToPerforceAction();
 	void slotToolRandomAction();
 
 	void slotZoomHeadAction();
@@ -107,6 +106,7 @@ private: //-- data
 	bool m_openExistingMode;
 	bool m_dirty;
 	bool m_overwriteTemplatesMode;
+	bool m_confirmedSaveToOpenedPath;
 
 private: //-- methods
 
@@ -117,9 +117,9 @@ private: //-- methods
 	void setServerTemplate(QString const &path);
 	void setSharedTemplate(QString const &path);
 
-	void saveClientDataFile(QString const &originalFile);
-	void saveServerTemplate(QString const &originalFile);
-	void saveSharedTemplate(QString const &originalFile);
+	bool saveClientDataFile(QString const &originalFile);
+	bool saveServerTemplate(QString const &originalFile);
+	bool saveSharedTemplate(QString const &originalFile);
 
 	void loadNpcDataTable();
 
@@ -127,7 +127,6 @@ private: //-- methods
 	void showColorPicker(QSlider * slider);
 
 	void startNextProcess();
-	void AddToPerforce(const QFileInfo &fi);
 
 	bool haveFileNames() const;
 

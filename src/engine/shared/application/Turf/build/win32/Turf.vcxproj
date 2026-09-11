@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -115,6 +115,9 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..\..\..\..\..\build\win32\x64\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)_r</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -352,9 +355,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>dsound.lib;dinput8.lib;libxml2-win32-release.lib;mss32.lib;ws2_32.lib;winmm.lib;zlib.lib;mswsock.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedCollision.lib;sharedCompression.lib;sharedDebug.lib;sharedFile.lib;sharedFoundation.lib;sharedFractal.lib;sharedGame.lib;sharedImage.lib;sharedLog.lib;sharedMessageDispatch.lib;sharedNetworkMessages.lib;sharedMath.lib;sharedMemoryManager.lib;sharedObject.lib;sharedPathfinding.lib;sharedRandom.lib;sharedRegex.lib;sharedSynchronization.lib;sharedTerrain.lib;sharedThread.lib;sharedUtility.lib;sharedXml.lib;archive.lib;fileInterface.lib;localization.lib;localizationArchive.lib;unicode.lib;unicodeArchive.lib;zlib.lib;libxml2.lib;pcre.lib;dpvs.lib;swg-stubs.lib;ws2_32.lib;winmm.lib;mswsock.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)_r.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\directx9\lib;..\..\..\..\..\..\external\3rd\library\libxml2-2.6.7.win32\lib;..\..\..\..\..\..\external\3rd\library\miles\lib\win;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);..\..\..\..\..\..\..\deps\x64\lib;$(WindowsSDK_LibraryPath_x64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName)_r.pdb</ProgramDatabaseFile>

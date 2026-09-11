@@ -277,7 +277,7 @@ void SwgSpaceQuestEditorView::addStringId(CString const & stringId)
 	SpaceQuest const & spaceQuest = document->getSpaceQuest();
 
 	CString const & stringData = spaceQuest.getString(stringId);
-	CString const stringToolTip = stringTemplate ? stringTemplate->m_toolTipText : "";
+	CString const stringToolTip = stringTemplate ? stringTemplate->m_toolTipText : CString();
 	CString const prefix = stringTemplate ? (stringTemplate->m_required ? "*" : "") : "+";
 
 	m_strings.addString(0, prefix + stringId, ID_PROPERTY_TEXT, stringData, stringToolTip, 0, DT_RIGHT);
@@ -328,7 +328,7 @@ void SwgSpaceQuestEditorView::OnInitialUpdate()
 				CString const prefix = propertyTemplate.m_required ? "*" : "";
 
 				if (!m_properties.addString(&propertyTemplate, prefix + propertyName, propertyType, propertyData, propertyToolTip, propertySelection, DT_RIGHT, FALSE, FALSE))
-					FATAL(true, ("AddString failed for property name=%s, type=%i, data=%s, selection=%i\n", propertyName, propertyType, propertyData, propertySelection));
+					FATAL(true, ("AddString failed for property name=%s, type=%i, data=%s, selection=%i\n", propertyName.GetString(), propertyType, propertyData.GetString(), propertySelection));
 			}
 		}
 
@@ -421,7 +421,7 @@ void SwgSpaceQuestEditorView::onPropertyChanged(UINT const hiControlId_loItemCha
 			{
 				CString value;
 				if (!m_properties.getProperty(itemChanged, value))
-					FATAL(true, ("getProperty failed for property key=%s, value=%s\n", key, value));
+					FATAL(true, ("getProperty failed for property key=%s, value=%s\n", key.GetString(), value.GetString()));
 
 				CString const currentValue = spaceQuest.getProperty(key);
 				if (currentValue != value)
@@ -434,7 +434,7 @@ void SwgSpaceQuestEditorView::onPropertyChanged(UINT const hiControlId_loItemCha
 			else
 			{
 				if (key != "Property" && key != "Mission Template")
-					FATAL(true, ("property %s is not present in mission template %s", key, missionTemplate->getName()));
+					FATAL(true, ("property %s is not present in mission template %s", key.GetString(), missionTemplate->getName().GetString()));
 			}
 		}
 		break;

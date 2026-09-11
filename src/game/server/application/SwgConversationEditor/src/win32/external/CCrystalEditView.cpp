@@ -77,9 +77,17 @@ public:
 IMPLEMENT_DYNCREATE(CCrystalEditView, CCrystalTextView)
 
 CCrystalEditView::CCrystalEditView()
+	: m_bOvrMode(FALSE)
+	, m_bDropPosVisible(FALSE)
+	, m_ptSavedCaretPos(0, 0)
+	, m_ptDropPos(0, 0)
+	, m_bSelectionPushed(FALSE)
+	, m_ptSavedSelStart(0, 0)
+	, m_ptSavedSelEnd(0, 0)
+	, m_bAutoIndent(TRUE)
+	, m_bDisableBSAtSOL(FALSE)
+	, m_pDropTarget(NULL)
 {
-	AFX_ZERO_INIT_OBJECT(CCrystalTextView);
-	m_bAutoIndent = TRUE;
 }
 
 CCrystalEditView::~CCrystalEditView()
@@ -1016,7 +1024,7 @@ void CCrystalEditView::OnUpdateEditUndo(CCmdUI* pCmdUI)
 			//	Format menu item text using the provided item description
 			CString desc;
 			m_pTextBuffer->GetUndoDescription(desc);
-			menu.Format(IDS_MENU_UNDO_FORMAT, desc);
+			menu.Format(IDS_MENU_UNDO_FORMAT, desc.GetString());
 		}
 		else
 		{
@@ -1088,7 +1096,7 @@ void CCrystalEditView::OnUpdateEditRedo(CCmdUI* pCmdUI)
 			//	Format menu item text using the provided item description
 			CString desc;
 			m_pTextBuffer->GetRedoDescription(desc);
-			menu.Format(IDS_MENU_REDO_FORMAT, desc);
+			menu.Format(IDS_MENU_REDO_FORMAT, desc.GetString());
 		}
 		else
 		{

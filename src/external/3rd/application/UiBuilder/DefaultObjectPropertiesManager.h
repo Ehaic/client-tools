@@ -4,14 +4,13 @@
 #include "UIBaseObject.h"
 
 #include <map>
-#include <hash_map>
 #include <list>
 
 class DefaultObjectPropertiesManager
 {
 public:
 	
-	typedef std::hash_map<UINarrowString, UIString> StringMap;
+	typedef ui_stdhash_map<UINarrowString, UIString> StringMap;
 	
 	struct DefaultObjectProperties
 	{
@@ -39,7 +38,7 @@ private:
 	void AddNewProperty( HWND hwndDlg );
 	void RemoveSelectedProperty( HWND hwndDlg );
 
-	static BOOL CALLBACK DefaultObjectPropertiesManagerStaticWindowProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static INT_PTR CALLBACK DefaultObjectPropertiesManagerStaticWindowProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam );
 	BOOL DefaultObjectPropertiesManagerWindowProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 	DefaultObjectPropertiesList mDefaultObjectProperties;

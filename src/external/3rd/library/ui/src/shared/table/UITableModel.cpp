@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <list>
 #include <vector>
 
@@ -389,7 +390,10 @@ bool UITableModel::GetSortKeyAtInteger (int row, int col, UITableTypes::CellType
 		{
 			UIImageStyle * style = 0;
 			if (GetValueAtImage (row, col, style))
-				integerValue = reinterpret_cast<int>(style);
+			{
+				uintptr_t const pointerValue = reinterpret_cast<uintptr_t>(style);
+				integerValue = static_cast<int>(pointerValue ^ (pointerValue >> 16));
+			}
 			else
 				integerValue = 0;
 			return true;
@@ -412,7 +416,10 @@ bool UITableModel::GetSortKeyAtInteger (int row, int col, UITableTypes::CellType
 			if (GetValueAtWidget (row, col, widget) && widget)
 			{
 				if (!widget->GetPropertyInteger (DataProperties::WidgetValue, integerValue))
-					integerValue = reinterpret_cast<int>(widget);
+				{
+					uintptr_t const pointerValue = reinterpret_cast<uintptr_t>(widget);
+					integerValue = static_cast<int>(pointerValue ^ (pointerValue >> 16));
+				}
 			}
 			else
 				integerValue = -1;

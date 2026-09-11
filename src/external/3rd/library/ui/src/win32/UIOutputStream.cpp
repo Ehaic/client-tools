@@ -96,7 +96,7 @@ UIOutputStream & UIOutputStream::operator << (const float f)
 UIOutputStream & UIOutputStream::operator << (const size_t i)
 {
 	if (fl)
-		fprintf( fl, "%d", i);
+		fprintf( fl, "%zu", i);
 	return *this;
 }
 

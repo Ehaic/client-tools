@@ -173,7 +173,6 @@
         <action name="m_wearableSearchAction"/>
     </item>
     <item text="&amp;Tools" name="ToolsMenu">
-        <action name="m_toolAddToPerforceAction"/>
         <action name="m_toolCompileAction"/>
         <action name="m_toolConfigureTemplatesAction"/>
         <action name="m_toolRandomAction"/>
@@ -194,7 +193,6 @@
         <action name="m_fileSaveAction"/>
         <action name="m_fileSaveAsAction"/>
         <separator/>
-        <action name="m_toolAddToPerforceAction"/>
         <action name="m_toolCompileAction"/>
         <action name="m_toolConfigureTemplatesAction"/>
         <action name="m_toolRandomAction"/>
@@ -363,20 +361,6 @@
         </property>
         <property name="menuText">
             <string>&amp;Exit</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>m_toolAddToPerforceAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>image6</iconset>
-        </property>
-        <property name="text">
-            <string>Perforce</string>
-        </property>
-        <property name="menuText">
-            <string>Perforce</string>
         </property>
     </action>
     <action>

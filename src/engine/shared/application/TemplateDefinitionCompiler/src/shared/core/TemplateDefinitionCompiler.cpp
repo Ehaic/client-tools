@@ -14,95 +14,19 @@
 #include "sharedFoundation/SetupSharedFoundation.h"
 #include "sharedObject/SetupSharedObject.h"
 #include "sharedRandom/SetupSharedRandom.h"
-#include "sharedRegex/SetupSharedRegex.h"
 #include "sharedThread/SetupSharedThread.h"
 #include "sharedTemplateDefinition/File.h"
 #include "sharedTemplateDefinition/TemplateGlobals.h"
 #include "sharedTemplateDefinition/TemplateDefinitionFile.h"
 #include "sharedTemplateDefinition/TemplateData.h"
 
-#pragma warning (disable:4100) // unreferenced formal parameters abound in the perforce clientAPI
-#include "clientapi.h"
-#pragma warning (default:4100)
+// Perforce checkOut/checkIn support removed 2026-08-29 (no p4 on the tool machines)
 
 #include <ctime>
 
 #ifdef _DEBUG
 //#define ALWAYS_OVERWRITE		// flag to always overwrite previous code
 #endif
-
-
-//==============================================================================
-// subclass Perforce API class ClientUser in order to trap errors
-
-static const int SUBMIT_NO_FILE_ERR = 17;	// need to add file before submitting
-
-class MyPerforceUser : public ClientUser
-{
-public:
-	MyPerforceUser(void) : ClientUser(), m_errorOccurred(false) {}
-  virtual ~MyPerforceUser() {}
-	virtual void HandleError( Error *err )
-	{
-		if (err != NULL && err->Test())
-		{
-			m_errorOccurred = true;
-			m_lastError = err->GetGeneric();
-			// test for filtered errors
-			for (size_t i = 0; i < m_filteredErrors.size(); ++i)
-			{
-				if (m_lastError == m_filteredErrors[i])
-					return;
-			}
-		}
-		ClientUser::HandleError(err);
-	}
-
-	bool errorOccurred(void) const
-	{
-		return m_errorOccurred;
-	}
-
-	int getLastError(void) const
-	{
-		return m_lastError;
-	}
-
-	void clearLastError(void)
-	{
-		m_errorOccurred = false;
-		m_lastError = 0;
-	}
-
-	void addFilteredError(int error)
-	{
-		m_filteredErrors.push_back(error);
-	}
-
-	void clearFilteredErrors(void)
-	{
-		m_filteredErrors.clear();
-	}
-
-private:
-	bool m_errorOccurred;
-	int m_lastError;
-	std::vector<int> m_filteredErrors;
-};
-
-
-//==============================================================================
-// subclass of the PerforceAPI StrBuf class, to workaround a bug
-//  in the destructor. We can't fix the bug because it's an external library
-class StrBufFixed : public StrBuf
-{
-public:
-	~StrBufFixed()
-	{
-		delete buffer;
-		StringInit();
-	}
-};
 
 
 //==============================================================================
@@ -461,204 +385,6 @@ TemplateDefinitionFile tdfFile;
 	return result;
 }	// parseTemplateDefinitionFile
 
-/**
- * Checks out a template file and the source files associated with it from Perforce.
- *
- * @param filename		the filename of the template
- *
- * @return 0 on success, error code on fail
- */
-int checkOut(const char *filename)
-{
-MyPerforceUser ui;
-ClientApi client;
-Error e;
-
-	// check filename extensions
-	Filename templateFileName(NULL, NULL, filename, TEMPLATE_DEFINITION_EXTENSION);
-
-	// Connect to Perforce server
-	client.Init( &e );
-	if (e.Test())
-	{
-		StrBufFixed msg;
-		e.Fmt(&msg);
-		fprintf(stderr, msg.Text());
-		return -1;
-	}
-
-	// check out the template file
-	const char * commands[2];
-	commands[0] = "edit";
-	commands[1] = templateFileName;
-	client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-	client.Run( commands[0], &ui );
-	if (ui.errorOccurred())
-		return -1;
-
-	// find the client and server paths
-	File fp(templateFileName, "rt");
-	if (!fp.isOpened())
-	{
-		fprintf(stderr, "cannot open file %s\n", templateFileName.getFullFilename().c_str());
-		return -1;
-	}
-	File::setBasePath(templateFileName.getPath().c_str());
-	TemplateDefinitionFile tdfFile;
-	IGNORE_RETURN(tdfFile.parse(fp));
-	fp.close();
-
-	if (tdfFile.getPath().getFullFilename().size() != 0)
-	{
-		// check out the source files
-		Filename sourceName(NULL, tdfFile.getPath().getPath().c_str(),
-			tdfFile.getTemplateName().c_str(), "cpp");
-		commands[1] = sourceName;
-		client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-		client.Run( commands[0], &ui );
-		if (ui.errorOccurred())
-			return -1;
-		sourceName.setExtension("h");
-		client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-		client.Run( commands[0], &ui );
-		if (ui.errorOccurred())
-			return -1;
-	}
-
-	if (tdfFile.getCompilerPath().getFullFilename().size() != 0)
-	{
-		// check out the compiler source files
-		std::string compilerFilename;
-		compilerFilename = EnumLocationTypes[tdfFile.getTemplateLocation()] +
-			filenameLowerToUpper(templateFileName.getName());
-		Filename compilerName(NULL, tdfFile.getCompilerPath().getPath().c_str(),
-			tdfFile.getTemplateName().c_str(), "cpp");
-		commands[1] = compilerName;
-		client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-		client.Run( commands[0], &ui );
-		if (ui.errorOccurred())
-			return -1;
-		compilerName.setExtension("h");
-		client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-		client.Run( commands[0], &ui );
-		if (ui.errorOccurred())
-			return -1;
-	}
-
-	// Close connection
-	return client.Final( &e );
-}	// checkOut
-
-/**
- * Checks in a template file and the source files associated with it to Perforce.
- *
- * @param filename		the filename of the template
- *
- * @return 0 on success, error code on fail
- */
-int checkIn(const char *filename)
-{
-MyPerforceUser ui;
-ClientApi client;
-Error e;
-
-	// check filename extensions
-	Filename templateFileName(NULL, NULL, filename, TEMPLATE_DEFINITION_EXTENSION);
-
-	// find the client and server paths
-	File fp(templateFileName, "rt");
-	if (!fp.isOpened())
-	{
-		fprintf(stderr, "cannot open file %s\n", templateFileName.getFullFilename().c_str());
-		return -1;
-	}
-	File::setBasePath(templateFileName.getPath().c_str());
-	TemplateDefinitionFile tdfFile;
-	int result = tdfFile.parse(fp);
-	if (result != 0)
-	{
-		// don't allow check-in if there are errors
-		return result;
-	}
-	fp.close();
-
-	// Connect to Perforce server
-	client.Init( &e );
-	if (e.Test())
-	{
-		StrBufFixed msg;
-		e.Fmt(&msg);
-		fprintf(stderr, msg.Text());
-		return -1;
-	}
-
-	// try to submit the files
-	const char * commands[4];
-	char param1[256];
-	for (;;)
-	{
-		sprintf(param1, "//depot/.../%s.*", templateFileName.getName().c_str());
-		commands[0] = "submit";
-		commands[1] = param1;
-		// don't report an error if the files need to be added before submitting
-		ui.addFilteredError(SUBMIT_NO_FILE_ERR);
-		client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-		client.Run( commands[0], &ui );
-		if (!ui.errorOccurred())
-			break;
-		if (ui.getLastError() != SUBMIT_NO_FILE_ERR)
-			return -1;
-		ui.clearLastError();
-		ui.clearFilteredErrors();
-
-		// we need to add the files to Perforce before submitting
-		commands[0] = "add";
-
-		// add the template file
-		commands[1] = templateFileName;
-		client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-		client.Run( commands[0], &ui );
-		if (ui.errorOccurred())
-			return -1;
-
-		if (tdfFile.getPath().getFullFilename().size() != 0)
-		{
-			// check in the source files
-			Filename sourceName(NULL, tdfFile.getPath().getPath().c_str(),
-				tdfFile.getTemplateName().c_str(), "cpp");
-			commands[1] = sourceName;
-			client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-			client.Run( commands[0], &ui );
-			if (ui.errorOccurred())
-				return -1;
-			sourceName.setExtension("h");
-			client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-			client.Run( commands[0], &ui );
-			if (ui.errorOccurred())
-				return -1;
-		}
-
-		if (tdfFile.getCompilerPath().getFullFilename().size() != 0)
-		{
-			// check in the compiler source files
-			Filename compilerName(NULL, tdfFile.getCompilerPath().getPath().c_str(),
-				tdfFile.getTemplateName().c_str(), "cpp");
-			commands[1] = compilerName;
-			client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-			client.Run( commands[0], &ui );
-			if (ui.errorOccurred())
-				return -1;
-			compilerName.setExtension("h");
-			client.SetArgv( 1, const_cast<char **>(&commands[1]) );
-			client.Run( commands[0], &ui );
-			if (ui.errorOccurred())
-				return -1;
-		}
-	}
-
-	// Close connection
-	return client.Final( &e );
-}	// checkIn
 
 /**
  * Prints the command syntax to the console.
@@ -667,9 +393,6 @@ void printSyntax(void)
 {
 	printf("Compiler commands:\n");
 	printf("-compile <filename1>[.tdf] [<filename2>[.tdf] ...]\n");
-	printf("Perforce commands:\n");
-	printf("-edit <filename1>[.tdf] [<filename2>[.tdf] ...]\n");
-	printf("-submit <filename1>[.tdf] [<filename2>[.tdf] ...]\n");
 }	// printSyntax
 
 /**
@@ -683,25 +406,7 @@ int processArgs(int argc, char *argv[ ])
 		return 0;
 	}
 
-	if (strcmp(argv[1], "-edit") == 0)
-	{
-		for (int i = 2; i < argc; ++i)
-		{
-			int result = checkOut(argv[i]);
-			if (result != 0)
-				return result;
-		}
-	}
-	else if (strcmp(argv[1], "-submit") == 0)
-	{
-		for (int i = 2; i < argc; ++i)
-		{
-			int result = checkIn(argv[i]);
-			if (result != 0)
-				return result;
-		}
-	}
-	else if (strcmp(argv[1], "-compile") == 0)
+	if (strcmp(argv[1], "-compile") == 0)
 	{
 		Filename filename;
 		for (int i = 2; i < argc; ++i)
@@ -756,7 +461,9 @@ int main(int argc, char *argv[ ])
 		SetupSharedFoundation::install (data);
 	}
 
-	SetupSharedRegex::install();
+	// SetupSharedRegex::install() removed for x64 (2026-08-29): pcre is a DLL in
+	// this port; its import lib cannot satisfy the pcre_malloc/pcre_free data
+	// symbols the PCRE_STATIC-compiled hook references. Same fix as TemplateCompiler.
 
 	SetupSharedCompression::install();
 	SetupSharedFile::install(false);

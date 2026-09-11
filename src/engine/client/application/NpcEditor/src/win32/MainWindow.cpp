@@ -111,6 +111,7 @@ MainWindow::MainWindow(QWidget *myParent, char const *myName)
  , m_openExistingMode(false)
  , m_dirty(false)
  , m_overwriteTemplatesMode(false)
+ , m_confirmedSaveToOpenedPath(false)
 {
 	m_clientFileInfo.setFile("");
 	m_serverFileInfo.setFile("");
@@ -143,7 +144,6 @@ MainWindow::MainWindow(QWidget *myParent, char const *myName)
 	IGNORE_RETURN(connect(m_fileExitAction, SIGNAL(activated()), this, SLOT(slotFileExitAction())));
 	IGNORE_RETURN(connect(m_toolConfigureTemplatesAction, SIGNAL(activated()), this, SLOT(slotToolConfigureTemplatesAction())));
 	IGNORE_RETURN(connect(m_toolCompileAction, SIGNAL(activated()), this, SLOT(slotToolCompileAction())));
-	IGNORE_RETURN(connect(m_toolAddToPerforceAction, SIGNAL(activated()), this, SLOT(slotToolAddToPerforceAction())));
 	IGNORE_RETURN(connect(m_toolRandomAction, SIGNAL(activated()), this, SLOT(slotToolRandomAction())));
 	IGNORE_RETURN(connect(m_viewShowConsoleAction, SIGNAL(activated()), this, SLOT(slotShowConsoleAction())));
 	IGNORE_RETURN(connect(m_zoomHeadAction, SIGNAL(activated()), this, SLOT(slotZoomHeadAction())));
@@ -401,23 +401,29 @@ void MainWindow::slotFileSaveAsAction()
 		//-- write out all the files
 		DEBUG_REPORT_LOG(false, ("MainWindow::slotFileSaveAsAction() - [%s]\n", saveDialog->getClientDataFileName()));
 
+		bool allSaved = true;
+
 		QString originalClientFile = m_clientFileInfo.filePath();
 		setClientDataFile(saveDialog->getClientDataFileName());
-		saveClientDataFile(originalClientFile);
+		allSaved = saveClientDataFile(originalClientFile) && allSaved;
 
 		DEBUG_REPORT_LOG(false, ("MainWindow::slotFileSaveAsAction() - [%s]\n", saveDialog->getSharedFileName()));
 
 		QString originalSharedFile = m_sharedFileInfo.filePath();
 		setSharedTemplate(saveDialog->getSharedFileName());
-		saveSharedTemplate(originalSharedFile);
-		
+		allSaved = saveSharedTemplate(originalSharedFile) && allSaved;
+
 		DEBUG_REPORT_LOG(false, ("MainWindow::slotFileSaveAsAction() - [%s]\n", saveDialog->getServerFileName()));
 
 		QString originalServerFile = m_serverFileInfo.filePath();
 		setServerTemplate(saveDialog->getServerFileName());
-		saveServerTemplate(originalServerFile);
+		allSaved = saveServerTemplate(originalServerFile) && allSaved;
 
-		m_dirty = false;
+		//-- only a fully successful save clears the dirty flag; the user
+		//explicitly chose these paths, so plain Save need not re-confirm
+		if (allSaved)
+			m_dirty = false;
+		m_confirmedSaveToOpenedPath = true;
 	}
 	else
 	{
@@ -431,11 +437,43 @@ void MainWindow::slotFileSaveAction()
 {
 	if(haveFileNames())
 	{
-		saveClientDataFile(m_clientFileInfo.filePath());
-		saveSharedTemplate(m_sharedFileInfo.filePath());
-		saveServerTemplate(m_serverFileInfo.filePath());
+		//-- first plain save of an opened NPC: confirm the in-place
+		//overwrite once. The recorded paths usually point into the
+		//reference data tree, and Save rewrites all of them silently.
+		if (!m_confirmedSaveToOpenedPath)
+		{
+			QString files;
+			if (m_clientFileInfo.isFile())
+				files += m_clientFileInfo.filePath() + "\n";
+			if (m_sharedFileInfo.isFile())
+				files += m_sharedFileInfo.filePath() + "\n";
+			if (m_serverFileInfo.isFile())
+				files += m_serverFileInfo.filePath() + "\n";
 
-		m_dirty = false;
+			int const result = QMessageBox::warning(this, "Save in place?",
+				"Save will overwrite these files in place:\n\n" + files,
+				"Save In Place", "Save As...", "Cancel", 1, 2);
+
+			if (result == 2)
+				return;
+
+			if (result == 1)
+			{
+				slotFileSaveAsAction();
+				return;
+			}
+
+			m_confirmedSaveToOpenedPath = true;
+		}
+
+		bool allSaved = true;
+		allSaved = saveClientDataFile(m_clientFileInfo.filePath()) && allSaved;
+		allSaved = saveSharedTemplate(m_sharedFileInfo.filePath()) && allSaved;
+		allSaved = saveServerTemplate(m_serverFileInfo.filePath()) && allSaved;
+
+		//-- only a fully successful save clears the dirty flag
+		if (allSaved)
+			m_dirty = false;
 	}
 	else
 	{
@@ -572,51 +610,6 @@ void MainWindow::slotProcessExited()
 
 // ----------------------------------------------------------------------------
 
-void MainWindow::AddToPerforce(const QFileInfo &fi)
-{
-	if(fi.isFile())
-	{
-		{
-			std::vector< std::string > v;
-			v.push_back("p4");
-			v.push_back("edit");
-			v.push_back(fi.filePath().lower().latin1());
-		
-			m_procArgList.push_back(v);
-		}
-		{
-			std::vector< std::string > v;
-			v.push_back("p4");
-			v.push_back("add");
-			v.push_back(fi.filePath().lower().latin1());
-		
-			m_procArgList.push_back(v);
-		}
-	}
-}
-
-// ----------------------------------------------------------------------------
-
-void MainWindow::slotToolAddToPerforceAction()
-{
-	if(m_proc->isRunning() || !m_procArgList.empty())
-	{
-		CONSOLE_OUTPUT("*** Process running. Please wait for process to exit. ***\n");
-		return;
-	}
-
-	AddToPerforce(m_clientFileInfo);
-	AddToPerforce(m_serverFileInfo);
-	AddToPerforce(m_sharedFileInfo);
-	AddToPerforce(m_clientCdfFileInfo);
-	AddToPerforce(m_serverIffFileInfo);
-	AddToPerforce(m_sharedIffFileInfo);
-
-	startNextProcess();
-}
-
-// ----------------------------------------------------------------------------
-
 void MainWindow::setFileInfo(QString const &path, QFileInfo &dsrcFileInfo, char const * dsrcExt,
 														 QFileInfo &dataFileInfo, char const * dataExt)
 {
@@ -656,7 +649,7 @@ void MainWindow::setFileInfo(QString const &path, QFileInfo &dsrcFileInfo, char 
 
 // ----------------------------------------------------------------------------
 
-void MainWindow::saveClientDataFile(QString const & originalFile)
+bool MainWindow::saveClientDataFile(QString const & originalFile)
 {
 	std::string sourceFileName;
 
@@ -672,7 +665,10 @@ void MainWindow::saveClientDataFile(QString const & originalFile)
 		if (!TreeFile::getPathName(relativePathName, fullPathName, sizeof(fullPathName) - 1))
 		{
 			WARNING(true, ("MainWindow::saveClientDataFile() - Could not find [%s]. Check search path in configs.", relativePathName));
-			return;
+			QString text;
+			IGNORE_RETURN(text.sprintf("The client data source [%s] was not found in the search path.\nThe client data file was NOT written.", relativePathName));
+			IGNORE_RETURN(QMessageBox::warning(this, "Error Saving File", text, "OK"));
+			return false;
 		}
 
 		sourceFileName = fullPathName;
@@ -686,6 +682,8 @@ void MainWindow::saveClientDataFile(QString const & originalFile)
 
 	if(!ret)
 		IGNORE_RETURN(QMessageBox::warning(this, "Error Saving File", m_clientFileInfo.filePath().latin1(), "OK."));
+
+	return ret;
 }
 
 // ----------------------------------------------------------------------------
@@ -698,7 +696,7 @@ void MainWindow::setClientDataFile(QString const &path)
 
 // ----------------------------------------------------------------------------
 
-void MainWindow::saveServerTemplate(QString const & originalFile)
+bool MainWindow::saveServerTemplate(QString const & originalFile)
 {
 	if(m_serverFileInfo.isFile())
 	{
@@ -720,13 +718,20 @@ void MainWindow::saveServerTemplate(QString const & originalFile)
 				if (!TreeFile::getPathName(relativePathName, fullPathName, sizeof(fullPathName) - 1))
 				{
 					WARNING(true, ("MainWindow::saveServerTemplate() - Could not find [%s]. Check search path in configs.", relativePathName));
-					return;
+					QString text;
+					IGNORE_RETURN(text.sprintf("The server template source [%s] was not found in the search path.\nThe server template was NOT written.", relativePathName));
+					IGNORE_RETURN(QMessageBox::warning(this, "Error Saving File", text, "OK"));
+					return false;
 				}
 
 				serverFileName = fullPathName;
 			}
 
-			IGNORE_RETURN(ObjectTemplateWriter::write(m_serverFileInfo.filePath(), serverFileName, &m_serverParameters));
+			if (!ObjectTemplateWriter::write(m_serverFileInfo.filePath(), serverFileName, &m_serverParameters))
+			{
+				IGNORE_RETURN(QMessageBox::warning(this, "File Error", "Failed to write the server template:\n" + m_serverFileInfo.filePath(), "OK"));
+				return false;
+			}
 
 			DEBUG_REPORT_LOG(false, ("MainWindow::saveServerTemplate() - [%s] [%s]\n",
 				m_serverFileInfo.filePath().latin1(), serverFileName.latin1()));
@@ -735,10 +740,15 @@ void MainWindow::saveServerTemplate(QString const & originalFile)
 		else
 		{
 			if (!copyUpdatedFile(originalFile.latin1(), m_serverFileInfo.filePath().latin1(), "sharedTemplate", relativeOutputName.latin1()))
+			{
 				IGNORE_RETURN(QMessageBox::warning(this, "File Error", "Failed to save server file.", "OK"));
+				return false;
+			}
 		}
 
 	}
+
+	return true;
 }
 
 // ----------------------------------------------------------------------------
@@ -750,7 +760,7 @@ void MainWindow::setServerTemplate(QString const &path)
 
 // ----------------------------------------------------------------------------
 
-void MainWindow::saveSharedTemplate(QString const & originalFile)
+bool MainWindow::saveSharedTemplate(QString const & originalFile)
 {
 	if(m_sharedFileInfo.isFile())
 	{
@@ -772,7 +782,10 @@ void MainWindow::saveSharedTemplate(QString const & originalFile)
 				if (!TreeFile::getPathName(relativePathName, fullPathName, sizeof(fullPathName) - 1))
 				{
 					WARNING(true, ("MainWindow::saveSharedTemplate() - Could not find [%s]. Check search path in configs.", relativePathName));
-					return;
+					QString text;
+					IGNORE_RETURN(text.sprintf("The shared template source [%s] was not found in the search path.\nThe shared template was NOT written.", relativePathName));
+					IGNORE_RETURN(QMessageBox::warning(this, "Error Saving File", text, "OK"));
+					return false;
 				}
 
 				sharedFileName = fullPathName;
@@ -783,14 +796,23 @@ void MainWindow::saveSharedTemplate(QString const & originalFile)
 			DEBUG_REPORT_LOG(false, ("MainWindow::saveSharedTemplate() - [%s] [%s]\n",
 				m_sharedFileInfo.filePath().latin1(), sharedFileName.latin1()));
 
-			IGNORE_RETURN(ObjectTemplateWriter::write(m_sharedFileInfo.filePath(), sharedFileName, &m_sharedParameters));
+			if (!ObjectTemplateWriter::write(m_sharedFileInfo.filePath(), sharedFileName, &m_sharedParameters))
+			{
+				IGNORE_RETURN(QMessageBox::warning(this, "File Error", "Failed to write the shared template:\n" + m_sharedFileInfo.filePath(), "OK"));
+				return false;
+			}
 		}
 		else
 		{
 			if (!copyUpdatedFile(originalFile.latin1(), m_sharedFileInfo.filePath().latin1(), "clientDataFile", relativeOutputName.latin1()))
+			{
 				IGNORE_RETURN(QMessageBox::warning(this, "File Error", "Failed to write shared file.", "OK"));
+				return false;
+			}
 		}
 	}
+
+	return true;
 }
 
 // ----------------------------------------------------------------------------
@@ -1206,8 +1228,16 @@ bool MainWindowNamespace::copyUpdatedFile(char const * const sourceFileName, cha
 
 		for (; i != lineBuffer.end(); ++i)
 		{
-			if (i->find(key) != static_cast<unsigned>(std::string::npos))
-				*i = key + " = \"" + value + "\"";
+			//x64 trap: casting npos to unsigned truncates it, so the comparison
+			//never equals and EVERY line matched - each save replaced the whole
+			//file with copies of the cross-reference line
+			if (i->find(key) != std::string::npos)
+			{
+				//preserve the line's leading whitespace and trailing newline -
+				//losing the newline glued this line to the next on every rewrite
+				std::string const indent = i->substr(0, i->find_first_not_of(" \t"));
+				*i = indent + key + " = \"" + value + "\"\n";
+			}
 
 			fputs(i->c_str(), outputFile);
 		}

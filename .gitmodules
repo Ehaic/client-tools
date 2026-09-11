@@ -1,0 +1,3 @@
+[submodule "tools-payload"]
+	path = tools-payload
+	url = https://github.com/Galaxies-Reborn/legacy-tools-payload.git

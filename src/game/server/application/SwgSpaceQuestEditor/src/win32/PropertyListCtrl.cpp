@@ -772,7 +772,7 @@ void PropertyListCtrl::OnObjectTemplatePropertyClick()
 {
 	// Show the Dialog
 	CFileDialog dlg(TRUE, "*.iff");
-	CString filePath(Configuration::getServerMissionDataTablePath() + (!m_currentItem->m_propertyTemplate->m_propertyData.IsEmpty() ? ("/../" + m_currentItem->m_propertyTemplate->m_propertyData) : "/../object"));
+	CString filePath(Configuration::getServerMissionDataTablePath() + (!m_currentItem->m_propertyTemplate->m_propertyData.IsEmpty() ? ("/../" + m_currentItem->m_propertyTemplate->m_propertyData) : CString("/../object")));
 	filePath.Replace('/', '\\');
 	filePath.Replace("dsrc", "data");
 	dlg.m_ofn.lpstrInitialDir = filePath;
@@ -921,7 +921,7 @@ void PropertyListCtrl::OnCargoPropertyClick()
 	CString spaceMobileProperty;
 	StringList spaceMobileList;
 	{
-		CString const spaceMobilePropertyName = !m_currentItem->m_propertyTemplate->m_propertyData.IsEmpty() ? m_currentItem->m_propertyTemplate->m_propertyData : "<None>";
+		CString const spaceMobilePropertyName = !m_currentItem->m_propertyTemplate->m_propertyData.IsEmpty() ? m_currentItem->m_propertyTemplate->m_propertyData : CString("<None>");
 		int index = FindStringExact(0, spaceMobilePropertyName);
 		if (index == LB_ERR)
 		{

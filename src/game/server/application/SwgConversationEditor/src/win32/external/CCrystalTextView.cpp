@@ -169,9 +169,63 @@ END_MESSAGE_MAP()
 // CCrystalTextView construction/destruction
 
 CCrystalTextView::CCrystalTextView()
+	: m_bLastSearch(FALSE)
+	, m_dwLastSearchFlags(0)
+	, m_pszLastFindWhat(NULL)
+	, m_bMultipleSearch(FALSE)
+	, m_bCursorHidden(FALSE)
+	, m_pCacheBitmap(NULL)
+	, m_nLineHeight(0)
+	, m_nCharWidth(0)
+	, m_nCharHeight(0)
+	, m_nTabSize(0)
+	, m_bViewTabs(FALSE)
+	, m_bSelMargin(TRUE)
+	, m_nScreenLines(0)
+	, m_nScreenChars(0)
+	, m_nMaxLineLength(0)
+	, m_nIdealCharPos(0)
+	, m_bFocused(FALSE)
+	, m_ptAnchor(0, 0)
+	, m_lfBaseFont()
+	, m_apFonts()
+	, m_pdwParseCookies(NULL)
+	, m_nParseArraySize(0)
+	, m_nActualLengthArraySize(0)
+	, m_pnActualLineLength(NULL)
+	, m_bPreparingToDrag(FALSE)
+	, m_bDraggingText(FALSE)
+	, m_bDragSelection(FALSE)
+	, m_bWordSelection(FALSE)
+	, m_bLineSelection(FALSE)
+	, m_nDragSelTimer(0)
+	, m_ptDrawSelStart(0, 0)
+	, m_ptDrawSelEnd(0, 0)
+	, m_ptCursorPos(0, 0)
+	, m_ptSelStart(0, 0)
+	, m_ptSelEnd(0, 0)
+	, m_bBookmarkExist(FALSE)
+	, m_pIcons(NULL)
+	, m_pTextBuffer(NULL)
+	, m_hAccel(NULL)
+	, m_bVertScrollBarLocked(FALSE)
+	, m_bHorzScrollBarLocked(FALSE)
+	, m_ptDraggedTextBegin(0, 0)
+	, m_ptDraggedTextEnd(0, 0)
+	, m_bShowInactiveSelection(FALSE)
+	, m_bDisableDragAndDrop(FALSE)
+	, m_nPrintPages(0)
+	, m_pnPages(NULL)
+	, m_pPrintFont(NULL)
+	, m_nPrintLineHeight(0)
+	, m_bPrintHeader(FALSE)
+	, m_bPrintFooter(FALSE)
+	, m_ptPageArea(0, 0, 0, 0)
+	, m_rcPrintArea(0, 0, 0, 0)
+	, m_nTopLine(0)
+	, m_nOffsetChar(0)
+	, m_bSmoothScroll(FALSE)
 {
-	AFX_ZERO_INIT_OBJECT(CView);
-	m_bSelMargin = TRUE;
 	ResetView();
 }
 
@@ -183,9 +237,9 @@ CCrystalTextView::~CCrystalTextView()
 	if (m_pszLastFindWhat != NULL)
 		free(m_pszLastFindWhat);
 	if (m_pdwParseCookies != NULL)
-		delete m_pdwParseCookies;
+		delete [] m_pdwParseCookies;
 	if (m_pnActualLineLength != NULL)
-		delete m_pnActualLineLength;
+		delete [] m_pnActualLineLength;
 }
 
 BOOL CCrystalTextView::PreCreateWindow(CREATESTRUCT& cs)
@@ -930,7 +984,7 @@ void CCrystalTextView::SetTabSize(int nTabSize)
 		m_nTabSize = nTabSize;
 		if (m_pnActualLineLength != NULL)
 		{
-			delete m_pnActualLineLength;
+			delete [] m_pnActualLineLength;
 			m_pnActualLineLength = NULL;
 		}
 		m_nActualLengthArraySize = 0;
@@ -1185,7 +1239,7 @@ void CCrystalTextView::RecalcPageLayouts(CDC *pdc, CPrintInfo *pInfo)
 				nLimit += 32;
 				int *pnNewPages = new int[nLimit];
 				memcpy(pnNewPages, m_pnPages, sizeof(int) * m_nPrintPages);
-				delete m_pnPages;
+				delete [] m_pnPages;
 				m_pnPages = pnNewPages;
 			}
 			ASSERT(nLimit > m_nPrintPages);
@@ -1663,10 +1717,10 @@ BOOL CCrystalTextView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 			{
 				//	[JRT]:	Support For Disabling Drag and Drop...
 				if (!m_bDisableDragAndDrop)				// If Drag And Drop Not Disabled
-					::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW)));	// Set To Arrow Cursor
+					::SetCursor(::LoadCursor(NULL, IDC_ARROW));	// Set To Arrow Cursor
 			}
 			else
-				::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_IBEAM)));
+				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
 		}
 		return TRUE;
 	}

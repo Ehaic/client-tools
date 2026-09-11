@@ -23,7 +23,7 @@ bool AddPropertyDialogBox::GetNewProperty( HWND hwndParent, UINarrowString &Name
 	}
 }
 
-BOOL CALLBACK AddPropertyDialogBox::DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR CALLBACK AddPropertyDialogBox::DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	UI_UNREF (lParam);
 

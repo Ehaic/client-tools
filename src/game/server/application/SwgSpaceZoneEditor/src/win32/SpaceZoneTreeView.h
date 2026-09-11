@@ -50,7 +50,6 @@ public:
 
 	void validate();
 
-	void perforceEdit();
 
 protected:
 

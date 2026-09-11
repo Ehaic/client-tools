@@ -168,10 +168,10 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>dxguid.lib;d3dx.lib;shlwapi.lib;comctl32.lib;winmm.lib;ddraw.lib;wsock32.lib;dsound.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxguid.lib;shlwapi.lib;comctl32.lib;winmm.lib;ddraw.lib;wsock32.lib;dsound.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\../../../../compile/win32/UIBuilder/Debug/UIBuilder.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../library/directx9/lib;;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WindowsSDK_LibraryPath_x64);../../../../../deps/x64/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\../../../../compile/win32/UIBuilder/Debug/UIBuilder.pdb</ProgramDatabaseFile>
@@ -262,11 +262,11 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>dxguid.lib;d3dx.lib;shlwapi.lib;comctl32.lib;winmm.lib;ddraw.lib;wsock32.lib;dsound.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxguid.lib;shlwapi.lib;comctl32.lib;winmm.lib;ddraw.lib;wsock32.lib;dsound.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>.\../../../../compile/win32/UIBuilder/Release/UIBuilder.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../library/directx9/lib;;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WindowsSDK_LibraryPath_x64);../../../../../deps/x64/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmtd;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\../../../../compile/win32/UIBuilder/Release/UIBuilder.pdb</ProgramDatabaseFile>

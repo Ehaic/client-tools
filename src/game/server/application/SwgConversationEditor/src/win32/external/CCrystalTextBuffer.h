@@ -147,7 +147,7 @@ protected:
 
 		LPCTSTR GetText() const
 		{
-			if (HIWORD((DWORD) m_pszText) != 0)
+			if (!IS_INTRESOURCE(m_pszText))
 				return m_pszText;
 			return m_szText;
 		};

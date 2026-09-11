@@ -79,7 +79,7 @@ void CFindTextDlg::OnOK()
 		if (! m_pBuddy->FindText(m_sText, m_ptCurrentPos, dwSearchFlags, TRUE, &ptTextPos))
 		{
 			CString prompt;
-			prompt.Format(IDS_EDIT_TEXT_NOT_FOUND, m_sText);
+			prompt.Format(IDS_EDIT_TEXT_NOT_FOUND, m_sText.GetString());
 			AfxMessageBox(prompt);
 			m_ptCurrentPos = CPoint(0, 0);
 			return;

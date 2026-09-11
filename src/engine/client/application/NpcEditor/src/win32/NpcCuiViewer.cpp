@@ -938,6 +938,17 @@ float NpcCuiViewer::getFitDistanceFactor() const
 
 void NpcCuiViewer::setEnvironmentTexture(char const *baseFilename)
 {
+	//-- baseFilename comes straight from ConfigFile::getKeyString("NpcEditor",
+	//   "backdrop", id, 0) in MainWindow::slotChangeBackdrop, which returns NULL
+	//   when the key is absent. append(NULL) calls strlen(NULL) -> access
+	//   violation during MainWindow construction. Same defect class as the
+	//   wearableDirectory one in GameWidget.cpp.
+	if (!baseFilename)
+	{
+		WARNING(true, ("NpcCuiViewer::setEnvironmentTexture() - no [NpcEditor] backdrop configured; leaving the environment texture unset."));
+		return;
+	}
+
 	std::string fullpath = "texture/";
 	IGNORE_RETURN(fullpath.append(baseFilename));
 	IGNORE_RETURN(fullpath.append(".dds"));

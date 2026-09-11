@@ -46,7 +46,7 @@ const char *ModificationLog =	"August 2, 2000\r\n" \
 															"for .bmp files\r\n" \
 															"\r\n\r\n\r\n- End -";
 
-BOOL CALLBACK ModificationLogDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR CALLBACK ModificationLogDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	UI_UNREF (lParam);
 

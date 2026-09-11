@@ -47,7 +47,6 @@ protected:
 
 	//{{AFX_MSG(SwgDraftSchematicEditorDoc)
 	afx_msg void OnButtonCompile();
-	afx_msg void OnButtonP4edit();
 	afx_msg void OnButtonScan();
 	afx_msg void OnButtonSavetest();
 	//}}AFX_MSG

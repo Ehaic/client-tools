@@ -123,14 +123,6 @@ void ChassisNewDialog::onButtonCreateClicked()
 		close();
 	}
 
-	char buf[1024];
-	size_t const buf_size = sizeof(buf);
-
-	snprintf(buf, buf_size, "p4 add %s/datatables/space/ship_%s.tab %s/datatables/space/ship_%s.iff", 
-		ConfigShipComponentEditor::getSharedPathDsrc().c_str(), chassisName.c_str(),
-		ConfigShipComponentEditor::getSharedPathData().c_str(), chassisName.c_str());
-
-	system(buf);
 }
 
 //----------------------------------------------------------------------

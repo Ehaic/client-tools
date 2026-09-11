@@ -305,7 +305,7 @@ void MainFrame::OnInitMenu(CMenu* pMenu)
 					CG_IDS_TIPOFTHEDAY, strTipMenu);
 			} 
 			pMenu->AppendMenu(MF_STRING|MF_BYPOSITION|MF_ENABLED|MF_POPUP, 
-				(UINT)pSubMenu->m_hMenu, strHelp);
+				reinterpret_cast<UINT_PTR> (pSubMenu->m_hMenu), strHelp);
 			DrawMenuBar();
 		} 
 		else

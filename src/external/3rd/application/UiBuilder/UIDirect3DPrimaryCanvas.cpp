@@ -4,6 +4,7 @@
 #include "UIDirect3DTextureCanvas.h"
 #include "UIUtils.h"
 
+#include <algorithm>
 #include <cmath>
 
 extern LPDIRECTDRAW7 gDirectDraw;
@@ -25,6 +26,32 @@ namespace UIDirect3DPrimaryCanvasNamespace
 		if (device->GetTextureStageState (stage, type, &oldValue) == D3D_OK && oldValue != newValue)
 			device->SetTextureStageState (stage, type, newValue);
 	}
+
+#ifdef _WIN64
+	DWORD formatSurfaceColor(LPDIRECTDRAWSURFACE7 surface, UIColor const & color)
+	{
+		DDSURFACEDESC2 description = { sizeof(description) };
+		if (!surface || FAILED(surface->GetSurfaceDesc(&description)))
+			return RGB(color.r, color.g, color.b);
+
+		auto scaleChannel = [](unsigned char value, DWORD mask) -> DWORD
+		{
+			if (!mask)
+				return 0;
+			unsigned int shift = 0;
+			while ((mask & (1u << shift)) == 0)
+				++shift;
+			DWORD componentMask = mask >> shift;
+			return ((static_cast<DWORD>(value) * componentMask + 127u) / 255u << shift) & mask;
+		};
+
+		DDPIXELFORMAT const & format = description.ddpfPixelFormat;
+		return scaleChannel(color.r, format.dwRBitMask) |
+			scaleChannel(color.g, format.dwGBitMask) |
+			scaleChannel(color.b, format.dwBBitMask) |
+			scaleChannel(color.a, format.dwRGBAlphaBitMask);
+	}
+#endif
 }
 
 using namespace UIDirect3DPrimaryCanvasNamespace;
@@ -219,11 +246,30 @@ bool UIDirect3DPrimaryCanvas::Generate( void )
 			ddsd.ddsCaps.dwCaps	 = DDSCAPS_3DDEVICE | DDSCAPS_OFFSCREENPLAIN;
 			ddsd.ddsCaps.dwCaps2 = 0;
 
+#ifdef _WIN64
+			ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
+#endif
+
 			hr = gDirectDraw->CreateSurface( &ddsd, &mBackBufferSurface, 0 );
 
 			if( FAILED( hr ) )
 				throw hr;
 		}
+
+#ifdef _WIN64
+		DDPIXELFORMAT oldPreferedTexturePixelFormat = mPreferedTexturePixelFormat;
+		DDSURFACEDESC2 backBufferDescription = { sizeof(backBufferDescription) };
+		hr = mBackBufferSurface->GetSurfaceDesc(&backBufferDescription);
+		if (FAILED(hr))
+			throw hr;
+		mPreferedTexturePixelFormat = backBufferDescription.ddpfPixelFormat;
+		if (memcmp(&oldPreferedTexturePixelFormat, &mPreferedTexturePixelFormat, sizeof(mPreferedTexturePixelFormat)))
+		{
+			for (UIDirect3DTextureCanvasSet::iterator i = mAttachedTextures.begin(); i != mAttachedTextures.end(); ++i)
+				(*i)->NotifyRenderCanvasChanged();
+		}
+		return true;
+#endif
 
 		static const GUID *DevicePreference[] =
 		{
@@ -332,6 +378,15 @@ bool UIDirect3DPrimaryCanvas::Generate( void )
 }
 void UIDirect3DPrimaryCanvas::ClearTo( const UIColor &c, const UIRect & rc)
 {
+#ifdef _WIN64
+	if (!Prepare() || !mBackBufferSurface)
+		return;
+	RECT rectangle = { rc.left, rc.top, rc.right, rc.bottom };
+	DDBLTFX effects = { sizeof(effects) };
+	effects.dwFillColor = formatSurfaceColor(mBackBufferSurface, c);
+	mBackBufferSurface->Blt(&rectangle, 0, 0, DDBLT_COLORFILL | DDBLT_WAIT, &effects);
+	return;
+#endif
 	//-----------------------------------------------------------------
 	//-- don't count triangles for clearing
 
@@ -342,6 +397,10 @@ void UIDirect3DPrimaryCanvas::ClearTo( const UIColor &c, const UIRect & rc)
 
 void UIDirect3DPrimaryCanvas::EnableFiltering( bool NewValue )
 {
+#ifdef _WIN64
+	UI_UNREF(NewValue);
+	return;
+#endif
 	if( NewValue )
 	{
 		updateTextureStageState( mRenderDevice, 0, D3DTSS_MAGFILTER, D3DTFG_LINEAR );
@@ -367,6 +426,47 @@ void UIDirect3DPrimaryCanvas::EnableFiltering( bool NewValue )
 
 void UIDirect3DPrimaryCanvas::RenderQuad( const UICanvas * const src, const UIFloatPoint VerticesIn[4], const UIFloatPoint UVs[4] )
 {
+#ifdef _WIN64
+	if (!Prepare() || !mBackBufferSurface)
+		return;
+
+	RECT destination = {
+		static_cast<LONG>(VerticesIn[0].x),
+		static_cast<LONG>(VerticesIn[0].y),
+		static_cast<LONG>(VerticesIn[3].x),
+		static_cast<LONG>(VerticesIn[3].y)
+	};
+	if (destination.right < destination.left)
+		std::swap(destination.right, destination.left);
+	if (destination.bottom < destination.top)
+		std::swap(destination.bottom, destination.top);
+
+	if (src)
+	{
+		UIDirect3DTextureCanvas const * sourceCanvas = static_cast<UIDirect3DTextureCanvas const *>(src);
+		if (!sourceCanvas->Prepare() || !sourceCanvas->GetSurface())
+			return;
+		RECT source = {
+			static_cast<LONG>(UVs[0].x * src->GetWidth()),
+			static_cast<LONG>(UVs[0].y * src->GetHeight()),
+			static_cast<LONG>(UVs[3].x * src->GetWidth()),
+			static_cast<LONG>(UVs[3].y * src->GetHeight())
+		};
+		if (source.right < source.left)
+			std::swap(source.right, source.left);
+		if (source.bottom < source.top)
+			std::swap(source.bottom, source.top);
+		mBackBufferSurface->Blt(&destination, sourceCanvas->GetSurface(), &source, DDBLT_WAIT, 0);
+	}
+	else
+	{
+		DDBLTFX effects = { sizeof(effects) };
+		effects.dwFillColor = formatSurfaceColor(mBackBufferSurface, mState.Color);
+		mBackBufferSurface->Blt(&destination, 0, 0, DDBLT_COLORFILL | DDBLT_WAIT, &effects);
+	}
+	mTriangleCount += 2;
+	return;
+#endif
 	static D3DTLVERTEX D3DVertices[4] =
 	{
 		{ 0, 0, 0, 1, 0, 0, 0, 0 },
@@ -464,6 +564,11 @@ void UIDirect3DPrimaryCanvas::RenderQuad( const UICanvas * const src, const UIFl
 
 void UIDirect3DPrimaryCanvas::RenderQuad( const UICanvas * const src, const UIFloatPoint VerticesIn[4], const UIFloatPoint UVs[4], const UIColor Colors[4] )
 {
+#ifdef _WIN64
+	UI_UNREF(Colors);
+	RenderQuad(src, VerticesIn, UVs);
+	return;
+#endif
 	static D3DTLVERTEX D3DVertices[4] =
 	{
 		{ 0, 0, 0, 1, 0, 0, 0, 0 },
@@ -569,6 +674,27 @@ void UIDirect3DPrimaryCanvas::BltFromNoScaleOrRotate(  const UICanvas * const sr
 
 void UIDirect3DPrimaryCanvas::RenderLines      (const UICanvas * const , int numLines,   const UILine * lines, const UILine * )
 {
+#ifdef _WIN64
+	if (!Prepare() || !mBackBufferSurface)
+		return;
+	HDC dc = 0;
+	if (FAILED(mBackBufferSurface->GetDC(&dc)))
+		return;
+	HPEN pen = CreatePen(PS_SOLID, 1, RGB(mState.Color.r, mState.Color.g, mState.Color.b));
+	HGDIOBJ oldPen = SelectObject(dc, pen);
+	for (int i = 0; i < numLines; ++i)
+	{
+		UIFloatPoint const p1 = Transform(lines[i].p1);
+		UIFloatPoint const p2 = Transform(lines[i].p2);
+		MoveToEx(dc, static_cast<int>(p1.x), static_cast<int>(p1.y), 0);
+		LineTo(dc, static_cast<int>(p2.x), static_cast<int>(p2.y));
+	}
+	SelectObject(dc, oldPen);
+	DeleteObject(pen);
+	mBackBufferSurface->ReleaseDC(dc);
+	mTriangleCount += numLines;
+	return;
+#endif
 	const DWORD dwVertexColor = mState.Color.FormatRGBA();
 	
 	mRenderDevice->SetTexture( 0, 0 );
@@ -606,6 +732,27 @@ void UIDirect3DPrimaryCanvas::RenderLines      (const UICanvas * const , int num
 
 void UIDirect3DPrimaryCanvas::RenderLines(const UICanvas * const , int numLines, const UILine * lines, const UIFloatPoint * uvs, const UIColor * colors)
 {
+#ifdef _WIN64
+	UI_UNREF(uvs);
+	if (!Prepare() || !mBackBufferSurface)
+		return;
+	HDC dc = 0;
+	if (FAILED(mBackBufferSurface->GetDC(&dc)))
+		return;
+	for (int i = 0; i < numLines; ++i)
+	{
+		UIColor const & color = colors[i * 2];
+		HPEN pen = CreatePen(PS_SOLID, 1, RGB(color.r, color.g, color.b));
+		HGDIOBJ oldPen = SelectObject(dc, pen);
+		MoveToEx(dc, static_cast<int>(lines[i].p1.x), static_cast<int>(lines[i].p1.y), 0);
+		LineTo(dc, static_cast<int>(lines[i].p2.x), static_cast<int>(lines[i].p2.y));
+		SelectObject(dc, oldPen);
+		DeleteObject(pen);
+	}
+	mBackBufferSurface->ReleaseDC(dc);
+	mTriangleCount += numLines;
+	return;
+#endif
 	mRenderDevice->SetTexture( 0, 0 );
 	mCurrentTexture = 0;
 
@@ -639,6 +786,31 @@ void UIDirect3DPrimaryCanvas::RenderLines(const UICanvas * const , int numLines,
 
 void UIDirect3DPrimaryCanvas::RenderTriangles      (const UICanvas * const src, int numTris, const UITriangle * tris, const UITriangle * uvs)
 {
+#ifdef _WIN64
+	UI_UNREF(src);
+	UI_UNREF(uvs);
+	if (!Prepare() || !mBackBufferSurface)
+		return;
+	HDC dc = 0;
+	if (FAILED(mBackBufferSurface->GetDC(&dc)))
+		return;
+	HBRUSH brush = CreateSolidBrush(RGB(mState.Color.r, mState.Color.g, mState.Color.b));
+	HGDIOBJ oldBrush = SelectObject(dc, brush);
+	for (int i = 0; i < numTris; ++i)
+	{
+		POINT points[3] = {
+			{ static_cast<LONG>(tris[i].p1.x), static_cast<LONG>(tris[i].p1.y) },
+			{ static_cast<LONG>(tris[i].p2.x), static_cast<LONG>(tris[i].p2.y) },
+			{ static_cast<LONG>(tris[i].p3.x), static_cast<LONG>(tris[i].p3.y) }
+		};
+		Polygon(dc, points, 3);
+	}
+	SelectObject(dc, oldBrush);
+	DeleteObject(brush);
+	mBackBufferSurface->ReleaseDC(dc);
+	mTriangleCount += numTris;
+	return;
+#endif
 	const DWORD dwVertexColor = mState.Color.FormatRGBA();
 
 	if( src )
@@ -713,6 +885,13 @@ bool UIDirect3DPrimaryCanvas::BeginRendering( void )
 {
 	UICanvas::BeginRendering();
 
+#ifdef _WIN64
+	if (!Prepare() || !mBackBufferSurface)
+		return false;
+	mTriangleCount = 0;
+	return true;
+#endif
+
 	HRESULT hr;
 
 	mCurrentTexture = 0;
@@ -740,6 +919,12 @@ bool UIDirect3DPrimaryCanvas::BeginRendering( void )
 void UIDirect3DPrimaryCanvas::EndRendering( void )
 {
 	UICanvas::EndRendering();
+
+#ifdef _WIN64
+	mQuads.clear();
+	mShaderQuads.clear();
+	return;
+#endif
 	
 	assert( mRenderDevice );
 	
@@ -913,6 +1098,11 @@ HWND UIDirect3DPrimaryCanvas::GetWindow( void )
 
 bool UIDirect3DPrimaryCanvas::MatchPixelFormat( LPDDPIXELFORMAT FormatToMatch, LPDDPIXELFORMAT BestMatch )
 {
+#ifdef _WIN64
+	UI_UNREF(FormatToMatch);
+	*BestMatch = mPreferedTexturePixelFormat;
+	return BestMatch->dwSize != 0;
+#endif
 	HRESULT hr;
 
 	mBestMatchFound = false;

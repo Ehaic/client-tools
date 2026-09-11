@@ -78,7 +78,8 @@ namespace DialogDirectoryNamespace
 
 			if (!finder.IsDots())
 			{
-				if ((finder.IsDirectory() && shouldAddDirectory(finder.GetFileName())) || (!finder.IsDirectory() && shouldAddFile(finder.GetFileName())))
+				CString const fileName = finder.GetFileName();
+				if ((finder.IsDirectory() && shouldAddDirectory(fileName)) || (!finder.IsDirectory() && shouldAddFile(fileName)))
 				{
 					int const openIcon = finder.IsDirectory() ? DDIT_closedFolder : DDIT_file;
 					int const closedIcon = finder.IsDirectory() ? DDIT_closedFolder : DDIT_file;
@@ -111,14 +112,14 @@ namespace DialogDirectoryNamespace
 
 					HTREEITEM treeItem = 0;
 					if (refresh)
-						treeItem = findChildTreeItem(treeCtrl, rootItem, finder.GetFileName());
+						treeItem = findChildTreeItem(treeCtrl, rootItem, fileName);
 
 					if (!treeItem)
-						treeItem = treeCtrl.InsertItem(finder.GetFileName(), closedIcon, openIcon, rootItem, afterItem);
+						treeItem = treeCtrl.InsertItem(fileName, closedIcon, openIcon, rootItem, afterItem);
 
 					if (finder.IsDirectory())
 					{
-						sprintf(subDirectory, "%s%s%s", directory, directory[n-1] != '/' ? "/" : "", finder.GetFileName());
+						sprintf(subDirectory, "%s%s%s", directory, directory[n-1] != '/' ? "/" : "", fileName.GetString());
 
 						addDirectory(subDirectory, treeCtrl, treeItem, refresh);
 					}
@@ -284,10 +285,11 @@ void DialogDirectory::OnDblclkTreeview(NMHDR * const /*pNMHDR*/, LRESULT * const
 	if (treeItem && GetTreeCtrl().GetParentItem(treeItem) != 0 && !GetTreeCtrl().ItemHasChildren(treeItem) && name.GetLength() != 0)
 	{
 		CString const rootPath = Configuration::getServerMissionDataTablePath();
-		if (!AfxGetApp()->OpenDocumentFile(rootPath +(rootPath[rootPath.GetLength() - 1] == '/' ? "" : "/") + name))
+		CString const fullPath = rootPath + (rootPath[rootPath.GetLength() - 1] == '/' ? "" : "/") + name;
+		if (!AfxGetApp()->OpenDocumentFile(fullPath))
 		{
 			CString buffer;
-			buffer.Format("%s could not be opened\n", rootPath +(rootPath[rootPath.GetLength() - 1] == '/' ? "" : "/") + name);
+			buffer.Format("%s could not be opened\n", fullPath.GetString());
 			CONSOLE_OUTPUT(buffer);
 		}
 		else
@@ -299,16 +301,13 @@ void DialogDirectory::OnDblclkTreeview(NMHDR * const /*pNMHDR*/, LRESULT * const
 
 // ----------------------------------------------------------------------
 
-void DialogDirectory::openItem(HTREEITEM treeItem, bool const scanDocument, bool const saveDocument, bool const closeDocument, bool const editDocument)
+void DialogDirectory::openItem(HTREEITEM treeItem, bool const scanDocument, bool const saveDocument, bool const closeDocument)
 {
 	if (!GetTreeCtrl().ItemHasChildren(treeItem))
 	{
 		LRESULT result;
 		GetTreeCtrl().SelectItem(treeItem);
 		OnDblclkTreeview(0, &result);
-
-		if (editDocument)
-			safe_cast<SwgSpaceQuestEditorDoc *>(safe_cast<SwgSpaceQuestEditorApp *>(AfxGetApp())->GetActiveDocument())->edit(false);
 
 		if (scanDocument)
 			safe_cast<SwgSpaceQuestEditorDoc *>(safe_cast<SwgSpaceQuestEditorApp *>(AfxGetApp())->GetActiveDocument())->scan(false);
@@ -323,7 +322,7 @@ void DialogDirectory::openItem(HTREEITEM treeItem, bool const scanDocument, bool
 	treeItem = m_treeCtrl.GetChildItem(treeItem);
 	while (treeItem)
 	{
-		openItem(treeItem, scanDocument, saveDocument, closeDocument, editDocument);
+		openItem(treeItem, scanDocument, saveDocument, closeDocument);
 		treeItem = m_treeCtrl.GetNextSiblingItem(treeItem);
 	}
 }
@@ -335,7 +334,7 @@ void DialogDirectory::openAll()
 	CONSOLE_OUTPUT("----- START: OPEN ALL -----\r\n");
 
 	HTREEITEM treeItem = GetTreeCtrl().GetSelectedItem();
-	openItem(treeItem ? treeItem : TVI_ROOT, false, false, false, false);
+	openItem(treeItem ? treeItem : TVI_ROOT, false, false, false);
 
 	CONSOLE_OUTPUT("----- STOP: OPEN ALL -----\r\n");
 }
@@ -347,7 +346,7 @@ void DialogDirectory::scanAll()
 	CONSOLE_OUTPUT("----- START: SCAN ALL -----\r\n");
 
 	HTREEITEM treeItem = GetTreeCtrl().GetSelectedItem();
-	openItem(treeItem ? treeItem : TVI_ROOT, true, false, true, false);
+	openItem(treeItem ? treeItem : TVI_ROOT, true, false, true);
 
 	CONSOLE_OUTPUT("----- STOP: SCAN ALL -----\r\n");
 }
@@ -359,21 +358,9 @@ void DialogDirectory::saveAll()
 	CONSOLE_OUTPUT("----- START: SAVE ALL -----\r\n");
 
 	HTREEITEM treeItem = GetTreeCtrl().GetSelectedItem();
-	openItem(treeItem ? treeItem : TVI_ROOT, false, true, true, false);
+	openItem(treeItem ? treeItem : TVI_ROOT, false, true, true);
 
 	CONSOLE_OUTPUT("----- STOP: SAVE ALL -----\r\n");
-}
-
-// ----------------------------------------------------------------------
-
-void DialogDirectory::editAll()
-{
-	CONSOLE_OUTPUT("----- START: EDIT ALL -----\r\n");
-
-	HTREEITEM treeItem = GetTreeCtrl().GetSelectedItem();
-	openItem(treeItem ? treeItem : TVI_ROOT, false, false, false, true);
-
-	CONSOLE_OUTPUT("----- STOP: EDIT ALL -----\r\n");
 }
 
 // ----------------------------------------------------------------------

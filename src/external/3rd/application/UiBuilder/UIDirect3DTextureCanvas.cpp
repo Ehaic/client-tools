@@ -94,6 +94,15 @@ bool UIDirect3DTextureCanvas::Generate( void ) const
 		else
 			ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
 
+#ifdef _WIN64
+		// Direct3D 7 is not implemented by the 64-bit Windows DirectDraw
+		// runtime.  Keep texture data in DirectDraw offscreen surfaces for the
+		// software UIBuilder renderer instead of requesting D3D texture caps.
+		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
+		if( mInSystemMemory )
+			ddsd.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
+#endif
+
 		ddsd.ddsCaps.dwCaps2 = 0;	
 
 		hr = gDirectDraw->CreateSurface( &ddsd, &CreatedSurface, 0 );

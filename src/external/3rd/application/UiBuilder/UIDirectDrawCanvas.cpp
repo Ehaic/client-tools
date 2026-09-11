@@ -23,6 +23,7 @@ bool InitializeCanvasSystem( void *arg )
 		return false;
 	}
 		
+#ifndef _WIN64
 	hr = gDirectDraw->QueryInterface( IID_IDirect3D7, (void **)&gDirect3D );
 	
 	if( FAILED(hr) )
@@ -32,6 +33,7 @@ bool InitializeCanvasSystem( void *arg )
 		gDirectDraw->Release();
 		return false;
 	}
+#endif
 
 	hr = gDirectDraw->SetCooperativeLevel( hwnd, DDSCL_NORMAL );
 
@@ -40,7 +42,8 @@ bool InitializeCanvasSystem( void *arg )
 		assert( false );
 
 		gDirectDraw->Release();
-		gDirect3D->Release();
+		if (gDirect3D)
+			gDirect3D->Release();
 		return false;
 	}
 	return true;
@@ -50,7 +53,16 @@ bool InitializeCanvasSystem( void *arg )
 void ShutdownCanvasSystem( void *arg )
 {
 	UI_UNREF (arg);
-	gDirectDraw->Release();
+	if (gDirect3D)
+	{
+		gDirect3D->Release();
+		gDirect3D = 0;
+	}
+	if (gDirectDraw)
+	{
+		gDirectDraw->Release();
+		gDirectDraw = 0;
+	}
 }
 
 //======================================================================================

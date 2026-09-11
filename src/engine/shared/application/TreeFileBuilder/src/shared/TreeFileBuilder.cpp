@@ -13,6 +13,7 @@
 
 #include "sharedCompression/SetupSharedCompression.h"
 #include "sharedCompression/Compressor.h"
+#include "sharedCompression/ZlibCompressor.h"
 #include "sharedCompression/Lz77.h"
 #include "sharedFile/TreeFile_SearchNode.h"
 #include "sharedFoundation/CommandLine.h"
@@ -675,32 +676,41 @@ void TreeFileBuilder::writeMd5Block()
 
 void TreeFileBuilder::compressAndWrite(const byte *uncompressed, int &sizeOfData, const int uncompressedSize, int &compressor, const bool isFileData, const bool disableCompression, Md5::Value *md5)
 {
-	int smallest = TreeFile::SearchTree::CT_none;
+	// x64 port (2026-08-29): TreeFile::SearchTree no longer exposes
+	// CompressorType / borrowCompressor - the engine now constructs
+	// ZlibCompressor directly (TreeFile_SearchNode.cpp does the same).
+	// The numeric ids are the on-disk .tre values from the old enum:
+	// 0 = none, 1 = deprecated, 2 = zlib.
+	enum LocalCompressorType
+	{
+		localCT_none = 0,
+		localCT_zlib = 2
+	};
+
+	int smallest = localCT_none;
 	int smallestSize = uncompressedSize;
 	byte * smallestBuffer = NULL;
 
 	if (!disableCompression && uncompressedSize > 1024)
 	{
 		// try every compressor on the buffer
-		TreeFile::SearchTree::CompressorType compressors[] =
+		int const compressors[] =
 		{
-			TreeFile::SearchTree::CT_zlib
+			localCT_zlib
 		};
 		int const numberOfCompressors = sizeof(compressors) / sizeof(compressors[0]);
 
 		for (int i = 0; i < numberOfCompressors; i++)
 		{
-			TreeFile::SearchTree::CompressorType compressorType = compressors[i];
+			int const compressorType = compressors[i];
 
 			// make a temporary buffer
 			int newBufferLength = uncompressedSize * 2;
 			byte *newBuffer = new byte[newBufferLength];
 
 			// try the compressor on this data
-			Compressor *compressor = TreeFile::SearchTree::borrowCompressor(compressorType);
-			int size = compressor->compress(uncompressed, uncompressedSize, newBuffer, newBufferLength);
-			TreeFile::SearchTree::returnCompressor(compressorType, compressor);
-			compressor = NULL;
+			ZlibCompressor zlibCompressor;
+			int size = zlibCompressor.compress(uncompressed, uncompressedSize, newBuffer, newBufferLength);
 
 			if (size < smallestSize)
 			{

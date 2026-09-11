@@ -38,7 +38,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CTLFrame message handlers
 
-LONG FAR PASCAL CTLFrame::DummyWndProc(HWND h, UINT u, WPARAM w, LPARAM l)
+LRESULT CALLBACK CTLFrame::DummyWndProc(HWND h, UINT u, WPARAM w, LPARAM l)
 {
 	return ::DefWindowProc(h, u, w, l);
 }

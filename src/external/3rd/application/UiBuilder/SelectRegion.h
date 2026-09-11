@@ -32,10 +32,10 @@ private:
 	LPARAM InverseTranslateLParam( LPARAM );
 
 				 BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam );	
-				 BOOL CALLBACK CanvasProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+				 LRESULT CALLBACK CanvasProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-	static BOOL CALLBACK StaticDialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam );	
-	static BOOL CALLBACK StaticCanvasProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static INT_PTR CALLBACK StaticDialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static LRESULT CALLBACK StaticCanvasProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 	HWND													 mHwnd;
 

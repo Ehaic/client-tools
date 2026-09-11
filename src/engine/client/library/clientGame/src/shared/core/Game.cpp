@@ -856,7 +856,6 @@ void Game::install(Application const application)
 		else
 #endif // _DEBUG
 		{
-#if 0
 			if (application == A_particleEditor || application == A_animationEditor)
 			{
 				ExitChain::add(Game::cleanupScene, "Game::cleanupScene");
@@ -882,6 +881,7 @@ void Game::install(Application const application)
 
 				ms_singlePlayer = true;
 			}
+#if 0
 			//-- this viewer does not need the UI
 			else if (ConfigClientGame::getCuiTest())
 			{
@@ -903,9 +903,9 @@ void Game::install(Application const application)
 			{
 				(new CollisionTest())->open();
 			}
+#endif
 			//-- everything else needs the UI
 			else
-#endif
 			{
 				ExitChain::add(Game::cleanupScene, "Game::cleanupScene");
 

@@ -38,8 +38,6 @@ namespace ChassisEditorDetailsNamespace
 	{
 		CMI_editTemplate,
 		CMI_editSharedTemplate,
-		CMI_jumpToP4,
-		CMI_jumpToP4SharedTemplate,
 		CMI_newTemplate
 	};
 
@@ -47,8 +45,6 @@ namespace ChassisEditorDetailsNamespace
 	{
 		"Edit Template",
 		"Edit Shared Template",
-		"Jump to P4",
-		"Jump to P4 Shared Template",
 		"New Template",
 	};
 }
@@ -120,9 +116,6 @@ void ChassisEditorDetails::onListContextMenuRequested(QListBoxItem * item, const
 	
 	pop->insertItem(s_contextMenuItemNames[CMI_editTemplate], this, SLOT(onListBoxContext(int)), 0, CMI_editTemplate);
 	pop->insertItem(s_contextMenuItemNames[CMI_editSharedTemplate], this, SLOT(onListBoxContext(int)), 0, CMI_editSharedTemplate);
-	pop->insertSeparator();
-	pop->insertItem(s_contextMenuItemNames[CMI_jumpToP4], this, SLOT(onListBoxContext(int)), 0, CMI_jumpToP4);
-	pop->insertItem(s_contextMenuItemNames[CMI_jumpToP4SharedTemplate], this, SLOT(onListBoxContext(int)), 0, CMI_jumpToP4SharedTemplate);
 
 	if (item->listBox() == m_listTemplates)
 	{
@@ -137,8 +130,6 @@ void ChassisEditorDetails::onListContextMenuRequested(QListBoxItem * item, const
 	{
 		pop->setItemEnabled(CMI_editTemplate, false);
 		pop->setItemEnabled(CMI_editSharedTemplate, false);
-		pop->setItemEnabled(CMI_jumpToP4, false);
-		pop->setItemEnabled(CMI_jumpToP4SharedTemplate, false);
 	}
 }
 
@@ -179,20 +170,6 @@ void ChassisEditorDetails::onListBoxContext(int id)
 			if (NULL != st)
 			{
 				snprintf(buf, buf_size, "start %s %s", ConfigShipComponentEditor::getTextEditorPath().c_str(), st->fullPathSharedTemplate.c_str());
-				system(buf);
-			}
-			break;
-		case CMI_jumpToP4:
-			if (NULL != st)
-			{
-				snprintf(buf, buf_size, "start p4win -s %s", st->fullPath.c_str());
-				system(buf);
-			}
-			break;
-		case CMI_jumpToP4SharedTemplate:
-			if (NULL != st)
-			{
-				snprintf(buf, buf_size, "start p4win -s %s", st->fullPathSharedTemplate.c_str());
 				system(buf);
 			}
 			break;

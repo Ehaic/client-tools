@@ -86,7 +86,6 @@ MainWindow::MainWindow()
 		IGNORE_RETURN(connect(m_fileQuitAction, SIGNAL(activated()), this, SLOT(close())));
 
 		//-- tool
-		IGNORE_RETURN(connect(m_toolAddToPerforceAction, SIGNAL(activated()), this, SLOT(addToPerforce())));
 		IGNORE_RETURN(connect(m_toolCompileAction, SIGNAL(activated()), this, SLOT(compile())));
 		IGNORE_RETURN(connect(m_toolBuildQuestCrcTablesAction, SIGNAL(activated()), this, SLOT(buildQuestCrcStringTables())));
 
@@ -379,15 +378,6 @@ void MainWindow::outputToConsole(const QString& text)
 {
 	m_console->append(text);
 	m_console->scrollToBottom();
-}
-
-// ----------------------------------------------------------------------
-
-void MainWindow::addToPerforce()
-{
-	QuestEditor * editor = dynamic_cast<QuestEditor *>(m_ws->activeWindow());
-	if (editor)
-		editor->addToPerforce();
 }
 
 // ----------------------------------------------------------------------

@@ -358,7 +358,7 @@ void CCoolDialogBar::OnNcLButtonDown(UINT nHitTest, CPoint point)
         CControlBar::OnNcLButtonDown(nHitTest, point);
 }
 
-UINT CCoolDialogBar::OnNcHitTest(CPoint point) 
+LRESULT CCoolDialogBar::OnNcHitTest(CPoint point)
 {
     if (IsFloating())
         return CControlBar::OnNcHitTest(point);

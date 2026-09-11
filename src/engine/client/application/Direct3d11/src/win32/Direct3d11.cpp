@@ -328,6 +328,15 @@ namespace Direct3d11Namespace
 		return presented;
 	}
 
+	bool presentToWindow(HWND window, int width, int height)
+	{
+		Direct3d11_Metrics::markPresentBegin();
+		bool const presented = Direct3d11_SwapChain::presentToWindow(window, width, height);
+		Direct3d11_Metrics::markPresentDone();
+
+		return presented;
+	}
+
 	void setViewport(int x, int y, int width, int height, real minZ, real maxZ)
 	{
 		Direct3d11_SwapChain::setViewport(x, y, width, height, minZ, maxZ);
@@ -509,16 +518,6 @@ namespace Direct3d11Namespace
 
 namespace Direct3d11Namespace
 {
-	// Presentation and image capture. presentToWindow is deliberately NOT aliased
-	// to present the way D3D9 does it: a DXGI swap chain is bound to one window,
-	// so aliasing would present a tool's viewport into the game window instead.
-	// SwgClient never calls it; the nine callers are all editors and viewers.
-	bool presentToWindow(HWND, int, int)
-	{
-		DX11_NOT_IMPLEMENTED("presentToWindow");
-		return false;
-	}
-
 	// Render targets.
 	void setRenderTarget(Texture *texture, CubeFace cubeFace, int mipmapLevel)
 	{

@@ -354,9 +354,12 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libxml2-win32-release.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <!-- x64: libxml2 from the port's deps store (the 32-bit
+           libxml2-win32-release.lib cannot link); zlib.lib from the solution
+           output where the zlib-1.2.3 project builds it. -->
+      <AdditionalDependencies>libxml2.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)_r.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;..\..\..\..\..\..\external\3rd\library\libxml2-2.6.7.win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName)_r.pdb</ProgramDatabaseFile>

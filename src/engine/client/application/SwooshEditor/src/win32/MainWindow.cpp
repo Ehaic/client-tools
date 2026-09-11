@@ -514,8 +514,14 @@ void MainWindow::validate()
 	SwooshAppearanceTemplate::setUseFinalGameSwooshes(m_showFinalGameSwooshesCheckBox->isChecked());
 	m_mainToolsFrame->setEnabled(!m_showFinalGameSwooshesCheckBox->isChecked());
 #else
+	// x64 usability pass (2026-08-29): SOE force-disabled the whole property
+	// panel in release, making the tool a viewer. The panel itself has no
+	// debug dependency - only the "show final game swooshes" compare toggle
+	// does (SwooshAppearanceTemplate::setUseFinalGameSwooshes is #ifdef
+	// _DEBUG) - so enable the panel and grey out just that checkbox.
 	m_showFinalGameSwooshesCheckBox->setChecked(false);
-	m_mainToolsFrame->setEnabled(false);
+	m_showFinalGameSwooshesCheckBox->setEnabled(false);
+	m_mainToolsFrame->setEnabled(true);
 #endif
 
 	switch (m_referenceSwooshComboBox->currentItem())

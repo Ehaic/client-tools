@@ -115,6 +115,9 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..\..\..\..\..\build\win32\x64\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)_r</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -330,8 +333,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\..\..\..\..\..\external\3rd\library\atlmfc\include;..\..\..\..\..\..\external\ours\library\fileInterface\include\public;..\..\..\..\..\..\external\ours\library\localization\include;..\..\..\..\..\..\external\ours\library\unicode\include;..\..\..\..\..\..\engine\shared\library\sharedCompression\include\public;..\..\..\..\..\..\engine\shared\library\sharedDebug\include\public;..\..\..\..\..\..\engine\shared\library\sharedFile\include\public;..\..\..\..\..\..\engine\shared\library\sharedFoundation\include\public;..\..\..\..\..\..\engine\shared\library\sharedFoundationTypes\include\public;..\..\..\..\..\..\engine\shared\library\sharedMath\include\public;..\..\..\..\..\..\engine\shared\library\sharedMemoryManager\include\public;..\..\..\..\..\..\engine\shared\library\sharedMemoryBlockManager\include\public;..\..\..\..\..\..\engine\shared\library\sharedSynchronization\include\public;..\..\..\..\..\..\engine\shared\library\sharedThread\include\public;..\..\..\..\..\..\engine\shared\library\sharedUtility\include\public;..\..\src\win32;..\..\src\win32\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_MBCS;DEBUG_LEVEL=0;_CRT_SECURE_NO_DEPRECATE=1;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);$(OutDir);..\..\..\..\..\..\external\ours\library\fileInterface\include\public;..\..\..\..\..\..\external\ours\library\localization\include;..\..\..\..\..\..\external\ours\library\unicode\include;..\..\..\..\..\..\engine\shared\library\sharedCompression\include\public;..\..\..\..\..\..\engine\shared\library\sharedDebug\include\public;..\..\..\..\..\..\engine\shared\library\sharedFile\include\public;..\..\..\..\..\..\engine\shared\library\sharedFoundation\include\public;..\..\..\..\..\..\engine\shared\library\sharedFoundationTypes\include\public;..\..\..\..\..\..\engine\shared\library\sharedMath\include\public;..\..\..\..\..\..\engine\shared\library\sharedMemoryManager\include\public;..\..\..\..\..\..\engine\shared\library\sharedSynchronization\include\public;..\..\..\..\..\..\engine\shared\library\sharedThread\include\public;..\..\..\..\..\..\engine\shared\library\sharedUtility\include\public;..\..\src\win32;..\..\src\win32\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_MBCS;DEBUG_LEVEL=0;_CRT_SECURE_NO_DEPRECATE=1;_HAS_STD_BYTE=0;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -339,10 +342,10 @@
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeaderFile>FirstSwgConversationEditor.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>$(OutDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>$(OutDir)</AssemblerListingLocation>
-      <ObjectFileName>$(OutDir)</ObjectFileName>
-      <ProgramDataBaseFileName>$(OutDir)$(ProjectName)_r.pdb</ProgramDataBaseFileName>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_r.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -352,14 +355,19 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>dxguid.lib;dpvs.lib;libxml2-win32-debug.lib;ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>archive.lib;fileInterface.lib;localization.lib;sharedCompression.lib;sharedDebug.lib;sharedFile.lib;sharedFoundation.lib;sharedLog.lib;sharedMath.lib;sharedMemoryManager.lib;sharedMessageDispatch.lib;sharedNetworkMessages.lib;sharedRandom.lib;sharedSynchronization.lib;sharedThread.lib;sharedUtility.lib;unicode.lib;unicodeArchive.lib;zlib.lib;dpvs.lib;dxguid.lib;libxml2.lib;shell32.lib;ole32.lib;gdi32.lib;user32.lib;advapi32.lib;ws2_32.lib;winmm.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)_r.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\directx9\lib;..\..\..\..\..\..\external\3rd\library\dpvs\lib\win32-x86;..\..\..\..\..\..\external\3rd\library\libxml2-2.6.7.win32\lib;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>$(OutDir);..\..\..\..\..\..\..\deps\x64\lib;$(WindowsSDK_LibraryPath_x64)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libc;MSVCRT</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName)_r.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
     </Link>
+    <ProjectReference>
+      <BuildReference Condition="'$(BuildingSolutionFile)'!='true'">false</BuildReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
@@ -564,6 +572,84 @@
     <None Include="..\..\src\win32\res\arrow.cur" />
     <None Include="..\..\src\win32\res\copypoin.cur" />
     <None Include="..\..\src\win32\res\mg_cur.cur" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedFoundation\build\win32\sharedFoundation.vcxproj">
+      <Project>{C595C10E-ADA8-429A-896A-8904A46737D3}</Project>
+      <Name>sharedFoundation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedUtility\build\win32\sharedUtility.vcxproj">
+      <Project>{52DF0D16-D070-47FC-B987-8D80B027D114}</Project>
+      <Name>sharedUtility</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedFile\build\win32\sharedFile.vcxproj">
+      <Project>{E0F9D922-DAA7-475E-A95A-7BC540ED58FE}</Project>
+      <Name>sharedFile</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedMemoryManager\build\win32\sharedMemoryManager.vcxproj">
+      <Project>{DC2CD926-8EA3-4ADD-AA62-A95CCA8AC7DD}</Project>
+      <Name>sharedMemoryManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedDebug\build\win32\sharedDebug.vcxproj">
+      <Project>{F3245C29-7760-4956-B1B7-FC483BE417CD}</Project>
+      <Name>sharedDebug</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedCompression\build\win32\sharedCompression.vcxproj">
+      <Project>{6BD52B35-92CA-44E4-995E-2B79C7398183}</Project>
+      <Name>sharedCompression</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\external\ours\library\unicodeArchive\build\win32\unicodeArchive.vcxproj">
+      <Project>{41269A52-38B8-4F9A-AE38-1103BB03A10B}</Project>
+      <Name>unicodeArchive</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedNetworkMessages\build\win32\sharedNetworkMessages.vcxproj">
+      <Project>{DECF2964-3A66-4FA6-AB27-D4507C5480EA}</Project>
+      <Name>sharedNetworkMessages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\external\ours\library\archive\build\win32\archive.vcxproj">
+      <Project>{52153865-1ABF-4FBB-84C4-0FC439716F1E}</Project>
+      <Name>archive</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\external\ours\library\fileInterface\build\win32\fileInterface.vcxproj">
+      <Project>{DE93996C-CB51-4D61-85A0-A9DFC677445F}</Project>
+      <Name>fileInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedMath\build\win32\sharedMath.vcxproj">
+      <Project>{5789EA7C-6596-4DCC-A9FB-DD7582888F90}</Project>
+      <Name>sharedMath</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedSynchronization\build\win32\sharedSynchronization.vcxproj">
+      <Project>{2FE4E38D-BE7D-4E3B-9613-63E9F01855F4}</Project>
+      <Name>sharedSynchronization</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedMathArchive\build\win32\sharedMathArchive.vcxproj">
+      <Project>{0202ADB3-5587-4138-A626-52B7DB52FBBA}</Project>
+      <Name>sharedMathArchive</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\external\ours\library\localization\build\win32\localization.vcxproj">
+      <Project>{0FB11BC8-3BD1-4471-8DDA-DA3BC05937B2}</Project>
+      <Name>localization</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedThread\build\win32\sharedThread.vcxproj">
+      <Project>{858F7DCE-325A-467C-9DDA-2FE40217286F}</Project>
+      <Name>sharedThread</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedRandom\build\win32\sharedRandom.vcxproj">
+      <Project>{2E6982E0-DCB6-4ED9-BFAD-D29DAEEA6AD2}</Project>
+      <Name>sharedRandom</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\external\ours\library\unicode\build\win32\unicode.vcxproj">
+      <Project>{B97963EF-49E4-477E-85FF-E7FEE7C626D7}</Project>
+      <Name>unicode</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedLog\build\win32\sharedLog.vcxproj">
+      <Project>{2AE0CEF0-C4F2-4786-A026-8338FB09D61B}</Project>
+      <Name>sharedLog</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\engine\shared\library\sharedMessageDispatch\build\win32\sharedMessageDispatch.vcxproj">
+      <Project>{C87164F5-14A9-403C-8BC4-217FD40731EA}</Project>
+      <Name>sharedMessageDispatch</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

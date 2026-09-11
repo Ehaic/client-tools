@@ -149,10 +149,10 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedMessageDispatch.lib;localization.lib;localizationArchive.lib;unicode.lib;unicodeArchive.lib;archive.lib;sharedNetworkMessages.lib;sharedLog.lib;wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\../../../../../../compile/win32/Miff/Optimized/Miff.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBC;LIBCMTD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\../../../../../../compile/win32/Miff/Optimized/Miff.pdb</ProgramDatabaseFile>
@@ -192,10 +192,10 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedMessageDispatch.lib;localization.lib;localizationArchive.lib;unicode.lib;unicodeArchive.lib;archive.lib;sharedNetworkMessages.lib;sharedLog.lib;wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\../../../../../../compile/win32/Miff/Optimized/Miff.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBC;LIBCMTD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\../../../../../../compile/win32/Miff/Optimized/Miff.pdb</ProgramDatabaseFile>
@@ -236,10 +236,10 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedMessageDispatch.lib;localization.lib;localizationArchive.lib;unicode.lib;unicodeArchive.lib;archive.lib;sharedNetworkMessages.lib;sharedLog.lib;wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\../../../../../../compile/win32/Miff/Release/Miff.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ProgramDatabaseFile>.\../../../../../../compile/win32/Miff/Release/Miff.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
@@ -281,10 +281,10 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedMessageDispatch.lib;localization.lib;localizationArchive.lib;unicode.lib;unicodeArchive.lib;archive.lib;sharedNetworkMessages.lib;sharedLog.lib;wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\../../../../../../compile/win32/Miff/Release/Miff.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ProgramDatabaseFile>.\../../../../../../compile/win32/Miff/Release/Miff.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
@@ -324,10 +324,10 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedMessageDispatch.lib;localization.lib;localizationArchive.lib;unicode.lib;unicodeArchive.lib;archive.lib;sharedNetworkMessages.lib;sharedLog.lib;wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\../../../../../../compile/win32/Miff/Debug/Miff.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBC;LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\../../../../../../compile/win32/Miff/Debug/Miff.pdb</ProgramDatabaseFile>
@@ -370,10 +370,10 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedMessageDispatch.lib;localization.lib;localizationArchive.lib;unicode.lib;unicodeArchive.lib;archive.lib;sharedNetworkMessages.lib;sharedLog.lib;wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\../../../../../../compile/win32/Miff/Debug/Miff.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBC;LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\../../../../../../compile/win32/Miff/Debug/Miff.pdb</ProgramDatabaseFile>
@@ -407,54 +407,54 @@
     <CustomBuild Include="..\..\src\win32\parser.lex">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating lexer...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating lexer...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">flex -w -o$(IntDir)..\lex_yy.c %(FullPath)
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">flex -w -o..\..\..\..\..\..\compile\win32\Miff\lex_yy.c %(FullPath)
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">flex -w -o$(IntDir)..\lex_yy.c %(FullPath)
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">flex -w -o..\..\..\..\..\..\compile\win32\Miff\lex_yy.c %(FullPath)
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)..\lex_yy.c;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)..\lex_yy.c;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\..\..\..\compile\win32\Miff\lex_yy.c;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\..\..\..\compile\win32\Miff\lex_yy.c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Optimized|Win32'">Generating lexer...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Optimized|x64'">Generating lexer...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Optimized|Win32'">flex -w -o$(IntDir)..\lex_yy.c %(FullPath)
+      <Command Condition="'$(Configuration)|$(Platform)'=='Optimized|Win32'">flex -w -o..\..\..\..\..\..\compile\win32\Miff\lex_yy.c %(FullPath)
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Optimized|x64'">flex -w -o$(IntDir)..\lex_yy.c %(FullPath)
+      <Command Condition="'$(Configuration)|$(Platform)'=='Optimized|x64'">flex -w -o..\..\..\..\..\..\compile\win32\Miff\lex_yy.c %(FullPath)
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Optimized|Win32'">$(IntDir)..\lex_yy.c;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Optimized|x64'">$(IntDir)..\lex_yy.c;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Optimized|Win32'">..\..\..\..\..\..\compile\win32\Miff\lex_yy.c;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Optimized|x64'">..\..\..\..\..\..\compile\win32\Miff\lex_yy.c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating lexer...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating lexer...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">flex -w -o$(IntDir)..\lex_yy.c %(FullPath)
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">flex -w -o..\..\..\..\..\..\compile\win32\Miff\lex_yy.c %(FullPath)
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">flex -w -o$(IntDir)..\lex_yy.c %(FullPath)
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">flex -w -o..\..\..\..\..\..\compile\win32\Miff\lex_yy.c %(FullPath)
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)..\lex_yy.c;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)..\lex_yy.c;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\..\..\..\compile\win32\Miff\lex_yy.c;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\..\..\..\compile\win32\Miff\lex_yy.c;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\win32\parser.yac">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating parser...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bison -d -o $(IntDir)..\parser.c ../../src/win32/parser.yac
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bison -d -o ..\..\..\..\..\..\compile\win32\Miff\parser.c ../../src/win32/parser.yac
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bison -d -o $(IntDir)..\parser.c ../../src/win32/parser.yac
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bison -d -o ..\..\..\..\..\..\compile\win32\Miff\parser.c ../../src/win32/parser.yac
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)..\parser.c;$(IntDir)..\parser.h;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)..\parser.c;$(IntDir)..\parser.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\..\..\..\compile\win32\Miff\parser.c;..\..\..\..\..\..\compile\win32\Miff\parser.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\..\..\..\compile\win32\Miff\parser.c;..\..\..\..\..\..\compile\win32\Miff\parser.h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Optimized|Win32'">Generating parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Optimized|x64'">Generating parser...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Optimized|Win32'">bison -d -o $(IntDir)..\parser.c ../../src/win32/parser.yac
+      <Command Condition="'$(Configuration)|$(Platform)'=='Optimized|Win32'">bison -d -o ..\..\..\..\..\..\compile\win32\Miff\parser.c ../../src/win32/parser.yac
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Optimized|x64'">bison -d -o $(IntDir)..\parser.c ../../src/win32/parser.yac
+      <Command Condition="'$(Configuration)|$(Platform)'=='Optimized|x64'">bison -d -o ..\..\..\..\..\..\compile\win32\Miff\parser.c ../../src/win32/parser.yac
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Optimized|Win32'">$(IntDir)..\parser.c;$(IntDir)..\parser.h;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Optimized|x64'">$(IntDir)..\parser.c;$(IntDir)..\parser.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Optimized|Win32'">..\..\..\..\..\..\compile\win32\Miff\parser.c;..\..\..\..\..\..\compile\win32\Miff\parser.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Optimized|x64'">..\..\..\..\..\..\compile\win32\Miff\parser.c;..\..\..\..\..\..\compile\win32\Miff\parser.h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating parser...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bison -d -o $(IntDir)..\parser.c ../../src/win32/parser.yac
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bison -d -o ..\..\..\..\..\..\compile\win32\Miff\parser.c ../../src/win32/parser.yac
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bison -d -o $(IntDir)..\parser.c ../../src/win32/parser.yac
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bison -d -o ..\..\..\..\..\..\compile\win32\Miff\parser.c ../../src/win32/parser.yac
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)..\parser.c;$(IntDir)..\parser.h;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)..\parser.c;$(IntDir)..\parser.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\..\..\..\compile\win32\Miff\parser.c;..\..\..\..\..\..\compile\win32\Miff\parser.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\..\..\..\compile\win32\Miff\parser.c;..\..\..\..\..\..\compile\win32\Miff\parser.h;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

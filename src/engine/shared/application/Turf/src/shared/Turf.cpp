@@ -157,7 +157,17 @@ bool TurfApp::InitInstance()
 
 		//-- foundation
 		SetupSharedFoundation::Data setupFoundationData(SetupSharedFoundation::Data::D_console);
-		setupFoundationData.configFile                = "client.cfg";
+		//-- MUST be tools.cfg, not client.cfg. SetupSharedFile::install(false)
+		//   below passes no skuBits, so TreeFile::install builds LEGACY key
+		//   names (searchTree0, not searchTree_00_0). client.cfg carries only
+		//   the _00_ sku form -- 72 of them and zero legacy keys -- so reading
+		//   it here mounted ZERO TREs and this tool died on startup with
+		//   "appearance/defaultappearance.apt could not be found".
+		//   tools.cfg is the legacy no-sku form (65 searchTree0 keys) and is
+		//   what TerrainEditor -- the tool that spawns Turf for Bake Flora --
+		//   reads itself, so the mounts now match its parent.
+		//   Same defect and same fix as SoundEditor, d17043a48.
+		setupFoundationData.configFile                = "tools.cfg";
         setupFoundationData.writeMiniDumps            = ApplicationVersion::isBootlegBuild();
 	    SetupSharedFoundation::install(setupFoundationData);
 

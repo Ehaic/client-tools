@@ -142,7 +142,7 @@ void FindView::update (const TerrainGeneratorHelper::OutputData& outputData) con
 	const int index = GetListCtrl ().GetItemCount ();
 
 	IGNORE_RETURN (GetListCtrl ().InsertItem (index, *outputData.message, LayerView::getIcon (outputData.layerItem)));
-	IGNORE_RETURN (GetListCtrl ().SetItemData (index, reinterpret_cast<DWORD> (outputData.layerItem)));
+	IGNORE_RETURN (GetListCtrl ().SetItemData (index, reinterpret_cast<DWORD_PTR> (outputData.layerItem)));
 }
 
 //-------------------------------------------------------------------

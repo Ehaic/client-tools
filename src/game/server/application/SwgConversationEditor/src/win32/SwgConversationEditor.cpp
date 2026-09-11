@@ -199,14 +199,6 @@ BOOL SwgConversationEditorApp::InitInstance()
 	if (GetCurrentDirectory (1024, buffer) != 0)
 		m_currentDirectory = buffer;
 
-	{
-		CString temp(buffer);
-		temp.Remove('/');
-		temp.Remove('\\');
-		if (temp.Find("exewin32") == -1)
-			AfxMessageBox ("SwgConversationEditor is not running from <branch>\\exe\\win32.  You may be running an older version.");
-	}
-
 	//-- Load ini file
 	if (!Configuration::install ())
 		AfxMessageBox ("SwgConversationEditor is not properly configured [SwgConversationEditor.ini not found].");

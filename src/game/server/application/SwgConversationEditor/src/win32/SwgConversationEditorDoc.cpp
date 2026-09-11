@@ -327,7 +327,6 @@ BEGIN_MESSAGE_MAP(SwgConversationEditorDoc, CDocument)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_COMPILE, OnUpdateButtonCompile)
 	ON_COMMAND(ID_BUTTON_COMPILEDEBUG, OnButtonCompiledebug)
 	ON_COMMAND(ID_BUTTON_COMPILERELEASE, OnButtonCompilerelease)
-	ON_COMMAND(ID_BUTTON_P4EDIT, OnButtonP4edit)
 	ON_COMMAND(ID_BUTTON_SCAN, OnButtonScan)
 	ON_COMMAND(ID_BUTTON_SPELLCHECK, OnButtonSpellcheck)
 	ON_COMMAND(ID_BUTTON_FIND, OnButtonFind)
@@ -1016,12 +1015,16 @@ BOOL SwgConversationEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		return FALSE;
 	
 	// TODO: Add your specialized creation code here
-	FatalSetThrowExceptions (false);
+	//throw on FATAL so the catch below can report it; reset after the try
+	FatalSetThrowExceptions (true);
 
 		try
 		{
 			if (!m_conversation->load (lpszPathName))
+			{
+				FatalSetThrowExceptions (false);
 				return FALSE;
+			}
 
 			if (m_conversation->getTriggerText ().empty ())
 			{
@@ -1090,6 +1093,10 @@ BOOL SwgConversationEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 			message += exception.getMessage ();
 
 			MessageBox (0, message, AfxGetApp ()->m_pszAppName, MB_ICONSTOP);
+
+			//a failed load must not open as a good document
+			FatalSetThrowExceptions (false);
+			return FALSE;
 		}
 
 	FatalSetThrowExceptions (false);
@@ -1113,12 +1120,22 @@ BOOL SwgConversationEditorDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	}
 
 	// TODO: Add your specialized code here and/or call the base class
-	FatalSetThrowExceptions (false);
+	//throw on FATAL so the catch below can report it; reset after the try
+	FatalSetThrowExceptions (true);
 
 		try
 		{
 			if (!m_conversation->save (lpszPathName))
+			{
+				FatalSetThrowExceptions (false);
+
+				CString message ("Error saving ");
+				message += lpszPathName;
+				message += "\nCould not write the file. Is it read-only?";
+
+				MessageBox (0, message, AfxGetApp ()->m_pszAppName, MB_ICONSTOP);
 				return FALSE;
+			}
 		}
 		catch (FatalException const & exception)
 		{
@@ -1129,10 +1146,15 @@ BOOL SwgConversationEditorDoc::OnSaveDocument(LPCTSTR lpszPathName)
 			message += exception.getMessage ();
 
 			MessageBox (0, message, AfxGetApp ()->m_pszAppName, MB_ICONSTOP);
+
+			//a failed save must not report success or clear the modified
+			//flag - that is how unsaved work gets silently thrown away
+			FatalSetThrowExceptions (false);
+			return FALSE;
 		}
 
 	FatalSetThrowExceptions (false);
-	
+
 	SetModifiedFlag (false);
 
 	return TRUE;
@@ -1305,8 +1327,10 @@ std::pair <bool, bool> SwgConversationEditorDoc::compile (bool const spellCheck,
 			if (m_numberOfWarnings == 0)
 				m_warningFrame->DestroyWindow ();
 
-			//-- pre-compile save
-			OnSaveDocument (GetPathName ());
+			//-- pre-compile save; abort if it fails so the compile cannot
+			//run against stale on-disk state
+			if (!OnSaveDocument (GetPathName ()))
+				return std::make_pair (false, false);
 
 			CString const shortFileName (fileName);
 			CString const scriptName = getFullScriptFileName (shortFileName);
@@ -2285,18 +2309,18 @@ bool SwgConversationEditorDoc::writeScript (CString const & scriptName, CString 
 					if (numberOfResponses > 0)
 					{
 						// int *_handleBranch<n> (obj_id player, obj_id npc, string_id response)
-						buffer.Format("int %s_handleBranch%i (obj_id player, obj_id npc, string_id response) throws InterruptedException\n", fileName, sourceBranch->getBranchId());
+						buffer.Format("int %s_handleBranch%i (obj_id player, obj_id npc, string_id response) throws InterruptedException\n", fileName.GetString (), sourceBranch->getBranchId());
 						outfile.WriteString(buffer);
 
 						// {
 						outfile.WriteString("{\n");
 
 						//	//-- comment BRANCH NOTE: <branchNote>
-						buffer.Format ("\t//-- [BRANCH NOTE] %s\n", getFirstLine (sourceBranch->getNotes ().c_str ()));
+						buffer.Format ("\t//-- [BRANCH NOTE] %s\n", getFirstLine (sourceBranch->getNotes ().c_str ()).GetString ());
 						outfile.WriteString (buffer);
 
 						//	//-- comment NPC: <branchText>
-						buffer.Format ("\t//-- NPC: %s\n\n", getFirstLine (sourceBranch->getText ().c_str ()));
+						buffer.Format ("\t//-- NPC: %s\n\n", getFirstLine (sourceBranch->getText ().c_str ()).GetString ());
 						outfile.WriteString (buffer);
 
 						for (int i = 0; i < numberOfResponses; ++i)
@@ -2306,11 +2330,11 @@ bool SwgConversationEditorDoc::writeScript (CString const & scriptName, CString 
 								continue;
 
 							//	//-- comment RESPONSE NOTE: <responseText>
-							buffer.Format ("\t//-- [RESPONSE NOTE] %s\n", getFirstLine (response->getNotes ().c_str ()));
+							buffer.Format ("\t//-- [RESPONSE NOTE] %s\n", getFirstLine (response->getNotes ().c_str ()).GetString ());
 							outfile.WriteString (buffer);
 
 							//	//-- comment PLAYER: <responseNote>
-							buffer.Format ("\t//-- PLAYER: %s\n", getFirstLine (response->getText ().c_str ()));
+							buffer.Format ("\t//-- PLAYER: %s\n", getFirstLine (response->getText ().c_str ()).GetString ());
 							outfile.WriteString (buffer);
 
 							//	if (response == "<responseTextCrc>")
@@ -2339,7 +2363,7 @@ bool SwgConversationEditorDoc::writeScript (CString const & scriptName, CString 
 							int const actionFamilyId = response->getActionFamilyId ();
 							if (actionFamilyId != 0)
 							{
-								buffer.Format ("\t\t%s_action_%s (player, npc);\n\n", fileName, getActionGroup ()->getFamilyName (actionFamilyId));
+								buffer.Format ("\t\t%s_action_%s (player, npc);\n\n", fileName.GetString (), getActionGroup ()->getFamilyName (actionFamilyId));
 								outfile.WriteString (buffer);
 							}
 
@@ -2408,7 +2432,7 @@ bool SwgConversationEditorDoc::writeScript (CString const & scriptName, CString 
 			outfile.WriteString ("public int OnNpcConversationResponse(obj_id self, String conversationId, obj_id player, string_id response) throws InterruptedException\n{\n");
 
 			//	if (!conversationId.equals(<conversationId>))
-			buffer.Format ("\tif (!conversationId.equals(\"%s\"))\n", fileName);
+			buffer.Format ("\tif (!conversationId.equals(\"%s\"))\n", fileName.GetString ());
 			outfile.WriteString (buffer);
 
 			//		return SCRIPT_CONTINUE;
@@ -2418,7 +2442,7 @@ bool SwgConversationEditorDoc::writeScript (CString const & scriptName, CString 
 			outfile.WriteString("\tobj_id npc = self;\n\n");
 
 			//	int branchId = utils.getIntScriptVar (player, "conversation.<conversationId>.branchId");
-			buffer.Format ("\tint branchId = utils.getIntScriptVar (player, \"conversation.%s.branchId\");\n\n", fileName);
+			buffer.Format ("\tint branchId = utils.getIntScriptVar (player, \"conversation.%s.branchId\");\n\n", fileName.GetString ());
 			outfile.WriteString (buffer);
 
 			ConversationItemList::const_iterator end = conversationItemList.end ();
@@ -2439,7 +2463,7 @@ bool SwgConversationEditorDoc::writeScript (CString const & scriptName, CString 
 					int const numberOfResponses = destinationBranch->getNumberOfResponses ();
 					if (numberOfResponses > 0)
 					{
-						buffer.Format("\tif (branchId == %i && %s_handleBranch%i (player, npc, response) == SCRIPT_CONTINUE)\n", sourceBranch->getBranchId(), fileName, sourceBranch->getBranchId());
+						buffer.Format("\tif (branchId == %i && %s_handleBranch%i (player, npc, response) == SCRIPT_CONTINUE)\n", sourceBranch->getBranchId(), fileName.GetString (), sourceBranch->getBranchId());
 						outfile.WriteString(buffer);
 
 						outfile.WriteString("\t\treturn SCRIPT_CONTINUE;\n\n");
@@ -2452,7 +2476,7 @@ bool SwgConversationEditorDoc::writeScript (CString const & scriptName, CString 
 			outfile.WriteString (buffer);
 
 			//	utils.removeScriptVar (player, "conversation.<conversationId>.branchId");
-			buffer.Format ("\tutils.removeScriptVar (player, \"conversation.%s.branchId\");\n\n", fileName);
+			buffer.Format ("\tutils.removeScriptVar (player, \"conversation.%s.branchId\");\n\n", fileName.GetString ());
 			outfile.WriteString (buffer);
 
 			outfile.WriteString ("\treturn SCRIPT_CONTINUE;\n}\n\n");
@@ -2519,12 +2543,12 @@ void SwgConversationEditorDoc::writeResponseChildBranches (CStdioFile & outfile,
 		}
 
 	//	//-- comment NOTE: <branchNotes> 
-		buffer.Format ("//-- [NOTE] %s\n", getFirstLine (sourceBranch->getNotes ().c_str ()));
+		buffer.Format ("//-- [NOTE] %s\n", getFirstLine (sourceBranch->getNotes ().c_str ()).GetString ());
 		outfile.WriteString (indentation + buffer);
 
 	//	if (<branchCondition> (player, npc))
 		int const conditionFamilyId = sourceBranch->getConditionFamilyId ();
-		buffer.Format ("if (%s%s_condition_%s (player, npc))\n", sourceBranch->getNegateCondition () ? "!" : "", fileName, getConditionGroup ()->getFamilyName (conditionFamilyId));
+		buffer.Format ("if (%s%s_condition_%s (player, npc))\n", sourceBranch->getNegateCondition () ? "!" : "", fileName.GetString (), getConditionGroup ()->getFamilyName (conditionFamilyId));
 		outfile.WriteString (indentation + buffer);
 
 	//	{
@@ -2550,12 +2574,12 @@ void SwgConversationEditorDoc::writeResponseChildBranches (CStdioFile & outfile,
 		int const actionFamilyId = sourceBranch->getActionFamilyId ();
 		if (actionFamilyId != 0)
 		{
-			buffer.Format ("\t%s_action_%s (player, npc);\n\n", fileName, getActionGroup ()->getFamilyName (actionFamilyId));
+			buffer.Format ("\t%s_action_%s (player, npc);\n\n", fileName.GetString (), getActionGroup ()->getFamilyName (actionFamilyId));
 			outfile.WriteString (indentation + buffer);
 		}
 
 	//	//-- comment NPC: <branchText> 
-		buffer.Format ("\t//-- NPC: %s\n", getFirstLine (sourceBranch->getText ().c_str ()));
+		buffer.Format ("\t//-- NPC: %s\n", getFirstLine (sourceBranch->getText ().c_str ()).GetString ());
 		outfile.WriteString (indentation + buffer);
 
 	//		string_id message = new string_id (c_stringFile, "<branchTextCrc>");
@@ -2581,7 +2605,7 @@ void SwgConversationEditorDoc::writeResponseChildBranches (CStdioFile & outfile,
 						continue;
 
 	//		//-- comment PLAYER: <responseText> 
-					buffer.Format ("\t//-- PLAYER: %s\n", getFirstLine (response->getText ().c_str ()));
+					buffer.Format ("\t//-- PLAYER: %s\n", getFirstLine (response->getText ().c_str ()).GetString ());
 					outfile.WriteString (indentation + buffer);
 
 	//		boolean hasResponse<responseIndex> = false;
@@ -2590,7 +2614,7 @@ void SwgConversationEditorDoc::writeResponseChildBranches (CStdioFile & outfile,
 	
 	//		if (<responseCondition> (player, npc))
 					int const conditionFamilyId = response->getConditionFamilyId ();
-					buffer.Format ("\tif (%s%s_condition_%s (player, npc))\n", response->getNegateCondition () ? "!" : "", fileName, getConditionGroup ()->getFamilyName (conditionFamilyId));
+					buffer.Format ("\tif (%s%s_condition_%s (player, npc))\n", response->getNegateCondition () ? "!" : "", fileName.GetString (), getConditionGroup ()->getFamilyName (conditionFamilyId));
 					outfile.WriteString (indentation + buffer);
 
 	//		{
@@ -2649,7 +2673,7 @@ void SwgConversationEditorDoc::writeResponseChildBranches (CStdioFile & outfile,
 			}
 
 	//			utils.setScriptVar (player, "conversation.<conversationId>.branchId", <branchId>);
-			buffer.Format ("\t\tutils.setScriptVar (player, \"conversation.%s.branchId\", %i);\n\n", fileName, destinationBranch->getBranchId ());
+			buffer.Format ("\t\tutils.setScriptVar (player, \"conversation.%s.branchId\", %i);\n\n", fileName.GetString (), destinationBranch->getBranchId ());
 			outfile.WriteString (indentation + buffer);
 
 			if (start)
@@ -2660,7 +2684,7 @@ void SwgConversationEditorDoc::writeResponseChildBranches (CStdioFile & outfile,
 					writeProsePackage (outfile, fileName, indentLevel + 2, sourceBranch);
 
 	//				npcStartConversation (speaker, npc, "celebConvo", null, prose_package, responses);
-					buffer.Format ("\t\tnpcStartConversation (player, npc, \"%s\", null, pp, responses);\n", fileName);
+					buffer.Format ("\t\tnpcStartConversation (player, npc, \"%s\", null, pp, responses);\n", fileName.GetString ());
 					outfile.WriteString (indentation + buffer);
 
 					if (sourceBranch->getGroupEcho())
@@ -2673,7 +2697,7 @@ void SwgConversationEditorDoc::writeResponseChildBranches (CStdioFile & outfile,
 				else
 				{
 	//				npcStartConversation (speaker, npc, "celebConvo", message, responses);
-					buffer.Format ("\t\tnpcStartConversation (player, npc, \"%s\", message, responses);\n", fileName);
+					buffer.Format ("\t\tnpcStartConversation (player, npc, \"%s\", message, responses);\n", fileName.GetString ());
 					outfile.WriteString (indentation + buffer);
 
 					if (sourceBranch->getGroupEcho())
@@ -2768,7 +2792,7 @@ void SwgConversationEditorDoc::writeResponseChildBranches (CStdioFile & outfile,
 			else
 			{
 	//			utils.removeScriptVar (player, "conversation.<conversationId>.branchId");
-				buffer.Format ("\t\tutils.removeScriptVar (player, \"conversation.%s.branchId\");\n\n", fileName);
+				buffer.Format ("\t\tutils.removeScriptVar (player, \"conversation.%s.branchId\");\n\n", fileName.GetString ());
 				outfile.WriteString (indentation + buffer);
 
 				if (sourceBranch->getUseProsePackage())
@@ -2844,7 +2868,7 @@ void SwgConversationEditorDoc::writeResponseChildBranches (CStdioFile & outfile,
 			else
 			{
 	//			utils.removeScriptVar (player, "conversation.<conversationId>.branchId");
-				buffer.Format ("\tutils.removeScriptVar (player, \"conversation.%s.branchId\");\n\n", fileName);
+				buffer.Format ("\tutils.removeScriptVar (player, \"conversation.%s.branchId\");\n\n", fileName.GetString ());
 				outfile.WriteString (indentation + buffer);
 
 				if (sourceBranch->getUseProsePackage())
@@ -2916,21 +2940,21 @@ void SwgConversationEditorDoc::writeProsePackage (CStdioFile & outfile, CString 
 	int const tokenTOFamilyId = conversationItem->getTokenTOFamilyId ();
 	if (tokenTOFamilyId != 0)
 	{
-		buffer.Format ("pp.other.set (%s_tokenTO_%s (player, npc));\n", fileName, getTokenTOGroup ()->getFamilyName (tokenTOFamilyId));
+		buffer.Format ("pp.other.set (%s_tokenTO_%s (player, npc));\n", fileName.GetString (), getTokenTOGroup ()->getFamilyName (tokenTOFamilyId));
 		outfile.WriteString (indentation + buffer);
 	}
 
 	int const tokenDIFamilyId = conversationItem->getTokenDIFamilyId ();
 	if (tokenDIFamilyId != 0)
 	{
-		buffer.Format ("pp.digitInteger = %s_tokenDI_%s (player, npc);\n", fileName, getTokenDIGroup ()->getFamilyName (tokenDIFamilyId));
+		buffer.Format ("pp.digitInteger = %s_tokenDI_%s (player, npc);\n", fileName.GetString (), getTokenDIGroup ()->getFamilyName (tokenDIFamilyId));
 		outfile.WriteString (indentation + buffer);
 	}
 
 	int const tokenDFFamilyId = conversationItem->getTokenDFFamilyId ();
 	if (tokenDFFamilyId != 0)
 	{
-		buffer.Format ("pp.digitFloat = %s_tokenDF_%s (player, npc);\n", fileName, getTokenDFGroup ()->getFamilyName (tokenDFFamilyId));
+		buffer.Format ("pp.digitFloat = %s_tokenDF_%s (player, npc);\n", fileName.GetString (), getTokenDFGroup ()->getFamilyName (tokenDFFamilyId));
 		outfile.WriteString (indentation + buffer);
 	}
 
@@ -2988,35 +3012,7 @@ void SwgConversationEditorDoc::OnButtonCompilerelease()
 
 // ----------------------------------------------------------------------
 
-void SwgConversationEditorDoc::OnButtonP4edit() 
-{
-	CString pathName = GetPathName ();
-	pathName.MakeLower ();
-
-	FileName fileName (pathName);
-	fileName.stripPathAndExt ();
-
-	if (strlen (fileName) == 0)
-	{
-		CString const message = "Please save the conversation before editing/adding to Perforce.";
-		IGNORE_RETURN (MessageBox (0, message, AfxGetApp ()->m_pszAppName, MB_OK));
-		return;
-	}
-
-	CString const shortFileName (fileName);
-
-	safe_cast<SwgConversationEditorApp *> (AfxGetApp ())->onViewShell (this);
-
-	ShellData * const shellData = new ShellData;
-	shellData->m_shortFileName = shortFileName;
-	shellData->m_fullScriptFileName = getFullScriptFileName (shortFileName);
-	shellData->m_fullStringTableFileName = getFullStringTableFileName (shortFileName);
-	UpdateAllViews (0, H_shellP4edit, shellData);
-}
-
-// ----------------------------------------------------------------------
-
-void SwgConversationEditorDoc::OnButtonFind() 
+void SwgConversationEditorDoc::OnButtonFind()
 {
 	DialogFindText dialog;
 	if (dialog.DoModal () == IDOK)
@@ -3037,7 +3033,7 @@ void SwgConversationEditorDoc::OnButtonFind()
 			m_warningFrame->DestroyWindow ();
 
 			CString buffer;
-			buffer.Format ("'%s' not found", dialog.m_text);
+			buffer.Format ("'%s' not found", dialog.m_text.GetString ());
 			MessageBox (0, buffer, AfxGetApp ()->m_pszAppName, MB_OK);
 		}
 	}
@@ -3100,7 +3096,7 @@ void SwgConversationEditorDoc::OnFileExport()
 					player ? "P" : "N",
 					conversationNumber,
 					player ? depth / 2 : (depth - 1) / 2,
-					getLetters(depthLineCount[depth]++));
+					getLetters(depthLineCount[depth]++).GetString ());
 			}
 
 			itemTags.push_back(buffer);
@@ -3132,23 +3128,23 @@ void SwgConversationEditorDoc::OnFileExport()
 				if (it == conversationItemList.end())
 					link = " (linked to ***UNKNOWN***)";
 				else
-					link.Format(" (linked to %s)", itemTags[count]);
+					link.Format(" (linked to %s)", itemTags[count].GetString ());
 			}
 
 			if (depth == 1)
 			{
 				buffer.Format("\n%s : [%s]%s\n\n",
-					itemTags[i],
+					itemTags[i].GetString (),
 					item->getText().c_str(),
-					link);
+					link.GetString ());
 			}
 			else
 			{
 				buffer.Format("%s%s : [%s]%s\n\n",
-					getIndentation(depth - 1),
-					itemTags[i],
+					getIndentation(depth - 1).GetString (),
+					itemTags[i].GetString (),
 					item->getText().c_str(),
-					link);
+					link.GetString ());
 			}
 
 			outfile.WriteString(buffer);

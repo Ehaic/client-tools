@@ -179,7 +179,7 @@ const CString BitmapView::createUniqueFamilyName (const CString* base) const
 
 	if (base)
 	{
-		familyName.Format ("%s", *base);
+		familyName.Format ("%s", base->GetString ());
 	}
 	else
 	{
@@ -193,7 +193,7 @@ const CString BitmapView::createUniqueFamilyName (const CString* base) const
 	{
 		if (base)
 		{
-			familyName.Format ("%s_%i", (LPCTSTR) base, familyIndex);    //lint !e1924  //-- c-style cast
+			familyName.Format ("%s_%i", base->GetString (), familyIndex);
 		}
 		else
 		{

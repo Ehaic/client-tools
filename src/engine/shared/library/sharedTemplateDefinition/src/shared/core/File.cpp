@@ -44,7 +44,12 @@ bool File::open(const char *filename, const char *mode)
 	m_filename.prependPath(m_basePath);
 
 #ifdef WIN32
-	m_fp = _fsopen(m_filename, mode, _SH_DENYRW);
+	// Read opens must allow concurrent readers: every template compile walks
+	// the same base .tdf/.tpf chain, and _SH_DENYRW on reads makes any two
+	// concurrent TemplateCompiler instances fail each other with EACCES.
+	// Writers keep the exclusive lock.
+	m_fp = _fsopen(m_filename, mode,
+		(strchr(mode, 'w') || strchr(mode, 'a') || strchr(mode, '+')) ? _SH_DENYRW : _SH_DENYWR);
 #else
 	// @todo: find an equivalent function for Linux
 	m_fp = fopen(m_filename, mode);

@@ -96,7 +96,7 @@ static void Cleanup( void )
 	}
 }
 
-BOOL CALLBACK HighlightSettingsDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR CALLBACK HighlightSettingsDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch( uMsg )
 	{
@@ -146,7 +146,7 @@ BOOL CALLBACK HighlightSettingsDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 				SetTextColor( (HDC)wParam, col );
 				SetBkColor( (HDC)wParam, col );
 
-				return (BOOL)gEdgeColorBrush;
+				return reinterpret_cast<INT_PTR>( gEdgeColorBrush );
 			}
 			else if( (HWND)lParam == GetDlgItem( hwndDlg, IDC_FILLCOLOR ) )
 			{
@@ -159,7 +159,7 @@ BOOL CALLBACK HighlightSettingsDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 				SetTextColor( (HDC)wParam, col );
 				SetBkColor( (HDC)wParam, col );
 
-				return (BOOL)gFillColorBrush;
+				return reinterpret_cast<INT_PTR>( gFillColorBrush );
 			}
 			return 0;
 

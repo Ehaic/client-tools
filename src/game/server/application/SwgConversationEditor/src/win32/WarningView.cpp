@@ -96,7 +96,7 @@ void WarningView::add (int const type, CString const & message, ConversationItem
 	int const index = GetListCtrl ().GetItemCount ();
 
 	IGNORE_RETURN (GetListCtrl ().InsertItem (index, message, type));
-	IGNORE_RETURN (GetListCtrl ().SetItemData (index, reinterpret_cast<DWORD> (conversationItem)));
+	IGNORE_RETURN (GetListCtrl ().SetItemData (index, reinterpret_cast<DWORD_PTR> (conversationItem)));
 }
 
 // ----------------------------------------------------------------------

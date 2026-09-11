@@ -3,6 +3,7 @@
 
 #include "UICanvas.h"
 
+#include <algorithm>
 #include <windowsx.h>
 #include <cmath>
 
@@ -310,10 +311,10 @@ void SelectionRect::SetUseBounds (bool b)
 //-----------------------------------------------------------------
 void SelectionRect::ClipRectToBounds ()
 {
-	mRect.bottom = min (mBounds.bottom, mRect.bottom);
-	mRect.top    = max (mBounds.top,    mRect.top);
-	mRect.left   = max (mBounds.left,   mRect.left);
-	mRect.right  = min (mBounds.right,  mRect.right);
+	mRect.bottom = std::min (mBounds.bottom, mRect.bottom);
+	mRect.top    = std::max (mBounds.top,    mRect.top);
+	mRect.left   = std::max (mBounds.left,   mRect.left);
+	mRect.right  = std::min (mBounds.right,  mRect.right);
 }
 //-----------------------------------------------------------------
 

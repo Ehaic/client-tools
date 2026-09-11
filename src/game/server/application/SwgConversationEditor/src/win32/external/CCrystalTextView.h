@@ -104,7 +104,7 @@ private:
 	BOOL m_bPreparingToDrag;
 	BOOL m_bDraggingText;
 	BOOL m_bDragSelection, m_bWordSelection, m_bLineSelection;
-	UINT m_nDragSelTimer;
+	UINT_PTR m_nDragSelTimer;
 	CPoint WordToRight(CPoint pt);
 	CPoint WordToLeft(CPoint pt);
 
@@ -355,7 +355,7 @@ protected:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	afx_msg void OnEditCopy();

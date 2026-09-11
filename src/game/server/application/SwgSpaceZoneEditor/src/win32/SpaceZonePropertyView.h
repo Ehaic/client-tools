@@ -46,7 +46,7 @@ public:
 
 protected:
 
-	afx_msg LONG OnPropertyChanged(UINT hiControlId_loItemChanged, LONG lPropertyType);
+	afx_msg LRESULT OnPropertyChanged(WPARAM hiControlId_loItemChanged, LPARAM lPropertyType);
 
 	//{{AFX_MSG(SpaceZonePropertyView)
 	afx_msg void OnSize(UINT nType, int cx, int cy);

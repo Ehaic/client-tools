@@ -42,7 +42,7 @@ public:
 	virtual void notifyValueChange();
 
 protected:
-	void PropertyCompoundItem::setConcatenatedValue();
+	void setConcatenatedValue();
 
 private:
 	QLineEdit *lined();

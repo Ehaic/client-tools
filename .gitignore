@@ -110,11 +110,34 @@ deps/qt3-win64-src/src/Makefile.main
 deps/qt3-win64-src/src/moc/Makefile
 deps/qt3-win64-src/src/moc/*.obj
 deps/qt3-win64-src/src/tmp/
+deps/qt3-win64-src/tools/designer/uilib/Makefile
+deps/qt3-win64-src/tools/designer/uilib/tmp/
 
 # Local MSBuild and helper outputs.
-src/build/win32/x64/
-**/build/win32/x64/
-**/x64/Release/
+#
+# These exclude directory CONTENTS (`/**`) rather than the directories
+# themselves. That is deliberate and must stay that way: git never descends into
+# an excluded DIRECTORY, so a plain `x64/Release/` rule makes every negation
+# below impossible. If you re-tighten these to bare directory rules, the tool
+# configs silently stop being tracked again.
+src/build/win32/x64/**
+**/build/win32/x64/**
+**/x64/Release/**
+
+# ...but the hand-ported tool configs ARE tracked, on purpose.
+#
+# These .cfg/.ini files are not build output - they are hand-authored or ported
+# from the SOE reference tree, and the editors do not work without them. They
+# carry the legacy no-sku TreeFile keys, the six ported SOE tool sections, the
+# NpcEditor config work, and the [ParticleEditor] groundScene key that keeps the
+# sky from rendering magenta. A clean checkout used to lose all of it.
+#
+# The intermediate directories must be re-included first, or git stops at them
+# and never sees the files.
+!src/build/win32/x64/
+!src/build/win32/x64/Release/
+!src/build/win32/x64/Release/*.cfg
+!src/build/win32/x64/Release/*.ini
 scripts/__pycache__/
 mss64-stub/*.exp
 deps/x64/lib/lgLcd.lib

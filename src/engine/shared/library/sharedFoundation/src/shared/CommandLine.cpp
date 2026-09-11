@@ -1003,7 +1003,15 @@ bool CommandLine::Lexer::gobbleString(bool isRequired, char *stringBuffer, int s
 	int  stringLength = 0;
 	bool inQuote = false;
 
-	while ( *nextCharacter && (inQuote || ((*nextCharacter != '-') && !isspace(*nextCharacter) && (*nextCharacter != '='))) )
+	// NOTE (2026-08-28): '-' only terminates a string when it would START the
+	// token - i.e. at stringLength 0, where getNextToken treats it as an option
+	// introducer. The original condition terminated on '-' ANYWHERE, which
+	// split unquoted arguments containing dashes (e.g. the path
+	// c:/save-test/foo.tab became "c:/save" + option "-t" + ...), making every
+	// dashed path fail with "Invalid command line specified". No grammar rule
+	// relied on mid-string termination: options are whitespace-separated and
+	// glued short options were never supported by the lexer.
+	while ( *nextCharacter && (inQuote || (((*nextCharacter != '-') || (stringLength > 0)) && !isspace(*nextCharacter) && (*nextCharacter != '='))) )
 	{
 		if (stringLength >= (stringSize-1))
 		{

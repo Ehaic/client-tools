@@ -576,7 +576,7 @@ void CCrystalTextView::OnMouseMove(UINT nFlags, CPoint point)
 			}
 
 			//	Moving to normal selection mode
-			::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_IBEAM)));
+			::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
 			m_bLineSelection = m_bWordSelection = FALSE;
 		}
 
@@ -725,7 +725,7 @@ void CCrystalTextView::OnLButtonUp(UINT nFlags, CPoint point)
 	ASSERT_VALIDTEXTPOS(m_ptCursorPos);
 }
 
-void CCrystalTextView::OnTimer(UINT nIDEvent) 
+void CCrystalTextView::OnTimer(UINT_PTR nIDEvent)
 {
 	CView::OnTimer(nIDEvent);
 

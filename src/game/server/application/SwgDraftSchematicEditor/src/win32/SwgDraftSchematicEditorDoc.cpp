@@ -87,7 +87,6 @@ IMPLEMENT_DYNCREATE(SwgDraftSchematicEditorDoc, CDocument)
 BEGIN_MESSAGE_MAP(SwgDraftSchematicEditorDoc, CDocument)
 	//{{AFX_MSG_MAP(SwgDraftSchematicEditorDoc)
 	ON_COMMAND(ID_BUTTON_COMPILE, OnButtonCompile)
-	ON_COMMAND(ID_BUTTON_P4EDIT, OnButtonP4edit)
 	ON_COMMAND(ID_BUTTON_SCAN, OnButtonScan)
 	ON_COMMAND(ID_BUTTON_SAVETEST, OnButtonSavetest)
 	//}}AFX_MSG_MAP
@@ -216,7 +215,7 @@ void SwgDraftSchematicEditorDoc::OnButtonCompile()
 	pathName.MakeLower ();
 	if (pathName.GetLength () == 0)
 	{
-		MessageBox (0, "Please save the conversation before editing/adding to Perforce.", AfxGetApp ()->m_pszAppName, MB_OK);
+		MessageBox (0, "Please save the document before compiling.", AfxGetApp ()->m_pszAppName, MB_OK);
 		return;
 	}
 
@@ -227,43 +226,6 @@ void SwgDraftSchematicEditorDoc::OnButtonCompile()
 
 	CString const sharedObjectTemplateName (DraftSchematic::createSharedObjectTemplateName (pathName));
 	CONSOLE_EXECUTE ("templatecompiler -compileeditor " + sharedObjectTemplateName);
-}
-
-// ----------------------------------------------------------------------
-
-void SwgDraftSchematicEditorDoc::OnButtonP4edit() 
-{
-	CString pathName = GetPathName ();
-	pathName.MakeLower ();
-	if (pathName.GetLength () == 0)
-	{
-		MessageBox (0, "Please save the conversation before editing/adding to Perforce.", AfxGetApp ()->m_pszAppName, MB_OK);
-		return;
-	}
-
-	OnSaveDocument (GetPathName ());
-
-	//-- server tpf
-	CString serverObjectTemplateName (DraftSchematic::createServerObjectTemplateName (pathName));
-	CONSOLE_EXECUTE ("p4 edit " + serverObjectTemplateName);
-	CONSOLE_EXECUTE ("p4 add " + serverObjectTemplateName);
-
-	//-- server iff
-	serverObjectTemplateName.Replace ("/dsrc/", "/data/");
-	serverObjectTemplateName.Replace (".tpf", ".iff");	
-	CONSOLE_EXECUTE ("p4 edit " + serverObjectTemplateName);
-	CONSOLE_EXECUTE ("p4 add " + serverObjectTemplateName);
-
-	//-- shared tpf
-	CString sharedObjectTemplateName (DraftSchematic::createSharedObjectTemplateName (pathName));
-	CONSOLE_EXECUTE ("p4 edit " + sharedObjectTemplateName);
-	CONSOLE_EXECUTE ("p4 add " + sharedObjectTemplateName);
-
-	//-- shared iff
-	sharedObjectTemplateName.Replace ("/dsrc/", "/data/");
-	sharedObjectTemplateName.Replace (".tpf", ".iff");	
-	CONSOLE_EXECUTE ("p4 edit " + sharedObjectTemplateName);
-	CONSOLE_EXECUTE ("p4 add " + sharedObjectTemplateName);
 }
 
 // ----------------------------------------------------------------------

@@ -17,7 +17,7 @@ extern UIColor gHighlightOutlineColor;
 extern UIColor gHighlightFillColor;
 
 extern HWND	gTooltip;
-extern void AddTooltipFromControlID( HWND TooltipWindow, HWND ParentWindow, UINT ControlID, char *Tooltip );
+extern void AddTooltipFromControlID( HWND TooltipWindow, HWND ParentWindow, UINT ControlID, const char *Tooltip );
 extern void ClearDefPushButtonLook( HWND hwndDlg, UINT nControlID );
 extern void MoveSizeDlgControl( HWND hwnd, UINT itemID, UIPoint Move, UIPoint Size );
 
@@ -451,7 +451,7 @@ BOOL CALLBACK SelectRegionDialogBox::DialogProc( HWND hwndDlg, UINT uMsg, WPARAM
 			if( theCanvasWindow )
 			{
 				sThis = this;
-				SetWindowLong( theCanvasWindow, GWL_WNDPROC, (LONG)StaticCanvasProc );				
+				SetWindowLongPtr( theCanvasWindow, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>( StaticCanvasProc ) );
 				SendMessage( theCanvasWindow, WM_APP, 0, 0 );
 			}
 
@@ -606,7 +606,7 @@ BOOL CALLBACK SelectRegionDialogBox::DialogProc( HWND hwndDlg, UINT uMsg, WPARAM
 
 //-----------------------------------------------------------------
 
-BOOL CALLBACK SelectRegionDialogBox::CanvasProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+LRESULT CALLBACK SelectRegionDialogBox::CanvasProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch( uMsg )
 	{
@@ -615,7 +615,7 @@ BOOL CALLBACK SelectRegionDialogBox::CanvasProc( HWND hwnd, UINT uMsg, WPARAM wP
 
 		case WM_NCHITTEST:
 		{
-			BOOL rc = DefWindowProc( hwnd, uMsg, wParam, lParam );
+			LRESULT rc = DefWindowProc( hwnd, uMsg, wParam, lParam );
 
 			if( rc == HTNOWHERE )
 				rc = HTCLIENT;
@@ -750,7 +750,7 @@ BOOL CALLBACK SelectRegionDialogBox::CanvasProc( HWND hwnd, UINT uMsg, WPARAM wP
 
 //-----------------------------------------------------------------
 
-BOOL CALLBACK SelectRegionDialogBox::StaticCanvasProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+LRESULT CALLBACK SelectRegionDialogBox::StaticCanvasProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	SelectRegionDialogBox *thisCache = static_cast<SelectRegionDialogBox *>( GetProp( hwnd, "this" ) );
 
@@ -765,7 +765,7 @@ BOOL CALLBACK SelectRegionDialogBox::StaticCanvasProc( HWND hwnd, UINT uMsg, WPA
 
 //-----------------------------------------------------------------
 
-BOOL CALLBACK SelectRegionDialogBox::StaticDialogProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR CALLBACK SelectRegionDialogBox::StaticDialogProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	SelectRegionDialogBox *thisCache = static_cast<SelectRegionDialogBox *>( GetProp( hwnd, "this" ) );
 

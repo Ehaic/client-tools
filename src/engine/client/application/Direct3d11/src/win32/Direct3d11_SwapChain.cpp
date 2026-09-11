@@ -22,10 +22,34 @@
 
 #include "clientGraphics/Gl_dll.def"
 
+#include <map>
+
 // ======================================================================
 
 namespace Direct3d11_SwapChainNamespace
 {
+	struct WindowSwapChain
+	{
+		explicit WindowSwapChain(HWND targetWindow)
+		: window(targetWindow),
+		  swapChain(NULL),
+		  backBufferView(NULL),
+		  width(0),
+		  height(0),
+		  flags(0)
+		{
+		}
+
+		HWND window;
+		IDXGISwapChain1 *swapChain;
+		ID3D11RenderTargetView *backBufferView;
+		int width;
+		int height;
+		UINT flags;
+	};
+
+	typedef std::map<HWND, WindowSwapChain *> WindowSwapChainMap;
+
 	constexpr int cs_debugScreenshotIntervalFrames = 600;
 	constexpr int cs_debugScreenshotQualityPercent = 100;
 	constexpr int cs_debugScreenshotNameBytes = 64;
@@ -50,6 +74,7 @@ namespace Direct3d11_SwapChainNamespace
 	int ms_height;
 	UINT ms_swapChainFlags;
 	bool ms_warnedAboutSubRectDepthClear;
+	WindowSwapChainMap ms_windowSwapChains;
 
 	D3D11_VIEWPORT ms_viewport;
 
@@ -61,6 +86,13 @@ namespace Direct3d11_SwapChainNamespace
 	bool createSwapChain();
 	bool createBackBufferViews();
 	void releaseBackBufferViews();
+	bool createWindowSwapChain(WindowSwapChain &target, int width, int height);
+	bool createWindowBackBufferView(WindowSwapChain &target);
+	bool resizeWindowSwapChain(WindowSwapChain &target, int width, int height);
+	void releaseWindowSwapChain(WindowSwapChain &target);
+	void releaseWindowSwapChains();
+	void discardWindowSwapChain(HWND window);
+	WindowSwapChain *findOrCreateWindowSwapChain(HWND window, int width, int height);
 	void updateWindowSettings();
 } // namespace Direct3d11_SwapChainNamespace
 using namespace Direct3d11_SwapChainNamespace;
@@ -288,6 +320,221 @@ void Direct3d11_SwapChainNamespace::releaseBackBufferViews()
 	}
 }
 
+// ----------------------------------------------------------------------
+/**
+ * Create the colour-only swap chain an editor child window presents through.
+ *
+ * The scene, depth and MSAA resources remain global and off-screen. Each child
+ * window needs only a single-sampled colour buffer to receive the existing
+ * composite pass, which is why this cache is small even in a multi-view tool.
+ */
+
+bool Direct3d11_SwapChainNamespace::createWindowSwapChain(WindowSwapChain &target, int width, int height)
+{
+	IDXGIFactory2 *const factory = Direct3d11_Device::getFactory();
+	ID3D11Device1 *const device = Direct3d11_Device::getDevice();
+	if (!factory || !device)
+		return false;
+
+	// Tool widgets still draw rubber bands and other overlays through Qt/GDI
+	// immediately after Graphics::present(window). A flip-model chain owns the
+	// HWND's presentation and those GDI writes never reach the visible surface,
+	// so child windows deliberately retain the one-buffer bitblt model that
+	// matches D3D9's redirected Present behaviour. The primary game chain stays
+	// flip-discard and can still use tearing.
+	target.flags = 0;
+
+	DXGI_SWAP_CHAIN_DESC1 description;
+	Zero(description);
+	description.Width = static_cast<UINT>(width);
+	description.Height = static_cast<UINT>(height);
+	description.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	description.SampleDesc.Count = 1;
+	description.SampleDesc.Quality = 0;
+	description.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	description.BufferCount = 1;
+	description.Scaling = DXGI_SCALING_STRETCH;
+	description.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	description.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+	description.Flags = 0;
+
+	HRESULT hresult = factory->CreateSwapChainForHwnd(device, target.window, &description, NULL, NULL, &target.swapChain);
+	if (FAILED(hresult) || !target.swapChain)
+	{
+		WARNING(true, ("Direct3d11: CreateSwapChainForHwnd failed for child window %p at %dx%d (%s).", target.window, width, height, Direct3d11_Device::describeHresult(hresult)));
+		return false;
+	}
+
+	IGNORE_RETURN(factory->MakeWindowAssociation(target.window, DXGI_MWA_NO_ALT_ENTER));
+	target.width = width;
+	target.height = height;
+
+	return createWindowBackBufferView(target);
+}
+
+// ----------------------------------------------------------------------
+
+bool Direct3d11_SwapChainNamespace::createWindowBackBufferView(WindowSwapChain &target)
+{
+	ID3D11Device1 *const device = Direct3d11_Device::getDevice();
+	if (!device || !target.swapChain)
+		return false;
+
+	ID3D11Texture2D *backBuffer = NULL;
+	HRESULT hresult = target.swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&backBuffer));
+	if (FAILED(hresult) || !backBuffer)
+	{
+		WARNING(true, ("Direct3d11: GetBuffer failed for child window %p (%s).", target.window, Direct3d11_Device::describeHresult(hresult)));
+		return false;
+	}
+
+	hresult = device->CreateRenderTargetView(backBuffer, NULL, &target.backBufferView);
+	backBuffer->Release();
+	if (FAILED(hresult) || !target.backBufferView)
+	{
+		WARNING(true, ("Direct3d11: CreateRenderTargetView failed for child window %p (%s).", target.window, Direct3d11_Device::describeHresult(hresult)));
+		return false;
+	}
+
+	return true;
+}
+
+// ----------------------------------------------------------------------
+
+bool Direct3d11_SwapChainNamespace::resizeWindowSwapChain(WindowSwapChain &target, int width, int height)
+{
+	if (!target.swapChain)
+		return false;
+
+	if (target.width == width && target.height == height && target.backBufferView)
+		return true;
+
+	ID3D11DeviceContext1 *const context = Direct3d11_Device::getContext();
+	if (context)
+		context->OMSetRenderTargets(0, NULL, NULL);
+
+	if (target.backBufferView)
+	{
+		target.backBufferView->Release();
+		target.backBufferView = NULL;
+	}
+
+	HRESULT const hresult = target.swapChain->ResizeBuffers(0, static_cast<UINT>(width), static_cast<UINT>(height), DXGI_FORMAT_UNKNOWN, target.flags);
+	Direct3d11_Device::checkForDeviceRemoved(hresult, "ResizeBuffers(child window)");
+	if (FAILED(hresult))
+	{
+		WARNING(true, ("Direct3d11: ResizeBuffers failed for child window %p at %dx%d (%s).", target.window, width, height, Direct3d11_Device::describeHresult(hresult)));
+		return false;
+	}
+
+	target.width = width;
+	target.height = height;
+	return createWindowBackBufferView(target);
+}
+
+// ----------------------------------------------------------------------
+
+void Direct3d11_SwapChainNamespace::releaseWindowSwapChain(WindowSwapChain &target)
+{
+	ID3D11DeviceContext1 *const context = Direct3d11_Device::getContext();
+	if (context)
+		context->OMSetRenderTargets(0, NULL, NULL);
+
+	if (target.backBufferView)
+	{
+		target.backBufferView->Release();
+		target.backBufferView = NULL;
+	}
+
+	if (target.swapChain)
+	{
+		target.swapChain->Release();
+		target.swapChain = NULL;
+	}
+}
+
+// ----------------------------------------------------------------------
+
+void Direct3d11_SwapChainNamespace::discardWindowSwapChain(HWND window)
+{
+	WindowSwapChainMap::iterator const found = ms_windowSwapChains.find(window);
+	if (found == ms_windowSwapChains.end())
+		return;
+
+	WindowSwapChain *const target = found->second;
+	ms_windowSwapChains.erase(found);
+	if (target)
+	{
+		releaseWindowSwapChain(*target);
+		delete target;
+	}
+}
+
+// ----------------------------------------------------------------------
+
+void Direct3d11_SwapChainNamespace::releaseWindowSwapChains()
+{
+	for (WindowSwapChainMap::iterator i = ms_windowSwapChains.begin(); i != ms_windowSwapChains.end(); ++i)
+	{
+		WindowSwapChain *const target = i->second;
+		if (target)
+		{
+			releaseWindowSwapChain(*target);
+			delete target;
+		}
+	}
+
+	ms_windowSwapChains.clear();
+}
+
+// ----------------------------------------------------------------------
+
+Direct3d11_SwapChainNamespace::WindowSwapChain *Direct3d11_SwapChainNamespace::findOrCreateWindowSwapChain(HWND window, int width, int height)
+{
+	// Editors can destroy MDI views without another call for that HWND. Prune
+	// those entries opportunistically so a long editing session does not retain
+	// every swap chain it has ever opened.
+	WindowSwapChainMap::iterator i = ms_windowSwapChains.begin();
+	while (i != ms_windowSwapChains.end())
+	{
+		WindowSwapChainMap::iterator const current = i++;
+		if (!IsWindow(current->first))
+		{
+			WindowSwapChain *const stale = current->second;
+			ms_windowSwapChains.erase(current);
+			if (stale)
+			{
+				releaseWindowSwapChain(*stale);
+				delete stale;
+			}
+		}
+	}
+
+	if (!IsWindow(window) || width <= 0 || height <= 0)
+		return NULL;
+
+	WindowSwapChainMap::iterator found = ms_windowSwapChains.find(window);
+	if (found != ms_windowSwapChains.end())
+	{
+		WindowSwapChain *const existing = found->second;
+		if (existing && resizeWindowSwapChain(*existing, width, height))
+			return existing;
+
+		discardWindowSwapChain(window);
+	}
+
+	WindowSwapChain *const created = new WindowSwapChain(window);
+	if (!createWindowSwapChain(*created, width, height))
+	{
+		releaseWindowSwapChain(*created);
+		delete created;
+		return NULL;
+	}
+
+	ms_windowSwapChains.insert(WindowSwapChainMap::value_type(window, created));
+	return created;
+}
+
 // ======================================================================
 
 bool Direct3d11_SwapChain::install(Gl_install *gl_install)
@@ -340,6 +587,8 @@ bool Direct3d11_SwapChain::install(Gl_install *gl_install)
 
 void Direct3d11_SwapChain::remove()
 {
+	releaseWindowSwapChains();
+
 	Direct3d11_SceneTarget::remove();
 
 	releaseBackBufferViews();
@@ -430,12 +679,23 @@ void Direct3d11_SwapChain::clearViewport(bool clearColor, uint32 colorValue, boo
 
 	if (clearColor && colorView)
 	{
+		// colorValue is a D3DCOLOR (ARGB). Direct3d9 handed it to ID3D3DDevice9::Clear()
+		// whole, alpha byte included, so the alpha channel MUST be decoded here too --
+		// forcing it to 1.0 is not a harmless simplification.
+		//
+		// The scene's alpha channel is the BLOOM MASK: Bloom's downsample weights each
+		// tap's rgb by its alpha, and the composite adds bloom.rgb * bloom.a on top of
+		// the scene. GroundScene.cpp:2371 clears with PackedRgb::asUint32(), which
+		// (PackedRgb.h:80) packs only r/g/b and leaves the alpha byte ZERO -- i.e. "do
+		// not bloom this pixel". Hardcoding 1.0 here inverted that into "bloom at full
+		// strength" for every pixel no geometry overdraws, and the port had no way to
+		// express a zero clear alpha at all.
 		float const color[4] =
 			{
 				static_cast<float>((colorValue >> 16) & 0xff) / 255.0f,
 				static_cast<float>((colorValue >> 8) & 0xff) / 255.0f,
 				static_cast<float>((colorValue) & 0xff) / 255.0f,
-				1.0f};
+				static_cast<float>((colorValue >> 24) & 0xff) / 255.0f};
 
 		if (wholeTarget)
 			context->ClearRenderTargetView(colorView, color);
@@ -668,6 +928,73 @@ bool Direct3d11_SwapChain::present()
 	{
 		++Direct3d11_Metrics::presentFailures;
 		WARNING(true, ("Direct3d11: Present failed (%s).", Direct3d11_Device::describeHresult(hresult)));
+		return false;
+	}
+
+	return true;
+}
+
+// ----------------------------------------------------------------------
+/**
+ * Show the current scene in an editor-owned child HWND.
+ *
+ * D3D9 can redirect a device Present to an arbitrary destination window.
+ * DXGI cannot: each swap chain is permanently associated with one HWND. The
+ * scene is already off-screen, so the equivalent is a cached per-HWND colour
+ * swap chain which receives the same final composite as the primary one.
+ */
+
+bool Direct3d11_SwapChain::presentToWindow(HWND window, int width, int height)
+{
+	DX11_ASSERT_MAIN_THREAD();
+
+	// Avoid trying to attach a second flip-model swap chain to the primary HWND.
+	if (window == ms_window)
+		return present();
+
+	WindowSwapChain *const target = findOrCreateWindowSwapChain(window, width, height);
+	if (!target || !target->swapChain || !target->backBufferView)
+		return false;
+
+	Direct3d11_Device::drainDebugMessages();
+	if (ConfigDirect3d11::getDebugLayer())
+		IGNORE_RETURN(Direct3d11_StateCache::auditAgainstDevice("end of editor frame"));
+
+	ID3D11DeviceContext1 *const context = Direct3d11_Device::getContext();
+	if (!context)
+		return false;
+
+	context->OMSetRenderTargets(1, &target->backBufferView, NULL);
+
+	D3D11_VIEWPORT destinationViewport;
+	destinationViewport.TopLeftX = 0.0f;
+	destinationViewport.TopLeftY = 0.0f;
+	destinationViewport.Width = static_cast<float>(width);
+	destinationViewport.Height = static_cast<float>(height);
+	destinationViewport.MinDepth = 0.0f;
+	destinationViewport.MaxDepth = 1.0f;
+	context->RSSetViewports(1, &destinationViewport);
+
+	Direct3d11_SceneTarget::composite();
+
+	// A bitblt chain cannot use DXGI_PRESENT_ALLOW_TEARING, but interval zero
+	// still provides the configured no-vblank-wait mode. The consumer frame
+	// callback remains primary-only: its HWND-less resize contract describes
+	// the primary back buffer, not any one member of this child-window cache.
+	UINT const syncInterval = ConfigDirect3d11::getAllowTearing() ? 0 : 1;
+	HRESULT const hresult = target->swapChain->Present(syncInterval, 0);
+
+	++Direct3d11_Metrics::presents;
+	Direct3d11_Device::checkForDeviceRemoved(hresult, "Present(child window)");
+
+	if (hresult == DXGI_STATUS_OCCLUDED)
+		return true;
+
+	if (FAILED(hresult))
+	{
+		++Direct3d11_Metrics::presentFailures;
+		WARNING(true, ("Direct3d11: Present failed for child window %p (%s).", window, Direct3d11_Device::describeHresult(hresult)));
+		discardWindowSwapChain(window);
 		return false;
 	}
 

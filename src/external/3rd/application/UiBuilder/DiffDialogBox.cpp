@@ -97,7 +97,7 @@ bool DiffDialogBox::DiffObjects(HWND hwndParent, UIBaseObject const & lhs, UIBas
 
 //////////////////////////////////////////////////////////////////////////
 
-BOOL CALLBACK DiffDialogBox::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK DiffDialogBox::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	UI_UNREF(lParam);
 	

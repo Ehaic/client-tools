@@ -75,6 +75,8 @@
 #include "sharedMath/SetupSharedMath.h"
 #include "sharedObject/SetupSharedObject.h"
 #include "sharedRandom/SetupSharedRandom.h"
+#include "clientTerrain/SetupClientTerrain.h"
+#include "sharedCollision/SetupSharedCollision.h"
 #include "sharedTerrain/SetupSharedTerrain.h"
 #include "sharedThread/SetupSharedThread.h"
 #include "sharedUtility/SetupSharedUtility.h"
@@ -519,6 +521,22 @@ BOOL TerrainEditorApp::InitInstance()
 		SetupSharedImage::setupDefaultData (setupImageData);
 		SetupSharedImage::install (setupImageData);
 
+		//-- collision.
+		//
+		//   Needed as soon as the 3D View renders real terrain: completed chunks
+		//   run ProceduralTerrainAppearance::createFlora, which addToWorld()s each
+		//   flora object into the CollisionWorld. Without this the extent block
+		//   managers do not exist and CollisionProperty::updateExtents faults in
+		//   MemoryBlockManager::allocate. Same Data as Turf uses (Turf.cpp:194-205),
+		//   the other tool that installs it.
+		{
+			SetupSharedCollision::Data setupCollisionData;
+			setupCollisionData.installExtents = true;
+			setupCollisionData.installCollisionWorld = true;
+			setupCollisionData.serverSide = false;
+			SetupSharedCollision::install (setupCollisionData);
+		}
+
 		//-- object
 		SetupSharedObject::Data setupObjectData;
 		SetupSharedObject::setupDefaultMFCData (setupObjectData);
@@ -558,6 +576,21 @@ BOOL TerrainEditorApp::InitInstance()
 		SetupClientObject::Data setupClientObjectData;
 		SetupClientObject::setupToolData (setupClientObjectData);
 		SetupClientObject::install (setupClientObjectData);
+
+		//-- terrain rendering.
+		//
+		//   SetupSharedTerrain::install above binds MPTA/PTAT to
+		//   ServerProceduralTerrainAppearanceTemplate (SetupSharedTerrain.cpp:52),
+		//   which is the collision/height variant and builds no renderable chunks.
+		//   Without this call the 3D View fetched a ServerProceduralTerrainAppearance,
+		//   sat at chunks=0 forever and showed nothing but its 0xffa1a1a1 clear
+		//   colour. SetupClientTerrain reassigns those same two tags to the client
+		//   template (assignBinding is a plain map overwrite) and installs the flora,
+		//   water and sky systems the rendered terrain needs.
+		//
+		//   Must come after SetupClientGraphics: it calls
+		//   ShaderPrimitiveSorter::getPhase() while wiring the below-water hook.
+		SetupClientTerrain::install ();
 	}
 
 	// -qq- don't like these being hard-coded

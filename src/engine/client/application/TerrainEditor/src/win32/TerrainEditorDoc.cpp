@@ -1780,27 +1780,34 @@ bool TerrainEditorDoc::_bakeFlora(const char *terrainFile)
 	}
 	strcpy(dot, ".tcf");
 
-	char commandLine[2048];
+	char exePath[2048];
 
-	GetModuleFileName(0, commandLine, sizeof(commandLine));
-	_normalizePath(commandLine, true);
-	strcat(commandLine, "Turf_r.exe");
+	GetModuleFileName(0, exePath, sizeof(exePath));
+	_normalizePath(exePath, true);
+	strcat(exePath, "Turf_r.exe");
 
-	if (0!=_access(commandLine, 0))
+	if (0!=_access(exePath, 0))
 	{
-		strcpy(commandLine, startupDirectory);
-		_normalizePath(commandLine, false);
-		strcat(commandLine, "Turf_r.exe");
-		if (0!=_access(commandLine, 0))
+		strcpy(exePath, startupDirectory);
+		_normalizePath(exePath, false);
+		strcat(exePath, "Turf_r.exe");
+		if (0!=_access(exePath, 0))
 		{
 			MessageBox(mapFrame->getMapView()->m_hWnd, "Could not find Turf_r.exe!", "Error", MB_ICONERROR);
 			return false;
 		}
 	}
 
-	strcat(commandLine, " ");
-	strcat(commandLine, pathName);
-	strcat(commandLine, " /f");
+	//-- Both paths must be quoted. ProcessSpawner calls CreateProcess with
+	//   lpApplicationName=0, so the child's CRT splits lpCommandLine on spaces,
+	//   and the data tree routinely lives under a directory that has them.
+	//   Turf push_front()s each non-switch argument and takes the LAST fragment
+	//   as its output file, so "D:\SWG All Tools Working\...\tatooine.tcf"
+	//   became the relative "Working\...\tatooine.tcf" - resolved against the
+	//   editor's own directory, where it silently went nowhere.
+	char commandLine[2048];
+	_snprintf(commandLine, sizeof(commandLine), "\"%s\" \"%s\" /f", exePath, pathName);
+	commandLine[sizeof(commandLine)-1]=0;
 
 	// -----------------------------------------------------
 

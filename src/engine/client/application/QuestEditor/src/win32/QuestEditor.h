@@ -53,7 +53,6 @@ public:
 
 	void buildTaskTree(QDomNode node, TreeItem * parent);
 
-	void addToPerforce();
 	void compile();
 	void check();
 
@@ -111,6 +110,7 @@ private:
 	QString m_taskIff;
 	QString m_stringFile;
 	bool m_dirty;
+	bool m_confirmedSaveToOpenedPath;
 	StringTable m_stringTable;
 
 private: //-- disabled

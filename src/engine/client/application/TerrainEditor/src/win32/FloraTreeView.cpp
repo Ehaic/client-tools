@@ -1037,7 +1037,7 @@ void FloraTreeView::OnLButtonUpForDrag (bool move)
 
 	if (m_idTimer)
 	{
-		IGNORE_RETURN (KillTimer (static_cast<int> (m_idTimer)));
+		IGNORE_RETURN (KillTimer (m_idTimer));
 		m_idTimer = 0;
 	}
 
@@ -1148,7 +1148,7 @@ void FloraTreeView::OnMouseMove(UINT nFlags, CPoint point)
 			
 			if( m_idTimer && hti == m_htiOldDrop )
 			{
-				IGNORE_RETURN (KillTimer (static_cast<int> (m_idTimer)));
+				IGNORE_RETURN (KillTimer (m_idTimer));
 				m_idTimer = 0;
 			}
 			
@@ -1166,7 +1166,7 @@ void FloraTreeView::OnDestroy()
 {
 	if( m_idTimer )
 	{
-		IGNORE_RETURN (KillTimer (static_cast<int> (m_idTimer)));
+		IGNORE_RETURN (KillTimer (m_idTimer));
 		m_idTimer = 0;
 	}
 
@@ -1175,7 +1175,7 @@ void FloraTreeView::OnDestroy()
 
 //-------------------------------------------------------------------
 
-void FloraTreeView::OnTimer(UINT nIDEvent) 
+void FloraTreeView::OnTimer(UINT_PTR nIDEvent)
 {
     if( nIDEvent == m_idTimer )
     {

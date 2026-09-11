@@ -62,7 +62,7 @@ namespace DialogDirectoryNamespace
 
 	void addDirectory (char const * const directory, CTreeCtrl & treeCtrl, HTREEITEM rootItem, bool const refresh)
 	{
-		int const n = strlen (directory);
+		size_t const n = strlen (directory);
 
 		char searchMask [MAX_PATH];
 		char subDirectory [MAX_PATH];
@@ -117,7 +117,7 @@ namespace DialogDirectoryNamespace
 
 					if (finder.IsDirectory ())
 					{
-						sprintf (subDirectory, "%s%s%s", directory, directory [n-1] != '/' ? "/" : "", finder.GetFileName ());
+						sprintf (subDirectory, "%s%s%s", directory, directory [n-1] != '/' ? "/" : "", finder.GetFileName ().GetString ());
 
 						addDirectory (subDirectory, treeCtrl, treeItem, refresh);
 					}
@@ -280,10 +280,11 @@ void DialogDirectory::OnDblclkTreeview (NMHDR * const /*pNMHDR*/, LRESULT * cons
 	if (treeItem && GetTreeCtrl ().GetParentItem (treeItem) != 0 && !GetTreeCtrl ().ItemHasChildren (treeItem) && name.GetLength () != 0)
 	{
 		CString const rootPath = Configuration::getServerObjectTemplatePath ();
-		if (!AfxGetApp ()->OpenDocumentFile (rootPath + (rootPath [rootPath.GetLength () - 1] == '/' ? "" : "/") + name))
+		CString const fullPath = rootPath + (rootPath [rootPath.GetLength () - 1] == '/' ? "" : "/") + name;
+		if (!AfxGetApp ()->OpenDocumentFile (fullPath))
 		{
 			CString buffer;
-			buffer.Format ("%s could not be opened\n", rootPath + (rootPath [rootPath.GetLength () - 1] == '/' ? "" : "/") + name);
+			buffer.Format ("%s could not be opened\n", fullPath.GetString ());
 			CONSOLE_PRINT (buffer);
 		}
 		else

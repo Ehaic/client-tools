@@ -664,7 +664,7 @@ CString DraftSchematic::generateServerObjectTemplate (CString const & serverObje
 		result += "\tname = \"" + slot->m_nameStringTable + "\" \"" + slot->m_nameStringId + "\",\n";
 		result += "\toptions = [\n";
 
-		buffer.Format ("\t\t[ingredientType=%s, ingredients = [[name=\"%s\" \"%s\", ingredient=\"%s\", count=%i]], complexity = 0, skillCommand = \"unskilled\"]],\n", slot->m_ingredientType, slot->m_nameStringTable, slot->m_nameStringId, slot->m_ingredientName, slot->m_ingredientCount);
+		buffer.Format ("\t\t[ingredientType=%s, ingredients = [[name=\"%s\" \"%s\", ingredient=\"%s\", count=%i]], complexity = 0, skillCommand = \"unskilled\"]],\n", slot->m_ingredientType.GetString (), slot->m_nameStringTable.GetString (), slot->m_nameStringId.GetString (), slot->m_ingredientName.GetString (), slot->m_ingredientCount);
 		result += buffer;
 
 		result += "\toptionalSkillCommand = \"\",\n";
@@ -732,7 +732,7 @@ CString DraftSchematic::generateSharedObjectTemplate (CString const & sharedObje
 		{
 			DraftSchematic::Attribute const * const attribute = getAttribute (i);
 
-			buffer.Format ("\t[name = \"%s\" \"%s\", experiment = \"%s\" \"%s\", value = %s..%s]", attribute->m_nameStringTable, attribute->m_nameStringId, attribute->m_experimentStringTable, attribute->m_experimentStringId, attribute->m_minimumValue, attribute->m_maximumValue);
+			buffer.Format ("\t[name = \"%s\" \"%s\", experiment = \"%s\" \"%s\", value = %s..%s]", attribute->m_nameStringTable.GetString (), attribute->m_nameStringId.GetString (), attribute->m_experimentStringTable.GetString (), attribute->m_experimentStringId.GetString (), attribute->m_minimumValue.GetString (), attribute->m_maximumValue.GetString ());
 			result += buffer;
 
 			if (i < getNumberOfAttributes () - 1)
@@ -748,7 +748,7 @@ CString DraftSchematic::generateSharedObjectTemplate (CString const & sharedObje
 		{
 			DraftSchematic::Slot const * const slot = getSlot (i);
 
-			buffer.Format ("\t[name = \"%s\" \"%s\", hardpoint = \"\"]", slot->m_nameStringTable, slot->m_nameStringId);
+			buffer.Format ("\t[name = \"%s\" \"%s\", hardpoint = \"\"]", slot->m_nameStringTable.GetString (), slot->m_nameStringId.GetString ());
 			result += buffer;
 
 			if (i < getNumberOfSlots () - 1)

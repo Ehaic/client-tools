@@ -435,7 +435,7 @@ void ConversationTreeView::setItemData (HTREEITEM const treeItem, SwgConversatio
 	if (itemData)
 	{
 		itemData->m_treeItem = treeItem;
-		IGNORE_RETURN (GetTreeCtrl ().SetItemData (treeItem, reinterpret_cast<DWORD> (itemData)));
+		IGNORE_RETURN (GetTreeCtrl ().SetItemData (treeItem, reinterpret_cast<DWORD_PTR> (itemData)));
 	}
 }
 
@@ -449,7 +449,8 @@ HTREEITEM ConversationTreeView::addResponseToTree (HTREEITEM const parentItem, H
 
 	bool const root = parentItem == TVI_ROOT;
 	TreeViewIconType const icon = getIcon (itemData);
-	HTREEITEM const treeItem = GetTreeCtrl ().InsertItem (root ? "Root" : itemData->getText (), root ? TVIT_root : icon, root ? TVIT_root : icon, parentItem, afterItem);
+	CString const itemText = root ? CString ("Root") : itemData->getText ();
+	HTREEITEM const treeItem = GetTreeCtrl ().InsertItem (itemText, root ? TVIT_root : icon, root ? TVIT_root : icon, parentItem, afterItem);
 	setItemData (treeItem, itemData);
 
 	//-- add branches
@@ -732,7 +733,7 @@ void ConversationTreeView::OnButtonDelete()
 			CString const name = GetTreeCtrl ().GetItemText (treeItem);
 
 			CString message;
-			message.Format ("Are you sure you want to delete %s?", name);
+			message.Format ("Are you sure you want to delete %s?", name.GetString ());
 
 			if (MessageBox (message, 0, MB_YESNO) == IDYES)
 			{
@@ -1109,7 +1110,7 @@ void ConversationTreeView::OnMouseMove(UINT nFlags, CPoint point)
 			
 			if( m_idTimer && hti == m_htiOldDrop )
 			{
-				IGNORE_RETURN (KillTimer( static_cast<int> (m_idTimer) ));
+				IGNORE_RETURN (KillTimer (m_idTimer));
 				m_idTimer = 0;
 			}
 			
@@ -1127,7 +1128,7 @@ void ConversationTreeView::OnDestroy()
 {
 	if( m_idTimer )
 	{
-		IGNORE_RETURN (KillTimer (static_cast<int> (m_idTimer)));
+		IGNORE_RETURN (KillTimer (m_idTimer));
 		m_idTimer = 0;
 	}
 
@@ -1136,7 +1137,7 @@ void ConversationTreeView::OnDestroy()
 
 // ----------------------------------------------------------------------
 
-void ConversationTreeView::OnTimer(UINT nIDEvent) 
+void ConversationTreeView::OnTimer(UINT_PTR nIDEvent)
 {
     if( nIDEvent == m_idTimer )
     {
@@ -1183,7 +1184,7 @@ void ConversationTreeView::OnLButtonUpForCopy ()
 
 	if (m_idTimer)
 	{
-		IGNORE_RETURN (KillTimer (static_cast<int> (m_idTimer)));
+		IGNORE_RETURN (KillTimer (m_idTimer));
 		m_idTimer = 0;
 	}
 
@@ -1301,7 +1302,7 @@ void ConversationTreeView::OnLButtonUpForMove ()
 
 	if (m_idTimer)
 	{
-		IGNORE_RETURN (KillTimer (static_cast<int> (m_idTimer)));
+		IGNORE_RETURN (KillTimer (m_idTimer));
 		m_idTimer = 0;
 	}
 

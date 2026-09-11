@@ -198,7 +198,7 @@ ParticleDescriptionMesh PEAttributeViewParticleMesh::getParticleDescriptionMesh(
 {
 	ParticleDescriptionMesh particleDescriptionMesh;
 
-	std::string name = m_nameWidget->m_nameLineEdit->text();
+	std::string name = m_nameWidget->m_nameLineEdit->text().ascii();
 	particleDescriptionMesh.setName(name.c_str());
 	particleDescriptionMesh.setMeshPath(m_attributeWidgetMesh->getMeshPath().c_str());
 	particleDescriptionMesh.setRandomRotationDirection(m_particleBaseWidget->m_randomRotationDirectionCheckBox->isChecked());

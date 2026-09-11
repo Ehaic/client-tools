@@ -28,7 +28,7 @@ public:
 
 // Operations
 private:
-	static LONG FAR PASCAL DummyWndProc(HWND, UINT, WPARAM, LPARAM);
+	static LRESULT CALLBACK DummyWndProc(HWND, UINT, WPARAM, LPARAM);
 	void Initialize();
 
 public:

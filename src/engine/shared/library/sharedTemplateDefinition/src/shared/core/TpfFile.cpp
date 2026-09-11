@@ -22,6 +22,35 @@
 #include <direct.h>
 #endif // WIN32
 
+#if defined(WIN32)
+namespace
+{
+	bool getFullPathNameUnicode(char const * const path, Unicode::String & result)
+	{
+		int const wideCharacterCount = MultiByteToWideChar(CP_ACP, 0, path, -1, NULL, 0);
+		if (wideCharacterCount <= 0)
+			return false;
+
+		std::vector<wchar_t> widePath(static_cast<size_t>(wideCharacterCount));
+		if (MultiByteToWideChar(CP_ACP, 0, path, -1, &widePath[0], wideCharacterCount) != wideCharacterCount)
+			return false;
+
+		DWORD const fullPathCharacterCount = GetFullPathNameW(&widePath[0], 0, NULL, NULL);
+		if (fullPathCharacterCount == 0)
+			return false;
+
+		std::vector<wchar_t> fullPath(static_cast<size_t>(fullPathCharacterCount));
+		DWORD const copiedCharacterCount = GetFullPathNameW(
+			&widePath[0], fullPathCharacterCount, &fullPath[0], NULL);
+		if (copiedCharacterCount == 0 || copiedCharacterCount >= fullPathCharacterCount)
+			return false;
+
+		result.assign(fullPath.begin(), fullPath.begin() + copiedCharacterCount);
+		return true;
+	}
+}
+#endif
+
 
 /**
  * Class constructor.
@@ -289,28 +318,25 @@ int TpfFile::WriteIffFile(Iff & iffData, const Filename & fileName)
 
 		if (WindowsUnicode)
 		{
+			static_assert(sizeof(wchar_t) == sizeof(Unicode::unicode_char_t),
+				"Windows UTF-16 path conversion requires matching code-unit sizes");
+
 			// there are problems with long path names in Windows that changing to
 			// the directory seems to fix
-			char *buffer = NULL;
-			DWORD buflen;
 			// get our current path
-			buflen = GetFullPathName(".", 0, buffer, NULL);
-			buffer = new char[buflen + 1];
-			buflen = GetFullPathName(".", buflen + 1, buffer, NULL);
-			Unicode::String srcPath = Unicode::narrowToWide(buffer);
-			delete[] buffer;
-			srcPath = L"\\\\?\\" + srcPath;
+			Unicode::String srcPath;
+			if (!getFullPathNameUnicode(".", srcPath))
+				return -1;
+			srcPath = u"\\\\?\\" + srcPath;
 			// get the destination path
 			std::string correctPath(fileName.getDrive() + fileName.getPath());
-			buflen = GetFullPathName(correctPath.c_str(), 0, buffer, NULL);
-			buffer = new char[buflen + 1];
-			buflen = GetFullPathName(correctPath.c_str(), buflen + 1, buffer, NULL);
-			Unicode::String destPath = Unicode::narrowToWide(buffer);
-			delete[] buffer;
-			destPath = L"\\\\?\\" + destPath;
+			Unicode::String destPath;
+			if (!getFullPathNameUnicode(correctPath.c_str(), destPath))
+				return -1;
+			destPath = u"\\\\?\\" + destPath;
 			// change to the destination path
 
-			if (SetCurrentDirectoryW(destPath.c_str()) == 0)
+			if (SetCurrentDirectoryW(reinterpret_cast<LPCWSTR>(destPath.c_str())) == 0)
 			{
 				fprintf(stderr, "Unable to find directory %s\n",
 					fileName.getPath().c_str());
@@ -320,6 +346,9 @@ int TpfFile::WriteIffFile(Iff & iffData, const Filename & fileName)
 			{
 				result = -1;
 			}
+
+			// Go back to the previous current working directory.
+			SetCurrentDirectoryW(reinterpret_cast<LPCWSTR>(srcPath.c_str()));
 		}
 		else
 		{
@@ -356,11 +385,10 @@ int TpfFile::WriteIffFile(Iff & iffData, const Filename & fileName)
 			{
 				result = -1;
 			}
+
+			// Go back to the previous current working directory.
+			_chdir(currentWorkingDirectory);
 		}
-
-		// Go back to the previous current working directory
-
-		_chdir(currentWorkingDirectory);
 #else
 		if (!iffData.write(fileName.getFullFilename().c_str(), true))
 			result = -1;

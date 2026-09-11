@@ -579,7 +579,7 @@ void ComponentDescriptorsList::onTableContextComponentNew(int id)
 
 	char buf[1024];
 	size_t const buf_size = sizeof(buf);
-	snprintf(buf, buf_size, "_tmp_%x", time(0));
+	snprintf(buf, buf_size, "_tmp_%llx", static_cast<unsigned long long>(time(0)));
 
 	switch (id)
 	{

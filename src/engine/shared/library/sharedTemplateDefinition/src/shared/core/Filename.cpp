@@ -28,6 +28,35 @@ const char PATH_SEPARATOR = LINUX_PATH_SEPARATOR;
 //#error unknown OS
 //#endif
 
+#if defined(WIN32)
+namespace
+{
+	bool getFullPathNameUnicode(char const * const path, Unicode::String & result)
+	{
+		int const wideCharacterCount = MultiByteToWideChar(CP_ACP, 0, path, -1, NULL, 0);
+		if (wideCharacterCount <= 0)
+			return false;
+
+		std::vector<wchar_t> widePath(static_cast<size_t>(wideCharacterCount));
+		if (MultiByteToWideChar(CP_ACP, 0, path, -1, &widePath[0], wideCharacterCount) != wideCharacterCount)
+			return false;
+
+		DWORD const fullPathCharacterCount = GetFullPathNameW(&widePath[0], 0, NULL, NULL);
+		if (fullPathCharacterCount == 0)
+			return false;
+
+		std::vector<wchar_t> fullPath(static_cast<size_t>(fullPathCharacterCount));
+		DWORD const copiedCharacterCount = GetFullPathNameW(
+			&widePath[0], fullPathCharacterCount, &fullPath[0], NULL);
+		if (copiedCharacterCount == 0 || copiedCharacterCount >= fullPathCharacterCount)
+			return false;
+
+		result.assign(fullPath.begin(), fullPath.begin() + copiedCharacterCount);
+		return true;
+	}
+}
+#endif
+
 
 /**
  * Sets the path of the file name.
@@ -304,44 +333,43 @@ void Filename::verifyAndCreatePath(void) const
 #if defined(WIN32)
 	if (WindowsUnicode)
 	{
-		char *buffer = NULL;
-		DWORD buflen;
+		static_assert(sizeof(wchar_t) == sizeof(Unicode::unicode_char_t),
+			"Windows UTF-16 path conversion requires matching code-unit sizes");
+
 		// get our current path
-		buflen = GetFullPathName(".", 0, buffer, NULL);
-		buffer = new char[buflen + 1];
-		buflen = GetFullPathName(".", buflen + 1, buffer, NULL);
-		Unicode::String srcPath = Unicode::narrowToWide(buffer);
-		delete[] buffer;
+		Unicode::String srcPath;
+		if (!getFullPathNameUnicode(".", srcPath))
+			return;
 		// get the destination path
 		std::string correctPath(getDrive() + getPath());
-		buflen = GetFullPathName(correctPath.c_str(), 0, buffer, NULL);
-		buffer = new char[buflen + 1];
-		buflen = GetFullPathName(correctPath.c_str(), buflen + 1, buffer, NULL);
-		Unicode::String destPath = Unicode::narrowToWide(buffer);
-		delete[] buffer;
+		Unicode::String destPath;
+		if (!getFullPathNameUnicode(correctPath.c_str(), destPath))
+			return;
 
 		std::vector<Unicode::String> splitDestPath;
 		splitPath(destPath, splitDestPath,
 			static_cast<Unicode::unicode_char_t>(WIN32_PATH_SEPARATOR));
+		if (splitDestPath.empty())
+			return;
 
-      Unicode::String prefix = L"\\\\?\\";
+		Unicode::String const prefix = u"\\\\?\\";
 		destPath = prefix + splitDestPath[0];
 		
 		for (size_t i = 1; i < splitDestPath.size(); ++i)
 		{
 			destPath += WIN32_PATH_SEPARATOR;
 			destPath += splitDestPath[i];
-			if (SetCurrentDirectoryW(destPath.c_str()) == 0)
+			if (SetCurrentDirectoryW(reinterpret_cast<LPCWSTR>(destPath.c_str())) == 0)
 			{
-				if (CreateDirectoryW(destPath.c_str(), NULL) == 0)
-					return;
-				if (SetCurrentDirectoryW(destPath.c_str()) == 0)
-					return;
+				if (CreateDirectoryW(reinterpret_cast<LPCWSTR>(destPath.c_str()), NULL) == 0)
+					break;
+				if (SetCurrentDirectoryW(reinterpret_cast<LPCWSTR>(destPath.c_str())) == 0)
+					break;
 			}
 		}
 
 		// set the directory back to the working directory
-		SetCurrentDirectoryW(srcPath.c_str());
+		SetCurrentDirectoryW(reinterpret_cast<LPCWSTR>(srcPath.c_str()));
 	}
 	else
 	{

@@ -108,28 +108,28 @@ CString Configuration::getConfiguration ()
 	result += "draftSchematicDirectory: " + ms_draftSchematicDirectory + "\n";
 
 	CString buffer;
-	buffer.Format ("%3i baseServerDraftSchematicObjectTemplates; default=%s\n", ms_baseServerDraftSchematicObjectTemplates.size (), ms_defaultBaseServerDraftSchematicObjectTemplate);
+	buffer.Format ("%3i baseServerDraftSchematicObjectTemplates; default=%s\n", static_cast<int> (ms_baseServerDraftSchematicObjectTemplates.size ()), ms_defaultBaseServerDraftSchematicObjectTemplate.GetString ());
 	result += buffer;
 
-	buffer.Format ("%3i armorRatings; default=%s\n", ms_armorRatings.size (), ms_defaultArmorRating);
+	buffer.Format ("%3i armorRatings; default=%s\n", static_cast<int> (ms_armorRatings.size ()), ms_defaultArmorRating.GetString ());
 	result += buffer;
 
-	buffer.Format ("%3i craftingTypes; default=%s\n", ms_craftingTypes.size (), ms_defaultCraftingType);
+	buffer.Format ("%3i craftingTypes; default=%s\n", static_cast<int> (ms_craftingTypes.size ()), ms_defaultCraftingType.GetString ());
 	result += buffer;
 
-	buffer.Format ("%3i damageTypes; default=%s\n", ms_damageTypes.size (), ms_defaultDamageType);
+	buffer.Format ("%3i damageTypes; default=%s\n", static_cast<int> (ms_damageTypes.size ()), ms_defaultDamageType.GetString ());
 	result += buffer;
 
-	buffer.Format ("%3i ingredientTypes; default=%s\n", ms_ingredientTypes.size (), ms_defaultIngredientType);
+	buffer.Format ("%3i ingredientTypes; default=%s\n", static_cast<int> (ms_ingredientTypes.size ()), ms_defaultIngredientType.GetString ());
 	result += buffer;
 
-	buffer.Format ("%3i resourceTypes\n", ms_resourceTypes.size ());
+	buffer.Format ("%3i resourceTypes\n", static_cast<int> (ms_resourceTypes.size ()));
 	result += buffer;
 
-	buffer.Format ("%3i stringTables\n", ms_stringTables.size ());
+	buffer.Format ("%3i stringTables\n", static_cast<int> (ms_stringTables.size ()));
 	result += buffer;
 
-	buffer.Format ("%3i xpTypes; default=%s\n", ms_xpTypes.size (), ms_defaultXpType);
+	buffer.Format ("%3i xpTypes; default=%s\n", static_cast<int> (ms_xpTypes.size ()), ms_defaultXpType.GetString ());
 	result += buffer;
 
 	return result;

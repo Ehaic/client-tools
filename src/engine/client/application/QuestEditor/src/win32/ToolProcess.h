@@ -28,7 +28,6 @@ public:
 	explicit ToolProcess(char const * const toolDirectory);
     ~ToolProcess();
 
-	void addToPerforce(char const * const filename);
 	void compileDataTable(char const * const filename);
 	void buildQuestCrcStringTables(char const * const branch);
 	void checkQuest(char const * const filename);

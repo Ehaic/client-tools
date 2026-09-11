@@ -144,9 +144,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedCompression.lib;sharedDebug.lib;sharedFile.lib;sharedFoundation.lib;sharedThread.lib;sharedSynchronization.lib;sharedMath.lib;sharedMemoryManager.lib;sharedRandom.lib;sharedIoWin.lib;sharedUtility.lib;sharedObject.lib;sharedCollision.lib;sharedTerrain.lib;sharedFractal.lib;sharedGame.lib;fileInterface.lib;sharedLog.lib;sharedMessageDispatch.lib;sharedNetworkMessages.lib;archive.lib;unicodeArchive.lib;unicode.lib;localizationArchive.lib;localization.lib;ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)_d.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName)_d.pdb</ProgramDatabaseFile>
@@ -184,9 +184,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedCompression.lib;sharedDebug.lib;sharedFile.lib;sharedFoundation.lib;sharedThread.lib;sharedSynchronization.lib;sharedMath.lib;sharedMemoryManager.lib;sharedRandom.lib;sharedIoWin.lib;sharedUtility.lib;sharedObject.lib;sharedCollision.lib;sharedTerrain.lib;sharedFractal.lib;sharedGame.lib;fileInterface.lib;sharedLog.lib;sharedMessageDispatch.lib;sharedNetworkMessages.lib;archive.lib;unicodeArchive.lib;unicode.lib;localizationArchive.lib;localization.lib;ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)_d.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName)_d.pdb</ProgramDatabaseFile>
@@ -226,9 +226,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedCompression.lib;sharedDebug.lib;sharedFile.lib;sharedFoundation.lib;sharedThread.lib;sharedSynchronization.lib;sharedMath.lib;sharedMemoryManager.lib;sharedRandom.lib;sharedIoWin.lib;sharedUtility.lib;sharedObject.lib;sharedCollision.lib;sharedTerrain.lib;sharedFractal.lib;sharedGame.lib;fileInterface.lib;sharedLog.lib;sharedMessageDispatch.lib;sharedNetworkMessages.lib;archive.lib;unicodeArchive.lib;unicode.lib;localizationArchive.lib;localization.lib;ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)_o.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName)_o.pdb</ProgramDatabaseFile>
@@ -268,9 +268,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedCompression.lib;sharedDebug.lib;sharedFile.lib;sharedFoundation.lib;sharedThread.lib;sharedSynchronization.lib;sharedMath.lib;sharedMemoryManager.lib;sharedRandom.lib;sharedIoWin.lib;sharedUtility.lib;sharedObject.lib;sharedCollision.lib;sharedTerrain.lib;sharedFractal.lib;sharedGame.lib;fileInterface.lib;sharedLog.lib;sharedMessageDispatch.lib;sharedNetworkMessages.lib;archive.lib;unicodeArchive.lib;unicode.lib;localizationArchive.lib;localization.lib;ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)_o.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName)_o.pdb</ProgramDatabaseFile>
@@ -310,9 +310,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedCompression.lib;sharedDebug.lib;sharedFile.lib;sharedFoundation.lib;sharedThread.lib;sharedSynchronization.lib;sharedMath.lib;sharedMemoryManager.lib;sharedRandom.lib;sharedIoWin.lib;sharedUtility.lib;sharedObject.lib;sharedCollision.lib;sharedTerrain.lib;sharedFractal.lib;sharedGame.lib;fileInterface.lib;sharedLog.lib;sharedMessageDispatch.lib;sharedNetworkMessages.lib;archive.lib;unicodeArchive.lib;unicode.lib;localizationArchive.lib;localization.lib;ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)_r.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName)_r.pdb</ProgramDatabaseFile>
@@ -352,9 +352,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sharedCompression.lib;sharedDebug.lib;sharedFile.lib;sharedFoundation.lib;sharedThread.lib;sharedSynchronization.lib;sharedMath.lib;sharedMemoryManager.lib;sharedRandom.lib;sharedIoWin.lib;sharedUtility.lib;sharedObject.lib;sharedCollision.lib;sharedTerrain.lib;sharedFractal.lib;sharedGame.lib;fileInterface.lib;sharedLog.lib;sharedMessageDispatch.lib;sharedNetworkMessages.lib;archive.lib;unicodeArchive.lib;unicode.lib;localizationArchive.lib;localization.lib;ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)_r.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\..\deps\x64\lib;$(SolutionDir)x64\Release;..\..\..\..\..\..\external\3rd\library\atlmfc\lib\INTEL;..\..\..\..\..\..\external\3rd\library\zlib\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName)_r.pdb</ProgramDatabaseFile>

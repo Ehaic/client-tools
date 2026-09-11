@@ -115,26 +115,22 @@ BOOL SwgSpaceQuestEditorApp::InitInstance()
 
 		TreeFile::addSearchAbsolute(0);
 
-		//-- Make sure we're running out of exe\win32
-		char buffer[1024];
-		if (GetCurrentDirectory(1024, buffer) != 0)
-		{
-			CString temp(buffer);
-			temp.Remove('/');
-			temp.Remove('\\');
-			if (temp.Find("exewin32") == -1)
-				AfxMessageBox ("SwgSpaceQuestEditor is not running from <branch>\\exe\\win32.  You may be running an older version.");
-		}
-
 		//-- Load ini file
 		if (!Configuration::install())
 			AfxMessageBox("SwgSpaceQuestEditor is not properly configured [SwgSpaceQuestEditor.ini or SwgSpaceQuestEditor.cfg not found].  Are you running the application in the correct directory?  Verify that SwgSpaceQuestEditor.cfg has all of the parameters found in template_SwgSpaceQuestEditor.cfg and that SwgSpaceQuestEditor.cfg is configured appropriately for your machine.");
 
-		//-- Make sure the config file is pointing to the same directories as the exe is run from
+		//-- Make sure the config file is pointing to the same directories as the exe is run from.
+		//   Relative cfg paths (the single-root SOE-shaped layout, ../../data/...) resolve
+		//   under the exe's own root and cannot mismatch, so only absolute paths are checked.
+		if (Configuration::getServerMissionDataTablePath().Find(':') != -1)
 		{
+			char buffer[1024];
+			if (GetCurrentDirectory(1024, buffer) == 0)
+				buffer[0] = '\0';
+
 			CString const branch(extractBranch(buffer));
 
-			if (branch != extractBranch(Configuration::getServerMissionDataTablePath()) || 
+			if (branch != extractBranch(Configuration::getServerMissionDataTablePath()) ||
 				branch != extractBranch(Configuration::getSharedStringFilePath()) ||
 				branch != extractBranch(Configuration::getSharedQuestListDataTablePath()) ||
 				branch != extractBranch(Configuration::getSharedQuestTaskDataTablePath()))

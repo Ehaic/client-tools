@@ -108,12 +108,12 @@ namespace ConfigurationNamespace
 	{
 		BOOL result = CreateDirectory(directoryName, 0);
 		if (result)
-			DEBUG_REPORT_LOG(true, ("%s created\n", directoryName));
+			DEBUG_REPORT_LOG(true, ("%s created\n", directoryName.GetString()));
 		else
 			if (GetLastError() == ERROR_ALREADY_EXISTS)
-				DEBUG_REPORT_LOG(true, ("%s exists\n", directoryName));
+				DEBUG_REPORT_LOG(true, ("%s exists\n", directoryName.GetString()));
 			else
-				DEBUG_REPORT_LOG(true, ("%s ERROR\n", directoryName));
+				DEBUG_REPORT_LOG(true, ("%s ERROR\n", directoryName.GetString()));
 	}
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -191,7 +191,7 @@ void Configuration::MissionTemplate::PropertyTemplate::parseIniString(CString co
 			m_propertyType = PT_enumList;
 
 			//-- Parse enum values
-			CString propertyData = propertyType.Right(propertyType.GetLength() - strlen("PT_enumList"));
+			CString propertyData = propertyType.Right(propertyType.GetLength() - static_cast<int>(strlen("PT_enumList")));
 			propertyData.Remove('(');
 			propertyData.Remove(')');
 			Configuration::unpackString(propertyData, m_propertyDataList, ',');
@@ -202,7 +202,7 @@ void Configuration::MissionTemplate::PropertyTemplate::parseIniString(CString co
 			m_propertyType = PT_cargo;
 
 			//-- Parse enum values
-			m_propertyData = propertyType.Right(propertyType.GetLength() - strlen("PT_cargo"));
+			m_propertyData = propertyType.Right(propertyType.GetLength() - static_cast<int>(strlen("PT_cargo")));
 			m_propertyData.Remove('(');
 			m_propertyData.Remove(')');
 		}
@@ -236,7 +236,7 @@ void Configuration::MissionTemplate::PropertyTemplate::parseIniString(CString co
 			m_propertyType = PT_objectTemplate;
 
 			//-- Parse enum values
-			m_propertyData = propertyType.Right(propertyType.GetLength() - strlen("PT_objectTemplate"));
+			m_propertyData = propertyType.Right(propertyType.GetLength() - static_cast<int>(strlen("PT_objectTemplate")));
 			m_propertyData.Remove('(');
 			m_propertyData.Remove(')');
 		}
@@ -741,7 +741,7 @@ CString const Configuration::getConfiguration()
 	result += "sharedStringFilePath: " + getSharedStringFilePath() + "\n";
 	result += "spaceQuestDirectory: " + getSpaceQuestDirectory() + "\n";
 
-	buffer.Format("%i spaceZones\n", ms_spaceZoneMap.size());
+	buffer.Format("%i spaceZones\n", static_cast<int>(ms_spaceZoneMap.size()));
 	result += buffer;
 
 	{
@@ -752,16 +752,16 @@ CString const Configuration::getConfiguration()
 
 			CString navPointList;
 			Configuration::packString(iter->second.m_navPointList, navPointList, '|');
-			result += "    navPointList (" + (!navPointList.IsEmpty() ? navPointList : "<None>") + ")\n";
+			result += "    navPointList (" + (!navPointList.IsEmpty() ? navPointList : CString("<None>")) + ")\n";
 
 			CString spawnerList;
 			Configuration::packString(iter->second.m_spawnerList, spawnerList, '|');
-			result += "    spawnerList (" + (!spawnerList.IsEmpty() ? spawnerList : "<None>") + ")\n";
+			result += "    spawnerList (" + (!spawnerList.IsEmpty() ? spawnerList : CString("<None>")) + ")\n";
 		}
 	}
 
 	{
-		buffer.Format("%i questCategories\n", ms_questCategories.size());
+		buffer.Format("%i questCategories\n", static_cast<int>(ms_questCategories.size()));
 		result += buffer;
 
 		StringSet::iterator end = ms_questCategories.end();
@@ -769,7 +769,7 @@ CString const Configuration::getConfiguration()
 			result += "  category = " + *iter + "\n";
 	}
 
-	buffer.Format("%i spaceMobiles and %i factions from %s\n", ms_spaceMobileList.size(), ms_spaceFactions.size(), ms_spaceMobileDataTableFileName);
+	buffer.Format("%i spaceMobiles and %i factions from %s\n", static_cast<int>(ms_spaceMobileList.size()), static_cast<int>(ms_spaceFactions.size()), ms_spaceMobileDataTableFileName.GetString());
 	result += buffer;
 
 	{
@@ -784,7 +784,7 @@ CString const Configuration::getConfiguration()
 			result += "  faction = " + *iter + "\n";
 	}
 
-	buffer.Format("%i cargo files\n", ms_cargoMap.size());
+	buffer.Format("%i cargo files\n", static_cast<int>(ms_cargoMap.size()));
 	result += buffer;
 
 	{
@@ -793,11 +793,11 @@ CString const Configuration::getConfiguration()
 		{
 			CString cargoList;
 			Configuration::packString(iter->second, cargoList, '|');
-			result += "  " + iter->first + " = (" + (!cargoList.IsEmpty() ? cargoList : "<None>") + ")\n";
+			result += "  " + iter->first + " = (" + (!cargoList.IsEmpty() ? cargoList : CString("<None>")) + ")\n";
 		}
 	}
 
-	buffer.Format("%i missionTemplateTypes\n", ms_missionTemplateMap.size());
+	buffer.Format("%i missionTemplateTypes\n", static_cast<int>(ms_missionTemplateMap.size()));
 	result += buffer;
 
 	{
@@ -1371,7 +1371,7 @@ bool Configuration::loadCfg()
 		Iff iff;
 		if (!iff.open(ms_spaceMobileDataTableFileName, true))
 		{
-			DEBUG_WARNING(true, ("Configuration::loadCfg: could not open file %s\n", ms_spaceMobileDataTableFileName));
+			DEBUG_WARNING(true, ("Configuration::loadCfg: could not open file %s\n", ms_spaceMobileDataTableFileName.GetString()));
 			return false;
 		}
 		
@@ -1715,7 +1715,7 @@ void Configuration::loadCargo(CString const & cargoName)
 		}
 
 		ms_cargoMap.insert(std::make_pair(cargoName, stringList));
-		DEBUG_REPORT_LOG(stringList.empty(), ("cargo list for %s is empty\n", cargoName));		
+		DEBUG_REPORT_LOG(stringList.empty(), ("cargo list for %s is empty\n", cargoName.GetString()));
 	}
 }
 

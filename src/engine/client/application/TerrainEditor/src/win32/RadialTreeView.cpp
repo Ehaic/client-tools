@@ -373,7 +373,7 @@ const CString RadialTreeView::CreateUniqueFamilyName (const CString* base)
 
 	if (base)
 	{
-		familyName.Format ("%s", *base);
+		familyName.Format ("%s", base->GetString ());
 	}
 	else
 	{
@@ -386,7 +386,7 @@ const CString RadialTreeView::CreateUniqueFamilyName (const CString* base)
 	{
 		if (base)
 		{
-			familyName.Format ("%s_%i", *base, familyIndex);
+			familyName.Format ("%s_%i", base->GetString (), familyIndex);
 		}
 		else
 		{
@@ -553,7 +553,7 @@ void RadialTreeView::OnDeleteradial()
 				const CString name = GetTreeCtrl ().GetItemText (child);
 
 				CString tmp;
-				tmp.Format ("Are you sure you want to delete %s?", name);
+				tmp.Format ("Are you sure you want to delete %s?", name.GetString ());
 
 				if (MessageBox (tmp, 0, MB_YESNO) == IDYES)
 				{
@@ -1188,7 +1188,7 @@ void RadialTreeView::OnLButtonUpForDrag (bool move)
 
 	if (m_idTimer)
 	{
-		IGNORE_RETURN (KillTimer (static_cast<int> (m_idTimer)));
+		IGNORE_RETURN (KillTimer (m_idTimer));
 		m_idTimer = 0;
 	}
 
@@ -1299,7 +1299,7 @@ void RadialTreeView::OnMouseMove(UINT nFlags, CPoint point)
 			
 			if( m_idTimer && hti == m_htiOldDrop )
 			{
-				IGNORE_RETURN (KillTimer( static_cast<int> (m_idTimer) ));
+				IGNORE_RETURN (KillTimer (m_idTimer));
 				m_idTimer = 0;
 			}
 			
@@ -1317,7 +1317,7 @@ void RadialTreeView::OnDestroy()
 {
 	if( m_idTimer )
 	{
-		IGNORE_RETURN (KillTimer( static_cast<int> (m_idTimer) ));
+		IGNORE_RETURN (KillTimer (m_idTimer));
 		m_idTimer = 0;
 	}
 
@@ -1326,7 +1326,7 @@ void RadialTreeView::OnDestroy()
 
 //-------------------------------------------------------------------
 
-void RadialTreeView::OnTimer(UINT nIDEvent) 
+void RadialTreeView::OnTimer(UINT_PTR nIDEvent)
 {
     if( nIDEvent == m_idTimer )
     {

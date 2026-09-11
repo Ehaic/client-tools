@@ -69,9 +69,9 @@ namespace ScriptTreeViewNamespace
 		do
 		{
 			if (duplicate)
-				familyName.Format ("%s_%i", rootName, familyIndex++);
+				familyName.Format ("%s_%i", rootName.GetString (), familyIndex++);
 			else
-				familyName.Format ("%s%04i", rootName, familyIndex++);
+				familyName.Format ("%s%04i", rootName.GetString (), familyIndex++);
 		}
 		while (familyExists (scriptGroup, familyName));
 
@@ -511,19 +511,19 @@ void ScriptTreeView::OnSelchanged(NMHDR* /*pNMHDR*/, LRESULT* pResult)
 
 	//-- if it's a child tell the frame about it to route the message to ShaderView
 	if (GetTreeCtrl ().GetParentItem (selection) == m_rootCondition)
-		safe_cast<ScriptFrame *> (GetParentFrame ())->editCondition (GetTreeCtrl ().GetItemData (selection));
+		safe_cast<ScriptFrame *> (GetParentFrame ())->editCondition (static_cast<int> (GetTreeCtrl ().GetItemData (selection)));
 	else
 		if (GetTreeCtrl ().GetParentItem (selection) == m_rootAction)
-			safe_cast<ScriptFrame *> (GetParentFrame ())->editAction (GetTreeCtrl ().GetItemData (selection));
+			safe_cast<ScriptFrame *> (GetParentFrame ())->editAction (static_cast<int> (GetTreeCtrl ().GetItemData (selection)));
 		else
 			if (GetTreeCtrl ().GetParentItem (selection) == m_rootTokenTO)
-				safe_cast<ScriptFrame *> (GetParentFrame ())->editTokenTO (GetTreeCtrl ().GetItemData (selection));
+				safe_cast<ScriptFrame *> (GetParentFrame ())->editTokenTO (static_cast<int> (GetTreeCtrl ().GetItemData (selection)));
 			else
 				if (GetTreeCtrl ().GetParentItem (selection) == m_rootTokenDI)
-					safe_cast<ScriptFrame *> (GetParentFrame ())->editTokenDI (GetTreeCtrl ().GetItemData (selection));
+					safe_cast<ScriptFrame *> (GetParentFrame ())->editTokenDI (static_cast<int> (GetTreeCtrl ().GetItemData (selection)));
 				else
 					if (GetTreeCtrl ().GetParentItem (selection) == m_rootTokenDF)
-						safe_cast<ScriptFrame *> (GetParentFrame ())->editTokenDF (GetTreeCtrl ().GetItemData (selection));
+						safe_cast<ScriptFrame *> (GetParentFrame ())->editTokenDF (static_cast<int> (GetTreeCtrl ().GetItemData (selection)));
 					else
 						if (selection == m_rootTrigger)
 							safe_cast<ScriptFrame *> (GetParentFrame ())->editTrigger ();
@@ -691,7 +691,7 @@ void ScriptTreeView::OnButtonDelete()
 						else
 						{
 							CString message;
-							message.Format ("Are you sure you want to delete %s?", name);
+							message.Format ("Are you sure you want to delete %s?", name.GetString ());
 
 							if (MessageBox (message, 0, MB_YESNO) == IDYES)
 								deleteCondition (treeItem);
@@ -719,7 +719,7 @@ void ScriptTreeView::OnButtonDelete()
 							else
 							{
 								CString message;
-								message.Format ("Are you sure you want to delete %s?", name);
+								message.Format ("Are you sure you want to delete %s?", name.GetString ());
 
 								if (MessageBox (message, 0, MB_YESNO) == IDYES)
 									deleteAction (treeItem);
@@ -746,7 +746,7 @@ void ScriptTreeView::OnButtonDelete()
 								else
 								{
 									CString message;
-									message.Format ("Are you sure you want to delete %s?", name);
+									message.Format ("Are you sure you want to delete %s?", name.GetString ());
 
 									if (MessageBox (message, 0, MB_YESNO) == IDYES)
 										deleteAction (treeItem);
@@ -779,7 +779,7 @@ void ScriptTreeView::OnButtonDelete()
 										else
 										{
 											CString message;
-											message.Format ("Are you sure you want to delete %s?", name);
+											message.Format ("Are you sure you want to delete %s?", name.GetString ());
 
 											if (MessageBox (message, 0, MB_YESNO) == IDYES)
 												deleteLabel (treeItem);
@@ -1069,7 +1069,7 @@ void ScriptTreeView::OnEndlabeledit(NMHDR * const pNMHDR, LRESULT * const pResul
 	if (scriptGroup && !familyExists (scriptGroup, newName))
 	{
 		//-- change name
-		int const familyId = GetTreeCtrl ().GetItemData (treeItem);
+		int const familyId = static_cast<int> (GetTreeCtrl ().GetItemData (treeItem));
 		scriptGroup->setFamilyName (familyId, newName);
 
 		//-- tell tree about new name

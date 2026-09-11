@@ -98,7 +98,6 @@
 #define ID_APP_HELP                     32809
 #define ID_BUTTON_COMPILEDEBUG          32810
 #define ID_BUTTON_COMPILERELEASE        32811
-#define ID_BUTTON_P4EDIT                32812
 #define ID__SCRIPT_ADDLABEL             32814
 #define ID_BUTTON_SCAN                  32815
 #define ID_BUTTON_SPELLCHECK            32816

@@ -65,7 +65,6 @@
 #define ID__DUPLICATE                   32800
 #define ID_SPAWNER_DUPLICATE            32801
 #define ID_BUTTON32802                  32802
-#define ID_BUTTON_P4                    32802
 
 // Next default values for new objects
 // 

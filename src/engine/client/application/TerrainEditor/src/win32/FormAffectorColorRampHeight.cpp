@@ -252,7 +252,7 @@ Image* FormAffectorColorRampHeight::verifyImage (const CString& name, bool verbo
 		if (verbose)
 		{
 			CString tmp;
-			tmp.Format ("%s is not a valid image!", name);
+			tmp.Format ("%s is not a valid image!", name.GetString ());
 			const_cast<FormAffectorColorRampHeight*> (this)->MessageBox (tmp);
 		}
 	}
@@ -263,7 +263,7 @@ Image* FormAffectorColorRampHeight::verifyImage (const CString& name, bool verbo
 			if (verbose)
 			{
 				CString tmp;
-				tmp.Format ("%s is not a 24-bit tga!", name);
+				tmp.Format ("%s is not a 24-bit tga!", name.GetString ());
 				const_cast<FormAffectorColorRampHeight*> (this)->MessageBox (tmp);
 			}
 		}
@@ -274,7 +274,7 @@ Image* FormAffectorColorRampHeight::verifyImage (const CString& name, bool verbo
 				if (verbose)
 				{
 					CString tmp;
-					tmp.Format ("%s is not a n x 1 image!", name);
+					tmp.Format ("%s is not a n x 1 image!", name.GetString ());
 					const_cast<FormAffectorColorRampHeight*> (this)->MessageBox (tmp);
 				}
 			}
@@ -309,7 +309,7 @@ void FormAffectorColorRampHeight::OnButtonBrowse()
 			RecentDirectory::update ("Targa", dlg.GetPathName ());
 
 			//-- get new name
-			const CString name = FileName (FileName::P_terrain, dlg.GetFileName (), "");
+			const CString name = FileName (FileName::P_terrain, dlg.GetFileName (), "").getString ();
 
 			if (TreeFile::exists (name))
 			{

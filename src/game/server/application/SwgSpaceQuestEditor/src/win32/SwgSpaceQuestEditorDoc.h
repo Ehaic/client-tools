@@ -47,7 +47,6 @@ public:
 
 	void scan(bool showHeader);
 	void save();
-	void edit(bool interactive) const;
 
 protected:
 
@@ -55,7 +54,6 @@ protected:
 	DECLARE_DYNCREATE(SwgSpaceQuestEditorDoc)
 
 	//{{AFX_MSG(SwgSpaceQuestEditorDoc)
-	afx_msg void OnButtonP4edit();
 	afx_msg void OnButtonScan();
 	afx_msg void OnButtonInformation();
 	//}}AFX_MSG

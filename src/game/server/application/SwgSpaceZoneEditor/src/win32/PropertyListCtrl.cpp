@@ -469,7 +469,7 @@ void PropertyListCtrl::OnSelchange()
 		if (m_currentItem->m_data.size() > 5)
 			rect.bottom += GetItemHeight(0) * 5;
 		else
-			rect.bottom += GetItemHeight(0) * m_currentItem->m_data.size();
+			rect.bottom += GetItemHeight(0) * static_cast<int>(m_currentItem->m_data.size());
 		m_listBox->MoveWindow(rect);
 
 		// Force the Expansion
@@ -668,8 +668,8 @@ void PropertyListCtrl::OnComboBoxClick()
 		m_listBox->AddString(m_currentItem->m_data[i]);
 
 	// Select the correct item
-	m_listBox->SetCurSel(m_currentItem->m_propertySelected);
-	m_listBox->SetTopIndex(m_currentItem->m_propertySelected);
+	m_listBox->SetCurSel(static_cast<int>(m_currentItem->m_propertySelected));
+	m_listBox->SetTopIndex(static_cast<int>(m_currentItem->m_propertySelected));
 
 	// Show the List box
 	m_listBox->ShowWindow(SW_NORMAL);

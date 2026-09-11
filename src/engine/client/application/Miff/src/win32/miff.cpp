@@ -168,7 +168,7 @@ static void callbackFunction(void);
 static errorType loadInputToBuffer(void *destAddr, int maxBufferSize);
 
 // functions called by parser.yac and parser.lex
-extern "C" void MIFFMessage(char *msg, int forceOut);
+extern "C" void MIFFMessage(const char *msg, int forceOut);
 extern "C" void MIFFSetError(void);
 extern "C" void MIFFSetIFFName(const char *newFileName);
 extern "C" void MIFFinsertForm(const char *formName);
@@ -749,7 +749,7 @@ static void handleError(errorType error)
 // Revisions and History:
 //   1/07/99 [] - created
 //
-extern "C" void MIFFMessage(char *message,			// null terminated string to be displayed
+extern "C" void MIFFMessage(const char *message,			// null terminated string to be displayed
 							int  forceOutput)		// if non-zero, it will print out even in quiet mode (for ERRORs)
 {
 	if (forceOutput)
@@ -812,14 +812,58 @@ extern "C" int validateTargetFilename(	char		*targetFileName,	// pointer to wher
 //
 static int preprocessSource(char *sourceName)
 {
-	char	shellCommand[512];
+	char	shellCommand[1024];
 	int		retVal = 0;
 
 	memset(shellCommand, 0, sizeof(shellCommand));
 
+	// x64 port (2026-08-29): the tool machines carry no GNU cpp.exe. Allow the
+	// preprocessor to be supplied two new ways before falling back to the
+	// original PATH lookup:
+	//   1. cpp.exe sitting beside miff.exe (what an installer would ship)
+	//   2. the MIFF_CPP environment variable naming any cpp-compatible
+	//      preprocessor (clang.exe works: it accepts -E -x c ... -o out)
+	// Both use "-o" for the output file, which GNU cpp also accepts.
+	{
+		char exeDir[512];
+		char localCpp[512];
+		GetModuleFileName(GetModuleHandle(NULL), exeDir, sizeof(exeDir));
+		char *slash = strrchr(exeDir, '\\');
+		if (slash)
+			*slash = '\0';
+		sprintf(localCpp, "%s\\cpp.exe", exeDir);
+
+		const char *envCpp = getenv("MIFF_CPP");
+
+		DWORD attribs = GetFileAttributes(localCpp);
+		if (attribs != INVALID_FILE_ATTRIBUTES && !(attribs & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			sprintf(shellCommand, "\"\"%s\" -nostdinc -pedantic -Wall -dD%s %s -o mIFF.$$$\"",
+				localCpp, verboseMode ? " -H" : "", sourceName);
+		}
+		else if (envCpp != NULL && envCpp[0] != '\0')
+		{
+			sprintf(shellCommand, "\"\"%s\" -E -x c -nostdinc -pedantic -Wall -dD%s %s -o mIFF.$$$\"",
+				envCpp, verboseMode ? " -H" : "", sourceName);
+		}
+
+		if (shellCommand[0] != '\0')
+		{
+			if (verboseMode)
+				MIFFMessage("Preprocessing... via local cpp/MIFF_CPP", 0);
+			retVal = system(shellCommand);
+			if (retVal != 0)
+			{
+				REPORT_LOG(true, ("preprocessor failed (%d):\n    %s\n", retVal, shellCommand));
+				MIFFMessage("\n\nERROR: preprocessor (local cpp.exe / MIFF_CPP) failed.\n", 1);
+			}
+			return retVal;
+		}
+	}
+
 //	if (!runningUnderNT)
 	{
-	
+
 		if (verboseMode)
 			MIFFMessage("Preprocessing... via CCCP", 0);
 

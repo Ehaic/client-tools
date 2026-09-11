@@ -791,6 +791,23 @@ void EnvironmentBlock::loadColorRamps (const char* fileName)
 	{
 		DEBUG_WARNING (fileName && *fileName, ("EnvironmentBlock::loadColorRamps - image [%s] loaded, but is not in the appropriate format (256w x 8h x 32b tga)", fileName));
 
+		//-- This else-branch installs the "ramps did not load" defaults, which include a
+		//   MAGENTA clear colour (below) -- a deliberate sentinel. Until 2026-08-24 it was
+		//   entirely silent in release: the DEBUG_WARNING above compiles out, and its
+		//   fileName && *fileName guard suppresses the empty-name case even in debug. A
+		//   magenta sky with no log line cost several sessions of misdirected investigation,
+		//   so the two cases that indicate a REAL fault now warn in release.
+		//
+		//   The empty-name case is NOT a fault: EnvironmentBlockManager always constructs a
+		//   default block with no colour ramp, so it would fire once in every run of every
+		//   tool and of the client. It stays debug-only to keep the release log honest.
+		if (!fileName || !*fileName)
+			DEBUG_WARNING (true, ("EnvironmentBlock::loadColorRamps - no colour ramp configured (default environment block) -> magenta clear. Expected for the default block; also seen when a terrain has no environment family, e.g. terrain/simple.trn."));
+		else if (!image)
+			WARNING (true, ("EnvironmentBlock::loadColorRamps - colour ramp [%s] FAILED TO LOAD (ImageFormatList::loadImage returned null) -> magenta clear colour and default lighting ramps", fileName));
+		else
+			WARNING (true, ("EnvironmentBlock::loadColorRamps - colour ramp [%s] is %dx%d pf=%d, wanted 256 wide, 8 or 10 high, 32-bit -> magenta clear colour and default lighting ramps", fileName, image->getWidth (), image->getHeight (), static_cast<int> (image->getPixelFormat ())));
+
 		if (image)
 			delete image;
 

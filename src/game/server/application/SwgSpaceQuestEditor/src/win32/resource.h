@@ -102,10 +102,8 @@
 #define ID_TOOLS_SCANALL                32792
 #define ID_BUTTON_INFORMATION           32793
 #define ID_TOOLS_OPENSAVEALL            32794
-#define ID_TOOLS_OPENEDITALL            32795
 #define ID_APP_HELP                     32809
 #define ID_BUTTON_COMPILEDEBUG          32810
-#define ID_BUTTON_P4EDIT                32812
 #define ID_BUTTON_SCAN                  32815
 #define ID_INDICATOR_TOOLTIP            59142
 

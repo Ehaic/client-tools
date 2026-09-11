@@ -168,9 +168,14 @@ void SwgDraftSchematicEditorApp::OnFileCloseall()
 
 // ======================================================================
 
-void * __cdecl operator new(unsigned int size, enum MemoryManagerNotALeak)
+enum MemoryManagerNotALeak
 {
-	return new unsigned char [size]; 
+	MM_notALeak
+};
+
+void * __cdecl operator new(size_t size, MemoryManagerNotALeak)
+{
+	return operator new(size);
 }
 
 // ======================================================================

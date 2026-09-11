@@ -911,7 +911,7 @@ void SpaceZoneMapView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			else
 			{
 				CString caption;
-				caption.Format("Delete %d selected objects?", m_selectionList.size());
+				caption.Format("Delete %d selected objects?", static_cast<int>(m_selectionList.size()));
 
 				CString message;
 				{

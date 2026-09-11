@@ -68,7 +68,6 @@
 #define ID_VIEW_DIRECTORY               32787
 #define ID_APP_HELP                     32809
 #define ID_BUTTON_COMPILEDEBUG          32810
-#define ID_BUTTON_P4EDIT                32812
 #define ID_BUTTON_SCAN                  32815
 
 // Next default values for new objects

@@ -48,7 +48,6 @@ public:
 	void openAll();
 	void scanAll();
 	void saveAll();
-	void editAll();
 	void refresh();
 
 private:
@@ -56,7 +55,7 @@ private:
 	CTreeCtrl & GetTreeCtrl();
 	void reset(bool refresh);
 
-	void openItem(HTREEITEM root, bool const scanDocument, bool const  saveDocument, bool const closeDocument, bool const editDocument);
+	void openItem(HTREEITEM root, bool const scanDocument, bool const  saveDocument, bool const closeDocument);
 
 private:
 

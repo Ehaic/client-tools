@@ -2,6 +2,19 @@
 // Microsoft Developer Studio generated include file.
 // Used by resource.rc
 //
+
+// Standard MFC command IDs used by the legacy menu and accelerator resources.
+// Keep these local so this non-MFC application does not require afxres.h.
+#define ID_FILE_NEW                     0xE100
+#define ID_FILE_OPEN                    0xE101
+#define ID_FILE_CLOSE                   0xE102
+#define ID_FILE_SAVE                    0xE103
+#define ID_EDIT_COPY                    0xE122
+#define ID_EDIT_CUT                     0xE123
+#define ID_EDIT_PASTE                   0xE125
+#define ID_EDIT_UNDO                    0xE12B
+#define ID_EDIT_REDO                    0xE12C
+
 #define IDR_MAIN_MENU                   101
 #define IDD_MAINWINDOW                  103
 #define IDC_REMOVEFROMSEL               104
@@ -49,7 +62,6 @@
 #define IDD_DIFF_WINDOW                 143
 #define IDI_ZOOMOUT                     144
 #define IDI_RESET                       147
-#define IDI_CHECKOUT                    148
 #define IDC_ROOTOBJECT                  1003
 #define IDC_UNLOAD                      1004
 #define IDC_FPS                         1005
@@ -115,7 +127,6 @@
 #define IDC_PROPERTYLIST                1061
 #define IDC_LOCK                        1062
 #define IDC_TILEMAX                     1063
-#define IDC_CHECKOUT                    1063
 #define IDC_NUMFRAGMENTS                1065
 #define IDC_SOURCEFILE                  1066
 #define IDC_LARGESTFRAGMENT             1067

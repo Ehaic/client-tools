@@ -15,7 +15,7 @@ public:
 
 private:
 
-	static BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam );	
+	static INT_PTR CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam );
 };
 
 #endif /* __ADDPROPERTYDIALOGBOX_H__ */

@@ -100,7 +100,6 @@ BEGIN
     SEPARATOR
     BUTTON      ID_BUTTON_INFORMATION
     BUTTON      ID_BUTTON_VALIDATE
-    BUTTON      ID_BUTTON_P4
 END
 
 
@@ -540,11 +539,6 @@ END
 STRINGTABLE 
 BEGIN
     ID_BUTTON_INFORMATION   "Display information about the mission template"
-END
-
-STRINGTABLE 
-BEGIN
-    ID_BUTTON_P4            "Open the current document (and .iff counterpart) for edit in Perforce"
 END
 
 #endif    // English (U.S.) resources

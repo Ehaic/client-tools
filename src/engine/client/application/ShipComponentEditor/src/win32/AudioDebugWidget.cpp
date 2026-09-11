@@ -41,7 +41,7 @@ void AudioDebugWidget::timerTimout()
 	{
 		m_debugListView->insertItem(new QListViewItem(m_debugListView, "3D Provider"));
 	}
-	text.sprintf("%s", Audio::getCurrent3dProvider());
+	text.sprintf("%s", Audio::getCurrent3dProvider().c_str());
 	setText(rowCount, 1, text);
 	++rowCount;
 

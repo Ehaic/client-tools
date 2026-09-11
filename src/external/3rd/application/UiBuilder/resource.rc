@@ -7,7 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+#include "winres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -34,7 +34,7 @@ END
 
 2 TEXTINCLUDE DISCARDABLE 
 BEGIN
-    "#include ""afxres.h""\r\n"
+    "#include ""winres.h""\r\n"
     "\0"
 END
 
@@ -253,8 +253,6 @@ BEGIN
     PUSHBUTTON      "Back",IDC_BUTTON_BACK,52,2,32,11,WS_DISABLED
     PUSHBUTTON      "Forward",IDC_BUTTON_FORWARD,84,2,31,11,WS_DISABLED
     PUSHBUTTON      "Up",IDC_BUTTON_UP,116,2,31,11,WS_DISABLED
-    PUSHBUTTON      "",IDC_CHECKOUT,148,197,15,14,BS_ICON | NOT WS_TABSTOP,
-                    WS_EX_STATICEDGE
 END
 
 IDD_UIWINDOW DIALOGEX 0, 0, 275, 182
@@ -702,7 +700,6 @@ IDI_REFRESH             ICON    DISCARDABLE     "refresh.ico"
 IDI_ZOOMIN              ICON    DISCARDABLE     "zoomin.ico"
 IDI_ZOOMOUT             ICON    DISCARDABLE     "zoomout.ico"
 IDI_RESET               ICON    DISCARDABLE     "reset.ico"
-IDI_CHECKOUT            ICON    DISCARDABLE     "p4.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -790,7 +787,7 @@ BEGIN
             VALUE "FileDescription", "UIBuilder\0"
             VALUE "FileVersion", "1, 0, 0, 1\0"
             VALUE "InternalName", "UIBuilder\0"
-            VALUE "LegalCopyright", "Copyright ¨Ï 2001\0"
+            VALUE "LegalCopyright", "Copyright ï¿½ï¿½ 2001\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "UIBuilder.exe\0"
             VALUE "PrivateBuild", "\0"

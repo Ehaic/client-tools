@@ -68,7 +68,6 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnButtonValidate();
 	afx_msg void OnButtonHideGrid();
-	afx_msg void OnButtonP4();
 	afx_msg void OnUpdateButtonHideGrid(CCmdUI* pCmdUI);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	//}}AFX_MSG

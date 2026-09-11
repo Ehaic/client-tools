@@ -1748,7 +1748,7 @@ ParameterList::const_iterator iter;
 
 	NOT_NULL(namePrefix);
 
-	char *extraTab = "";
+	const char *extraTab = "";
 	if (namePrefix[0] == '\0')
 		extraTab = "\t";
 

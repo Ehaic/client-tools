@@ -734,7 +734,7 @@ void CNewTreeListCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	ResetVertScrollBar();
 }
 
-BOOL CNewTreeListCtrl::SetItemData(HTREEITEM hItem, DWORD dwData)
+BOOL CNewTreeListCtrl::SetItemData(HTREEITEM hItem, DWORD_PTR dwData)
 {
 	CTLItem *pItem = (CTLItem *)CTreeCtrl::GetItemData(hItem);
 	if(!pItem)
@@ -743,7 +743,7 @@ BOOL CNewTreeListCtrl::SetItemData(HTREEITEM hItem, DWORD dwData)
 	return CTreeCtrl::SetItemData(hItem, (LPARAM)pItem);
 }
 
-DWORD CNewTreeListCtrl::GetItemData(HTREEITEM hItem) const
+DWORD_PTR CNewTreeListCtrl::GetItemData(HTREEITEM hItem) const
 {
 	CTLItem *pItem = (CTLItem *)CTreeCtrl::GetItemData(hItem);
 	if(!pItem)
@@ -856,7 +856,8 @@ HTREEITEM CNewTreeListCtrl::MoveItem(HTREEITEM hItem, HTREEITEM hParent, HTREEIT
 	CTLItem *pItem = (CTLItem *)CTreeCtrl::GetItemData(hItem);
 	CTLItem *pNewItem = new CTLItem(*pItem);
 
-	item.pszText = "";
+	char emptyText [] = "";
+	item.pszText = emptyText;
 	item.lParam = (LPARAM)pNewItem;
 	item.hItem = NULL;
 
@@ -1183,7 +1184,7 @@ HTREEITEM CNewTreeListCtrl::AlterDropTarget(HTREEITEM hSource, HTREEITEM hTarget
 	}
 }
 
-void CNewTreeListCtrl::OnTimer(UINT nIDEvent) 
+void CNewTreeListCtrl::OnTimer(UINT_PTR nIDEvent)
 {
 	if(nIDEvent == m_idTimer)
 	{

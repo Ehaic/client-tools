@@ -1237,7 +1237,17 @@ bool HeightSampler::createStaticFloraList(const char *i_terrain_file, const char
 
 	//---------------------------------------------------------
 
+	//-- Do NOT delete appearanceTemplate here. Appearance::~Appearance calls
+	//   AppearanceTemplateList::release() on its m_appearanceTemplate
+	//   (Appearance.cpp:105-109), and createAppearance() handed this very
+	//   template to the Appearance. release() decrements to zero and DELETES it
+	//   (AppearanceTemplateList.cpp:361-379), so "delete appearance" above has
+	//   already destroyed the template. Deleting it again double-freed and
+	//   crashed Turf with FATAL/ExceptionHandler AFTER a correct .tcf had been
+	//   written -- which made a successful bake look like a failure to
+	//   TerrainEditor, since it only sees the child process exit code.
+	//   The other createAppearance site in this file (line ~122, freed at ~416)
+	//   already follows this rule and deletes only the appearance.
 	delete appearance;
-	delete appearanceTemplate;
 	return true;
 }

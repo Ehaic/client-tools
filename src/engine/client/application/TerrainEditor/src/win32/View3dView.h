@@ -13,6 +13,7 @@
 //-------------------------------------------------------------------
 
 class GameCamera;
+class Light;
 class ObjectList;
 class TerrainObject;
 
@@ -24,11 +25,13 @@ private:
 
 	GameCamera*    camera;
 	TerrainObject* terrain;
+	Light*         ambientLight;
+	Light*         parallelLight;
 	
 	real           yaw;
 	real           pitch;
 
-	uint           timer;
+	UINT_PTR       timer;
 	const uint     milliseconds;
 	real           elapsedTime;
 	bool           render;
@@ -61,7 +64,7 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnDestroy();
-	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnRefresh();
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg void OnKillFocus(CWnd* pNewWnd);

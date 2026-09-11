@@ -36,6 +36,20 @@ static inline bool keyDown (int key)
 
 //-------------------------------------------------------------------
 
+static inline void drawScreenLine (LONG x0, LONG y0, LONG x1, LONG y1, const VectorArgb& color)
+{
+	Graphics::drawLine (static_cast<int> (x0), static_cast<int> (y0), static_cast<int> (x1), static_cast<int> (y1), color);
+}
+
+//-------------------------------------------------------------------
+
+static inline void drawScreenRectangle (LONG x0, LONG y0, LONG x1, LONG y1, const VectorArgb& color)
+{
+	Graphics::drawRectangle (static_cast<int> (x0), static_cast<int> (y0), static_cast<int> (x1), static_cast<int> (y1), color);
+}
+
+//-------------------------------------------------------------------
+
 MapView::Grid::Grid (void) :
 	mapView (0),
 	gridDistance (0)
@@ -666,7 +680,29 @@ void MapView::drawLayer (CDC* pDC, const VectorArgb& color, const TerrainGenerat
 	int n = layer->getNumberOfBoundaries ();
 	int i;
 	for (i = 0; i < n; i++)
-		drawBoundary (pDC, color, layer->getBoundary (i), forceDraw);
+	{
+		const TerrainGenerator::Boundary* const boundary = layer->getBoundary (i);
+
+		//-- Tools > Bake Rivers-Roads left a null in a layer's boundary list and the
+		//   next repaint faulted on it (2026-08-27): drawBoundary+0x4 dereferencing a
+		//   null `boundary` for isActive(). Report and skip rather than fault in the
+		//   paint path. WARNING, not DEBUG_WARNING - the latter compiles out in
+		//   release, which is why every DEBUG_FATAL along that path stayed silent.
+		if (!boundary)
+		{
+			static bool reported = false;
+			if (!reported)
+			{
+				reported = true;
+				WARNING (true, ("MapView::drawLayer: null boundary %d of %d in layer '%s'",
+					i, n, layer->getName () ? layer->getName () : "<unnamed>"));
+			}
+
+			continue;
+		}
+
+		drawBoundary (pDC, color, boundary, forceDraw);
+	}
 
 	n = layer->getNumberOfLayers ();
 	for (i = 0; i < n; i++)
@@ -774,8 +810,8 @@ void MapView::drawRectangle_w (CDC* pDC, const Vector2d& start, const Vector2d& 
 
 	//-- draw the rectangle
 	Graphics::setStaticShader (ShaderTemplateList::get2dVertexColorStaticShader ());
-	Graphics::drawRectangle (startScreen.x, startScreen.y, endScreen.x, endScreen.y, color);
-	Graphics::drawRectangle (startScreen.x + 1, startScreen.y + 1, endScreen.x - 1, endScreen.y - 1, color);
+	drawScreenRectangle (startScreen.x, startScreen.y, endScreen.x, endScreen.y, color);
+	drawScreenRectangle (startScreen.x + 1, startScreen.y + 1, endScreen.x - 1, endScreen.y - 1, color);
 }
 
 //-------------------------------------------------------------------
@@ -804,9 +840,9 @@ void MapView::drawLine_w (CDC* pDC, const Vector2d& start, const Vector2d& end, 
 
 	//-- draw the line
 	Graphics::setStaticShader (ShaderTemplateList::get2dVertexColorStaticShader ());
-	Graphics::drawRectangle (startScreen.x - 1, startScreen.y - 1, startScreen.x + 1, startScreen.y + 1, VectorArgb::solidWhite);
-	Graphics::drawRectangle (endScreen.x - 1, endScreen.y - 1, endScreen.x + 1, endScreen.y + 1, VectorArgb::solidWhite);
-	Graphics::drawLine (startScreen.x, startScreen.y, endScreen.x, endScreen.y, color);
+	drawScreenRectangle (startScreen.x - 1, startScreen.y - 1, startScreen.x + 1, startScreen.y + 1, VectorArgb::solidWhite);
+	drawScreenRectangle (endScreen.x - 1, endScreen.y - 1, endScreen.x + 1, endScreen.y + 1, VectorArgb::solidWhite);
+	drawScreenLine (startScreen.x, startScreen.y, endScreen.x, endScreen.y, color);
 }
 
 //-------------------------------------------------------------------
@@ -826,8 +862,8 @@ void MapView::drawPolygon_w (CDC* pDC, const ArrayList<Vector2d>& pointList, con
 		CPoint screenPoint1 = convertWorldToScreen (pointList [i]);
 		CPoint screenPoint2 = convertWorldToScreen (pointList [j]);
 
-		Graphics::drawLine (screenPoint1.x, screenPoint1.y, screenPoint2.x, screenPoint2.y, color);
-		Graphics::drawLine (screenPoint1.x+1, screenPoint1.y+1, screenPoint2.x+1, screenPoint2.y+1, color);
+		drawScreenLine (screenPoint1.x, screenPoint1.y, screenPoint2.x, screenPoint2.y, color);
+		drawScreenLine (screenPoint1.x+1, screenPoint1.y+1, screenPoint2.x+1, screenPoint2.y+1, color);
 	}
 }
 
@@ -902,18 +938,18 @@ void MapView::drawPolyline_w (CDC* pDC, const ArrayList<Vector2d>& pointList, co
 					convertWorldToScreen (endRight + (nextDirection * width))
 				};
 
-				Graphics::drawLine (p [0].x, p [0].y, p [1].x, p [1].y, color);
+				drawScreenLine (p [0].x, p [0].y, p [1].x, p [1].y, color);
 
 				if (atEndNext)
 				{
-					Graphics::drawLine (p [2].x, p [2].y, p [4].x, p [4].y, color);
-					Graphics::drawLine (p [3].x, p [3].y, p [5].x, p [5].y, color);
-					Graphics::drawLine (p [4].x, p [4].y, p [5].x, p [5].y, color);
+					drawScreenLine (p [2].x, p [2].y, p [4].x, p [4].y, color);
+					drawScreenLine (p [3].x, p [3].y, p [5].x, p [5].y, color);
+					drawScreenLine (p [4].x, p [4].y, p [5].x, p [5].y, color);
 				}
 				else
 				{
-					Graphics::drawLine (p [2].x, p [2].y, endLeftScreen.x, endLeftScreen.y, color);
-					Graphics::drawLine (p [3].x, p [3].y, endRightScreen.x, endRightScreen.y, color);
+					drawScreenLine (p [2].x, p [2].y, endLeftScreen.x, endLeftScreen.y, color);
+					drawScreenLine (p [3].x, p [3].y, endRightScreen.x, endRightScreen.y, color);
 				}
 			}
 			else
@@ -928,14 +964,14 @@ void MapView::drawPolyline_w (CDC* pDC, const ArrayList<Vector2d>& pointList, co
 						convertWorldToScreen (nextEndRight + (nextDirection * width))
 					};
 
-					Graphics::drawLine (startLeftScreen.x, startLeftScreen.y, p [0].x, p [0].y, color);
-					Graphics::drawLine (startRightScreen.x, startRightScreen.y, p [1].x, p [1].y, color);
-					Graphics::drawLine (p [2].x, p [2].y, p [3].x, p [3].y, color);
+					drawScreenLine (startLeftScreen.x, startLeftScreen.y, p [0].x, p [0].y, color);
+					drawScreenLine (startRightScreen.x, startRightScreen.y, p [1].x, p [1].y, color);
+					drawScreenLine (p [2].x, p [2].y, p [3].x, p [3].y, color);
 				}
 				else
 				{
-					Graphics::drawLine (startLeftScreen.x, startLeftScreen.y, endLeftScreen.x, endLeftScreen.y, color);
-					Graphics::drawLine (startRightScreen.x, startRightScreen.y, endRightScreen.x, endRightScreen.y, color);
+					drawScreenLine (startLeftScreen.x, startLeftScreen.y, endLeftScreen.x, endLeftScreen.y, color);
+					drawScreenLine (startRightScreen.x, startRightScreen.y, endRightScreen.x, endRightScreen.y, color);
 				}
 			}
 		}
@@ -950,8 +986,8 @@ void MapView::drawPolyline_w (CDC* pDC, const ArrayList<Vector2d>& pointList, co
 			CPoint screenPoint1 = convertWorldToScreen (pointList [i]);
 			CPoint screenPoint2 = convertWorldToScreen (pointList [i + 1]);
 
-			Graphics::drawLine (screenPoint1.x, screenPoint1.y, screenPoint2.x, screenPoint2.y, color);
-			Graphics::drawLine (screenPoint1.x+1, screenPoint1.y+1, screenPoint2.x+1, screenPoint2.y+1, color);
+			drawScreenLine (screenPoint1.x, screenPoint1.y, screenPoint2.x, screenPoint2.y, color);
+			drawScreenLine (screenPoint1.x+1, screenPoint1.y+1, screenPoint2.x+1, screenPoint2.y+1, color);
 		}
 	}
 }

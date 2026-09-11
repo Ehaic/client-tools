@@ -42,6 +42,20 @@ static inline bool isCloseTo (const CPoint& source, int radius, const CPoint& po
 
 //-------------------------------------------------------------------
 
+static inline void drawScreenLine (LONG x0, LONG y0, LONG x1, LONG y1, const VectorArgb& color)
+{
+	Graphics::drawLine (static_cast<int> (x0), static_cast<int> (y0), static_cast<int> (x1), static_cast<int> (y1), color);
+}
+
+//-------------------------------------------------------------------
+
+static inline void drawScreenRectangle (LONG x0, LONG y0, LONG x1, LONG y1, const VectorArgb& color)
+{
+	Graphics::drawRectangle (static_cast<int> (x0), static_cast<int> (y0), static_cast<int> (x1), static_cast<int> (y1), color);
+}
+
+//-------------------------------------------------------------------
+
 MapView::Mode::Mode (MapView* const newMapView) :
 	mapView (newMapView),
 	originated (false)
@@ -502,7 +516,7 @@ void MapView::ModeCreatePolygon::render (CDC* pDC) const
 			{
 				CPoint screenPoint = mapView->convertWorldToScreen (pointList [i]);
 
-				Graphics::drawRectangle (screenPoint.x - 2, screenPoint.y - 2, screenPoint.x + 2, screenPoint.y + 2, VectorArgb::solidWhite);
+				drawScreenRectangle (screenPoint.x - 2, screenPoint.y - 2, screenPoint.x + 2, screenPoint.y + 2, VectorArgb::solidWhite);
 			}
 
 			if (pointList.getNumberOfElements () > 0)
@@ -510,7 +524,7 @@ void MapView::ModeCreatePolygon::render (CDC* pDC) const
 				CPoint screenPoint1 = mapView->convertWorldToScreen (pointList [pointList.getNumberOfElements () - 1]);
 				CPoint screenPoint2 = mapView->convertWorldToScreen (end);
 
-				Graphics::drawLine (screenPoint1.x, screenPoint1.y, screenPoint2.x, screenPoint2.y, VectorArgb::solidYellow);
+				drawScreenLine (screenPoint1.x, screenPoint1.y, screenPoint2.x, screenPoint2.y, VectorArgb::solidYellow);
 			}
 		}
 	}
@@ -630,10 +644,10 @@ void MapView::ModeCreatePolyline::render (CDC* pDC) const
 				{
 					const CPoint screenPointEnd = mapView->convertWorldToScreen (end);
 
-					Graphics::drawLine (screenPoint.x, screenPoint.y, screenPointEnd.x, screenPointEnd.y, VectorArgb::solidYellow);
+					drawScreenLine (screenPoint.x, screenPoint.y, screenPointEnd.x, screenPointEnd.y, VectorArgb::solidYellow);
 				}
 
-				Graphics::drawRectangle (screenPoint.x - 2, screenPoint.y - 2, screenPoint.x + 2, screenPoint.y + 2, VectorArgb::solidWhite);
+				drawScreenRectangle (screenPoint.x - 2, screenPoint.y - 2, screenPoint.x + 2, screenPoint.y + 2, VectorArgb::solidWhite);
 			}
 		}
 	}
@@ -831,7 +845,7 @@ void MapView::ModeModifyPolygon::render (CDC* pDC) const
 			{
 				CPoint screenPoint = mapView->convertWorldToScreen (boundaryPolygon->getPoint (i));
 
-				Graphics::drawRectangle (screenPoint.x - 2, screenPoint.y - 2, screenPoint.x + 2, screenPoint.y + 2, i == selectedIndex ? VectorArgb::solidRed : VectorArgb::solidWhite);
+				drawScreenRectangle (screenPoint.x - 2, screenPoint.y - 2, screenPoint.x + 2, screenPoint.y + 2, i == selectedIndex ? VectorArgb::solidRed : VectorArgb::solidWhite);
 			}
 		}
 	}
@@ -1003,7 +1017,7 @@ void MapView::ModeModifyPolyline::render (CDC* pDC) const
 			{
 				CPoint screenPoint = mapView->convertWorldToScreen (boundaryPolyline->getPoint (i));
 
-				Graphics::drawRectangle (screenPoint.x - 2, screenPoint.y - 2, screenPoint.x + 2, screenPoint.y + 2, i == selectedIndex ? VectorArgb::solidRed : VectorArgb::solidWhite);
+				drawScreenRectangle (screenPoint.x - 2, screenPoint.y - 2, screenPoint.x + 2, screenPoint.y + 2, i == selectedIndex ? VectorArgb::solidRed : VectorArgb::solidWhite);
 			}
 		}
 	}
@@ -1237,7 +1251,7 @@ void MapView::ModeModifyAffectorBoundaryPoly::render (CDC* pDC) const
 			{
 				CPoint screenPoint = mapView->convertWorldToScreen (affectorBoundaryPoly->getPoint (i));
 
-				Graphics::drawRectangle (screenPoint.x - 2, screenPoint.y - 2, screenPoint.x + 2, screenPoint.y + 2, i == selectedIndex ? VectorArgb::solidRed : VectorArgb::solidWhite);
+				drawScreenRectangle (screenPoint.x - 2, screenPoint.y - 2, screenPoint.x + 2, screenPoint.y + 2, i == selectedIndex ? VectorArgb::solidRed : VectorArgb::solidWhite);
 			}
 		}
 	}

@@ -27,7 +27,7 @@ static long									 gTileSizes[]							= {32, 64, 128, 256, 512, 1024, 2048};
 static char                  gSourceFile[_MAX_PATH];
 static char                  gAlphaFile[_MAX_PATH];
 static long									 gCompressionMethodIndex	= 0;
-static char                 *gCompressionMethods[]		= {"DXT1", "DXT2", "DXT3", "DXT4", "DXT5"};
+static const char * const    gCompressionMethods[]		= {"DXT1", "DXT2", "DXT3", "DXT4", "DXT5"};
 static char                  gParentPath[_MAX_PATH];
 
 static bool									 gFileIsValid							= false;
@@ -129,7 +129,7 @@ static void SliceImagesToFiles( HWND hwndDlg )
 				HBITMAP OldBMP  = (HBITMAP)SelectObject( ScratchDC, Scratch );
 				char    Buffer[_MAX_PATH+1];
 
-				sprintf( Buffer, "Processing fragment %d of %d...", CurrentFragmentNumber, gFragmentRectangles.size() );
+				sprintf( Buffer, "Processing fragment %d of %zu...", CurrentFragmentNumber, gFragmentRectangles.size() );
 				SetDlgItemText( hwndDlg, IDC_STATUS, Buffer );
 				SendDlgItemMessage( hwndDlg, IDC_PROGRESS, PBM_SETPOS, CurrentFragmentNumber, 0 );
 				
@@ -376,10 +376,10 @@ static void UpdateFragmentData( HWND hwndDlg )
 			if( UIUtils::ParseRect( Buffer, rc ) )
 				gFragmentRectangles.push_back( rc );
 
-			delete Buffer;
+			delete [] Buffer;
 		}
 
-		sprintf( buffer, "%d", gFragmentRectangles.size() );
+		sprintf( buffer, "%zu", gFragmentRectangles.size() );
 		SetDlgItemText( hwndDlg, IDC_NUMFRAGMENTS, buffer );
 
 		if( gFragmentRectangles.size() > 0 )
@@ -487,7 +487,7 @@ static void LoadData( HWND hwndDlg )
 	EnableControls( hwndDlg );
 }
 
-static BOOL CALLBACK NullDialogProc( HWND, UINT, WPARAM, LPARAM )
+static INT_PTR CALLBACK NullDialogProc( HWND, UINT, WPARAM, LPARAM )
 {
 	return FALSE;
 }
@@ -506,7 +506,7 @@ static void Cleanup( void )
 {
 }
 
-BOOL CALLBACK ImportImageDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR CALLBACK ImportImageDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch( uMsg )
 	{
@@ -524,7 +524,7 @@ BOOL CALLBACK ImportImageDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			if( LOWORD( wParam ) == IDOK )
 			{
 				SaveData( hwndDlg );
-				EndDialog( hwndDlg, (long)GenerateImageFrameFromData() );
+				EndDialog( hwndDlg, reinterpret_cast<INT_PTR>( GenerateImageFrameFromData() ) );
 				Cleanup();
 			}
 			else if( LOWORD( wParam ) == IDCANCEL )

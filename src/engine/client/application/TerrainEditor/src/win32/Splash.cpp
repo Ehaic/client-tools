@@ -134,7 +134,7 @@ void SplashScreen::OnPaint()
 	dcImage.SelectObject(pOldBitmap);
 }
 
-void SplashScreen::OnTimer(UINT nIDEvent)
+void SplashScreen::OnTimer(UINT_PTR nIDEvent)
 {
 	UNREF (nIDEvent);
 

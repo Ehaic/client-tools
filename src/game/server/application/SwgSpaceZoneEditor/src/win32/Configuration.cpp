@@ -266,7 +266,7 @@ CString const Configuration::getConfiguration()
 
 	CString result;
 
-	buffer.Format("%i spaceMobiles from %s\n", ms_spaceMobileList.size(), ms_spaceMobileDataTableFileName);
+	buffer.Format("%i spaceMobiles from %s\n", static_cast<int>(ms_spaceMobileList.size()), ms_spaceMobileDataTableFileName.GetString());
 	result += buffer;
 
 	{
@@ -435,14 +435,14 @@ void Configuration::packObjVars(ObjVarList const & objVarList, CString & string)
 				string += '|';
 				string += "0";
 				string += '|';
-				string += _itoa(stringList.size(), buffer, 10);
+				string += _itoa(static_cast<int>(stringList.size()), buffer, 10);
 				string += '|';
 
 
 				//-- Write segments
 				for (size_t j = 0; j < segmentList.size(); ++j)
 				{
-					string += objVar.m_key + "_mangled.segment." + _itoa(j, buffer, 10);
+					string += objVar.m_key + "_mangled.segment." + _itoa(static_cast<int>(j), buffer, 10);
 					string += '|';
 					string += "5";
 					string += '|';
@@ -530,7 +530,7 @@ bool Configuration::loadCfg()
 		Iff iff;
 		if (!iff.open(ms_spaceMobileDataTableFileName, true))
 		{
-			DEBUG_WARNING(true, ("Configuration::loadCfg: could not open file %s\n", ms_spaceMobileDataTableFileName));
+			DEBUG_WARNING(true, ("Configuration::loadCfg: could not open file %s\n", ms_spaceMobileDataTableFileName.GetString()));
 			return false;
 		}
 		
@@ -555,7 +555,7 @@ bool Configuration::loadCfg()
 		Iff iff;
 		if (!iff.open(ms_squadDataTableFileName, true))
 		{
-			DEBUG_WARNING(true, ("Configuration::loadCfg: could not open file %s\n", ms_squadDataTableFileName));
+			DEBUG_WARNING(true, ("Configuration::loadCfg: could not open file %s\n", ms_squadDataTableFileName.GetString()));
 			return false;
 		}
 		

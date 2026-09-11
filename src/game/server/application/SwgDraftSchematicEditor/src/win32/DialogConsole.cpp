@@ -241,7 +241,6 @@ BOOL DialogConsole::OnInitDialog()
 	m_initialized = true;
 
 	CreateShellRedirect ();
-	execute ("p4 info");
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -468,7 +467,7 @@ void DialogConsole::WriteToPipe( LPCTSTR line )
 {
 	DWORD dwWritten;
 
-	WriteFile( hChildStdinWrDup, line, _tcslen(line)*sizeof(TCHAR), 
+	WriteFile( hChildStdinWrDup, line, static_cast<DWORD>(_tcslen(line) * sizeof(TCHAR)),
 			&dwWritten, NULL );
 }
 
@@ -503,7 +502,7 @@ void DialogConsole::AddTexts(LPCTSTR string)
 
 void DialogConsole::MoveToEnd()
 {
-	int nLen = GetShellEditCtrl().SendMessage( WM_GETTEXTLENGTH );
+	int nLen = static_cast<int>(GetShellEditCtrl().SendMessage( WM_GETTEXTLENGTH ));
 	GetShellEditCtrl().SetSel( nLen,nLen );
 }
 

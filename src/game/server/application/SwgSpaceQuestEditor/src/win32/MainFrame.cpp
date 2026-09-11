@@ -27,8 +27,6 @@ BEGIN_MESSAGE_MAP(MainFrame, CMDIFrameWnd)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_DIRECTORY, OnUpdateViewDirectory)
 	ON_COMMAND(ID_TOOLS_SCANALL, OnToolsScanall)
 	ON_COMMAND(ID_TOOLS_OPENSAVEALL, OnToolsOpensaveall)
-	ON_COMMAND(ID_TOOLS_OPENEDITALL, OnToolsOpenEditAll)
-	ON_UPDATE_COMMAND_UI(ID_TOOLS_OPENEDITALL, OnUpdateToolsOpenEditAll)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -234,27 +232,10 @@ void MainFrame::OnToolsScanall()
 
 // ----------------------------------------------------------------------
 
-void MainFrame::OnToolsOpensaveall() 
+void MainFrame::OnToolsOpensaveall()
 {
-	if (MessageBox ("Make sure you open for edit all of the relevant quest directories.  Are you sure?", "Save all", MB_YESNO) == IDYES)
+	if (MessageBox ("Are you sure?", "Save all", MB_YESNO) == IDYES)
 		m_directoryDialog.saveAll ();
-}
-
-// ----------------------------------------------------------------------
-
-void MainFrame::OnToolsOpenEditAll() 
-{
-	/* FIXME: this hangs in the console exec ...
-	if (MessageBox ("Are you sure?", "Edit all", MB_YESNO) == IDYES)
-		m_directoryDialog.editAll ();
-	*/
-}
-
-// ----------------------------------------------------------------------
-
-void MainFrame::OnUpdateToolsOpenEditAll(CCmdUI* pCmdUI) 
-{
-	pCmdUI->Enable(false);
 }
 
 // ======================================================================

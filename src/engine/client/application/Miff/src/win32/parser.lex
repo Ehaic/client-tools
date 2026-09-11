@@ -28,7 +28,7 @@
 /*--------------------------------**
 ** exteranl prototype declaration **
 **--------------------------------*/
-void	MIFFMessage(char *message, int forceOutput);
+void	MIFFMessage(const char *message, int forceOutput);
 void	MIFFSetError(void);
 char    * MIFFallocString(int sizeOfString);
 void    MIFFfreeString(char * pointer);

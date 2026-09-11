@@ -55,7 +55,6 @@ protected:
 	afx_msg void OnUpdateButtonCompile(CCmdUI* pCmdUI);
 	afx_msg void OnButtonCompiledebug();
 	afx_msg void OnButtonCompilerelease();
-	afx_msg void OnButtonP4edit();
 	afx_msg void OnButtonScan();
 	afx_msg void OnButtonSpellcheck();
 	afx_msg void OnButtonFind();
@@ -82,7 +81,6 @@ public:
 		H_labelChanged,
 		H_linkChanged,
 		H_shellCompile,
-		H_shellP4edit,
 		H_triggerChanged
 	};
 

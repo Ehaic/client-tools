@@ -115,6 +115,9 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..\..\..\..\..\build\win32\x64\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)_r</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -366,6 +369,22 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <!-- Isolate x64 generated/compiler outputs and link only modern x64 libraries. -->
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IntDir);$(OutDir);..\..\..\..\..\..\..\deps\qt3-win64-src\include;..\..\src\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_r.pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>archive.lib;blat.lib;clientAudio.lib;clientBugReporting.lib;fileInterface.lib;localization.lib;localizationArchive.lib;sharedCollision.lib;sharedCompression.lib;sharedDebug.lib;sharedFile.lib;sharedFoundation.lib;sharedGame.lib;sharedIoWin.lib;sharedLog.lib;sharedMath.lib;sharedMemoryManager.lib;sharedMessageDispatch.lib;sharedNetworkMessages.lib;sharedObject.lib;sharedRandom.lib;sharedSynchronization.lib;sharedTerrain.lib;sharedThread.lib;sharedUtility.lib;swgSharedUtility.lib;unicode.lib;unicodeArchive.lib;zlib.lib;dpvs.lib;dinput8.lib;dsound.lib;dxguid.lib;qt-mt3.lib;qtmain.lib;libxml2.lib;pcre.lib;swg-stubs.lib;shell32.lib;ole32.lib;gdi32.lib;user32.lib;advapi32.lib;ws2_32.lib;winmm.lib;mswsock.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);..\..\..\..\..\..\..\deps\x64\lib;..\..\..\..\..\..\..\deps\qt3-win64-src\lib;$(WindowsSDK_LibraryPath_x64)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libc;MSVCRT</IgnoreSpecificDefaultLibraries>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\compile\win32\SoundEditor\Debug\BaseAudioDebugWidget_d.cpp">
@@ -864,6 +883,27 @@
 ..\..\..\..\..\..\external\3rd\library\qt\3.3.4\bin\moc  $(TargetDir)%(Filename).h &gt;&gt; $(TargetDir)%(Filename)_r.cpp</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename).h;$(TargetDir)%(Filename)_r.cpp;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(TargetDir)%(Filename).h;$(TargetDir)%(Filename)_r.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <!-- The Release x64 lane owns its generated Qt sources and headers under this project's IntDir. -->
+    <ClCompile Update="..\..\..\..\..\..\compile\win32\SoundEditor\Release\*_r.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(IntDir)BaseAudioDebugWidget_r.cpp;$(IntDir)BaseSoundDebugInformationWidget_r.cpp;$(IntDir)BaseSoundEditor_r.cpp;$(IntDir)BaseSoundGroupTemplateWidget_r.cpp;$(IntDir)BaseSoundTemplateWidget_r.cpp">
+      <PrecompiledHeader></PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <ClInclude Include="$(IntDir)BaseAudioDebugWidget.h;$(IntDir)BaseSoundDebugInformationWidget.h;$(IntDir)BaseSoundEditor.h;$(IntDir)BaseSoundGroupTemplateWidget.h;$(IntDir)BaseSoundTemplateWidget.h" />
+    <CustomBuild Update="..\..\src\win32\*.h">
+      <Command>"..\..\..\..\..\..\external\3rd\library\qt\3.3.4\bin\moc" -i "%(FullPath)" -o "$(IntDir)%(Filename).moc"</Command>
+      <Outputs>$(IntDir)%(Filename).moc</Outputs>
+    </CustomBuild>
+    <CustomBuild Update="..\..\ui\*.ui">
+      <Command>"..\..\..\..\..\..\external\3rd\library\qt\3.3.4\bin\uic" -o "$(IntDir)%(Filename).h" "%(FullPath)"
+"..\..\..\..\..\..\external\3rd\library\qt\3.3.4\bin\uic" -o "$(IntDir)%(Filename)_r.cpp" -impl "$(IntDir)%(Filename).h" "%(FullPath)"
+"..\..\..\..\..\..\external\3rd\library\qt\3.3.4\bin\moc" "$(IntDir)%(Filename).h" &gt;&gt; "$(IntDir)%(Filename)_r.cpp"</Command>
+      <Outputs>$(IntDir)%(Filename).h;$(IntDir)%(Filename)_r.cpp</Outputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

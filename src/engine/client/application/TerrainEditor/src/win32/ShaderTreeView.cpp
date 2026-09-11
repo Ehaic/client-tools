@@ -341,7 +341,7 @@ const CString ShaderTreeView::CreateUniqueFamilyName (const CString* base)
 
 	if (base)
 	{
-		familyName.Format ("%s", *base);
+		familyName.Format ("%s", base->GetString ());
 	}
 	else
 	{
@@ -355,7 +355,7 @@ const CString ShaderTreeView::CreateUniqueFamilyName (const CString* base)
 	{
 		if (base)
 		{
-			familyName.Format ("%s_%i", *base, familyIndex);
+			familyName.Format ("%s_%i", base->GetString (), familyIndex);
 		}
 		else
 		{
@@ -572,7 +572,7 @@ void ShaderTreeView::OnDeleteshader()
 				const CString name = GetTreeCtrl ().GetItemText (child);
 
 				CString tmp;
-				tmp.Format ("Are you sure you want to delete %s?", name);
+				tmp.Format ("Are you sure you want to delete %s?", name.GetString ());
 
 				if (MessageBox (tmp, 0, MB_YESNO) == IDYES)
 				{
@@ -1337,7 +1337,7 @@ void ShaderTreeView::OnDestroy()
 
 //-------------------------------------------------------------------
 
-void ShaderTreeView::OnTimer(UINT nIDEvent) 
+void ShaderTreeView::OnTimer(UINT_PTR nIDEvent)
 {
     if( nIDEvent == m_idTimer )
     {

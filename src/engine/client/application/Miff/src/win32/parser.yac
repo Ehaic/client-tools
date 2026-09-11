@@ -43,7 +43,7 @@
 #undef	YYDEBUG
 
 /* external prototype declaration */
-extern void MIFFMessage(char *message);		/* found in mIFF.CPP */
+extern void MIFFMessage(const char *message, int forceOutput);		/* found in mIFF.CPP */
 extern char * MIFFallocString(int sizeOfString);
 extern void MIFFfreeString(char * pointer);
 extern int  validateTargetFilename(char *fname, int fnameSize);		/* found mIFF.CPP */

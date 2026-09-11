@@ -14,6 +14,9 @@
 #include "Resource.h"
 #include "TerrainEditorDoc.h"
 #include "clientGraphics/Graphics.h"
+#include "clientTerrain/ClientProceduralTerrainAppearance.h"
+#include "clientTerrain/ClientTerrainSorter.h"
+#include "sharedObject/CellProperty.h"
 #include "clientGraphics/Light.h"
 #include "clientGraphics/RenderWorld.h"
 #include "clientObject/GameCamera.h"
@@ -43,6 +46,8 @@ View3dView::View3dView() :
 	CView (),
 	camera (0),
 	terrain (0),
+	ambientLight (0),
+	parallelLight (0),
 	yaw (0),
 	pitch (0),
 	timer (0),
@@ -56,6 +61,9 @@ View3dView::View3dView() :
 
 View3dView::~View3dView()
 {
+	//-- the static must not outlive the camera it points at
+	ClientProceduralTerrainAppearance::setReferenceCamera (0);
+
 	delete camera;
 	camera = 0;
 
@@ -90,6 +98,17 @@ void View3dView::OnDraw(CDC* pDC)
 		return;
 
 	NOT_NULL (camera);
+
+	//-- ClientProceduralTerrainAppearance::calculateLod() gives up immediately when
+	//   the static ms_referenceCamera is null, so no level of detail is selected and
+	//   no chunks are ever built - the 3D View then shows nothing but the 0xffa1a1a1
+	//   clear colour below. The only two callers of setReferenceCamera live in
+	//   clientGame (Panorama.cpp:82, GroundScene.cpp:1945), which this tool never
+	//   runs, so the editor has to point it at its own camera. The NOT_NULL that was
+	//   supposed to catch this is UNREF() in release (Fatal.h:97) and said nothing.
+	//   Set it every frame: it is a static shared by every view, and this one is
+	//   about to render.
+	ClientProceduralTerrainAppearance::setReferenceCamera (camera);
 
 	NOT_NULL (terrain);
 	IGNORE_RETURN (terrain->alter (elapsedTime));
@@ -165,6 +184,33 @@ void View3dView::OnInitialUpdate()
 	terrain = new TerrainObject ();
 	RenderWorld::addObjectNotifications (*terrain);
 	terrain->addToWorld ();
+
+	//-- Terrain chunks do not draw themselves: ClientChunk::render only QUEUES
+	//   primitives into ClientTerrainSorter, and the flush lives in a world-cell
+	//   pre-draw hook that only ClientWorld::addRenderHookFunctions installs
+	//   (ClientWorld.cpp:634) - clientGame code this tool never runs. Without the
+	//   hook the sorter fills up every frame and nothing is ever drawn: the 3D
+	//   View rendered ~267 chunks per frame to zero GPU draws. Mirror ClientWorld's
+	//   hook set here.
+	CellProperty::getWorldCellProperty ()->addPreDrawRenderHookFunction (&ClientTerrainSorter::draw);
+	CellProperty::getWorldCellProperty ()->addExitRenderHookFunction (&ClientTerrainSorter::clear);
+
+	//-- Lights. Without these the terrain renders solid black: the game's lights
+	//   belong to GroundEnvironment, which creates them BLACK and drives their
+	//   colours from per-planet environment data this tool never loads. The lint
+	//   comment on this function still names ambientLight/parallelLight - the
+	//   creation code had been removed at some point. Same lights the editor's own
+	//   FloraMeshView uses (FloraMeshView.cpp:189-195), but registered as world
+	//   environment lights because this view renders through RenderWorld.
+	ambientLight = new Light (Light::T_ambient, VectorArgb (1.f, 0.6f, 0.6f, 0.6f));
+	ambientLight->addToWorld ();
+	RenderWorld::addWorldEnvironmentLight (ambientLight);
+
+	parallelLight = new Light (Light::T_parallel, VectorArgb::solidWhite);
+	parallelLight->yaw_o (PI_OVER_4);
+	parallelLight->pitch_o (-PI_OVER_4);
+	parallelLight->addToWorld ();
+	RenderWorld::addWorldEnvironmentLight (parallelLight);
 
 	yaw   = 0;
 	pitch = 0;
@@ -243,16 +289,38 @@ void View3dView::OnDestroy()
 {
 	CView::OnDestroy();
 
-	IGNORE_RETURN (KillTimer (static_cast<int> (timer)));
+	IGNORE_RETURN (KillTimer (timer));
 
-	// TODO: Add your message handler code here
+	//-- mirror of the hooks added in OnInitialUpdate
+	CellProperty::getWorldCellProperty ()->removePreDrawRenderHookFunction (&ClientTerrainSorter::draw);
+	CellProperty::getWorldCellProperty ()->removeExitRenderHookFunction (&ClientTerrainSorter::clear);
+
+	if (ambientLight)
+	{
+		RenderWorld::removeWorldEnvironmentLight (ambientLight);
+		ambientLight->removeFromWorld ();
+		delete ambientLight;
+		ambientLight = 0;
+	}
+
+	if (parallelLight)
+	{
+		RenderWorld::removeWorldEnvironmentLight (parallelLight);
+		parallelLight->removeFromWorld ();
+		delete parallelLight;
+		parallelLight = 0;
+	}
+
+	//-- the static must not outlive the camera it points at
+	ClientProceduralTerrainAppearance::setReferenceCamera (0);
+
 	delete camera;
 	camera = 0;
 }
 
 //-------------------------------------------------------------------
 
-void View3dView::OnTimer(UINT nIDEvent) 
+void View3dView::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: Add your message handler code here and/or call default
 	if (nIDEvent == timer)

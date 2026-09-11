@@ -55,8 +55,6 @@ protected:
 	afx_msg void OnUpdateViewDirectory(CCmdUI* pCmdUI);
 	afx_msg void OnToolsScanall();
 	afx_msg void OnToolsOpensaveall();
-	afx_msg void OnToolsOpenEditAll();
-	afx_msg void OnUpdateToolsOpenEditAll(CCmdUI* pCmdUI);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

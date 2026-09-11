@@ -129,7 +129,6 @@ ShipComponentEditor::ShipComponentEditor(QWidget *parent, char const *name)
 	//-- this menu is populated here because the Qt Designer has a bug that corrupts the .ui file when editing the menu bar
 	
 	QPopupMenu * const menuFile = new QPopupMenu(this);
-	menuFile->insertItem("&P4 Edit Files", this, SLOT(onMenuP4EditFiles()), CTRL+Key_P);
 	menuFile->insertItem("Save All", this, SLOT(onMenuSaveAll()), CTRL+Key_S);
 	menuFile->insertSeparator();
 	menuFile->insertItem("Reload &Templates", this, SLOT(onMenuReloadTemplates()), CTRL+Key_T);
@@ -278,18 +277,6 @@ void ShipComponentEditor::onMenuSaveAll()
 void ShipComponentEditor::onMenuExit()
 {
 	qApp->quit();
-}
-
-//----------------------------------------------------------------------
-
-void ShipComponentEditor::onMenuP4EditFiles()
-{
-	char buf[1024];
-	size_t const buf_size = sizeof(buf);
-	snprintf(buf, buf_size, 
-		"p4 edit %s/datatables/space/ship_... %s/datatables/space/ship_...", 
-		ConfigShipComponentEditor::getSharedPathDsrc().c_str(), ConfigShipComponentEditor::getSharedPathData().c_str());
-	system(buf);
 }
 
 //----------------------------------------------------------------------

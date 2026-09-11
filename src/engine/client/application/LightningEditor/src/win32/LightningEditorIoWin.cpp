@@ -70,7 +70,8 @@ void LightningEditorIoWin::setAppearanceTemplate(AppearanceTemplate const * cons
 	{
 		Appearance *appearance = appearanceTemplate->createAppearance();
 		LightningAppearance * const lightningAppearance = LightningAppearance::asLightningAppearance(appearance);
-	
+
+
 		// Do not allow the appearance to delete the object
 	
 		lightningAppearance->setUnBounded(true);
@@ -145,8 +146,20 @@ void LightningEditorIoWin::alter(float const deltaTime)
 		return;
 	}
 
-	Vector const start(-10.0f, 3.0f, 0.0f);
-	Vector const end(+10.0f, 3.0f, 0.0f);
+	// x64 usability pass (2026-08-29): the endpoints were pinned around the
+	// WORLD ORIGIN, which only worked while the ground scene was simple.trn
+	// (the avatar starts at the origin there). Since the serverless tools
+	// moved to terrain/tatooine.trn (the magenta-sky fix, 2026-08-24) the
+	// avatar spawns far from the origin, so the bolts rendered kilometers
+	// outside the view - "invisible". Anchor every demo mode to the player
+	// so the bolts always arc in front of the camera.
+	Vector anchor;
+	Object const * const player = Game::getPlayer();
+	if (player != NULL)
+		anchor = player->getPosition_w();
+
+	Vector const start(anchor + Vector(-10.0f, 3.0f, 0.0f));
+	Vector const end(anchor + Vector(+10.0f, 3.0f, 0.0f));
 
 	if (m_endPoints == EP_fixedPosition)
 	{
@@ -164,7 +177,7 @@ void LightningEditorIoWin::alter(float const deltaTime)
 
 		for (int index = 0; index < m_boltCount; ++index)
 		{
-			lightningAppearance->setPosition_w(index, Vector(-6.0f - offset, 3.0f, 0.0f), Vector(+6.0f + offset, 3.0f, 0.0f));
+			lightningAppearance->setPosition_w(index, anchor + Vector(-6.0f - offset, 3.0f, 0.0f), anchor + Vector(+6.0f + offset, 3.0f, 0.0f));
 		}
 	}
 
@@ -204,7 +217,7 @@ void LightningEditorIoWin::alter(float const deltaTime)
 
 		for (int index = 0; index < m_boltCount; ++index)
 		{
-			lightningAppearance->setPosition_w(index, Vector(-10.0f, 3.0f, -offset), Vector(10.0f, 3.0f, +offset));
+			lightningAppearance->setPosition_w(index, anchor + Vector(-10.0f, 3.0f, -offset), anchor + Vector(10.0f, 3.0f, +offset));
 		}
 	}
 }

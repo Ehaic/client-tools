@@ -89,7 +89,7 @@ void DraftSchematicTreeView::addAttributeToTree (DraftSchematic::Attribute * con
 	itemData->m_attribute = attribute;
 	HTREEITEM treeItem = GetTreeCtrl ().InsertItem (itemData->getName (), DSTVIT_attribute, DSTVIT_attribute, m_rootAttributes);
 	itemData->m_treeItem = treeItem;
-	GetTreeCtrl ().SetItemData (treeItem, reinterpret_cast<DWORD> (itemData));
+	GetTreeCtrl ().SetItemData (treeItem, reinterpret_cast<DWORD_PTR> (itemData));
 }
 
 // ----------------------------------------------------------------------
@@ -101,7 +101,7 @@ void DraftSchematicTreeView::addSlotToTree (DraftSchematic::Slot * const slot)
 	itemData->m_slot = slot;
 	HTREEITEM treeItem = GetTreeCtrl ().InsertItem (itemData->getName (), slot->m_optional ? DSTVIT_optionalSlot : DSTVIT_requiredSlot, slot->m_optional ? DSTVIT_optionalSlot : DSTVIT_requiredSlot, m_rootSlots);
 	itemData->m_treeItem = treeItem;
-	GetTreeCtrl ().SetItemData (treeItem, reinterpret_cast<DWORD> (itemData));
+	GetTreeCtrl ().SetItemData (treeItem, reinterpret_cast<DWORD_PTR> (itemData));
 }
 
 // ----------------------------------------------------------------------
@@ -302,7 +302,8 @@ void DraftSchematicTreeView::OnTreeDelete()
 				else
 				{
 					CString message;
-					message.Format ("Are you sure you want to delete %s?", itemData->getName ());
+					CString const itemName = itemData->getName ();
+					message.Format ("Are you sure you want to delete %s?", itemName.GetString ());
 
 					if (MessageBox (message, 0, MB_YESNO) == IDYES)
 					{

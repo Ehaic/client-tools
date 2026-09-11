@@ -27,7 +27,7 @@ public:
 public:
 	CTLItem();
 	CTLItem(CTLItem &copyItem);
-	DWORD itemData;
+	DWORD_PTR itemData;
 
 	char m_cEnding;
 
@@ -77,7 +77,7 @@ public:
 	CImageList* m_pDragImage;
 	HTREEITEM m_htiDrag, m_htiDrop, m_htiOldDrop;
 	BOOL m_bLDragging, m_toDrag;
-	UINT m_idTimer, m_scrollTimer;
+	UINT_PTR m_idTimer, m_scrollTimer;
 	UINT m_timerticks;
 
 // Operations
@@ -99,8 +99,8 @@ public:
 	int GetColumnWidth(int nCol);
 	int GetColumnAlign(int nCol);
 
-	BOOL SetItemData(HTREEITEM hItem, DWORD dwData);
-	DWORD GetItemData(HTREEITEM hItem) const;
+	BOOL SetItemData(HTREEITEM hItem, DWORD_PTR dwData);
+	DWORD_PTR GetItemData(HTREEITEM hItem) const;
 
 	CString GetItemText( HTREEITEM hItem, int nSubItem = 0 );
 	CString GetItemText( int nItem, int nSubItem );
@@ -160,7 +160,7 @@ protected:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
-	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnDestroy();

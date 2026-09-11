@@ -260,7 +260,19 @@ GameWidget::GameWidget(QWidget* theParent, const char*theName, WFlags const flag
 	DEBUG_WARNING(!GraphicsOptionTags::get(TAG(D,O,T,3)), ("GameWidget::GameWidget() - Need DOT3 for age customization."));
 
 	//-- configuration parameters
-	wearableDirectory = ConfigFile::getKeyString("NpcEditor", "wearableDirectory", 0, 0);
+	//   getKeyString() returns the defaultValue (NULL here) when the key is absent, and
+	//   assigning NULL to a std::string calls strlen(NULL) -- an access violation during
+	//   construction, before the main window is ever shown. Guard it and say why.
+	{
+		char const * const configuredWearableDirectory = ConfigFile::getKeyString("NpcEditor", "wearableDirectory", 0, 0);
+		if (configuredWearableDirectory)
+			wearableDirectory = configuredWearableDirectory;
+		else
+		{
+			wearableDirectory.clear();
+			WARNING(true, ("GameWidget::GameWidget() - [NpcEditor] wearableDirectory is not set in NpcEditor.cfg. The wearable browser will be empty; set it to a directory of .lmg files to populate it."));
+		}
+	}
 
 	//-- override the platform frame rate limiter with our own, if needed
 	Clock::noFrameRateLimit();

@@ -11,8 +11,10 @@
 #include "clientAnimation/PlaybackScript.h"
 #include "clientAnimation/PlaybackScriptManager.h"
 #include "clientGame/ClientCombatActionInfo.h"
+#include "sharedFoundation/CrcLowerString.h"
 #include "clientGame/ClientCombatPlaybackManager.h"
 #include "clientGame/ClientWorld.h"
+#include "clientGame/ContainerInterface.h"
 #include "clientGame/CreatureController.h"
 #include "clientGame/CreatureObject.h"
 #include "clientGame/FreeCamera.h"
@@ -132,6 +134,21 @@ void SwooshEditorIoWin::alter(float const deltaTime)
 
 	if (attackerObject != NULL)
 	{
+		// x64 usability pass (2026-08-29): keep the avatar in the combat/ready
+		// animation state so attack actions resolve. The attack combos live
+		// under the weapon 'ready' states of all_b.ash; without a combat
+		// target the controller stays in the relaxed state and every swing's
+		// action lookup fails silently. SOE's requestSetCombatTarget call
+		// (below, commented out upstream when TangibleObject lost the method)
+		// used to do this; overrideAnimationTarget is the surviving mechanism.
+		// It is cleared by the controller every frame, so re-apply here.
+		if (m_defenderObject.getPointer() != NULL)
+		{
+			CreatureController * const attackerController = dynamic_cast<CreatureController *>(attackerObject->getController());
+			if (attackerController != NULL)
+				attackerController->overrideAnimationTarget(m_defenderObject.getPointer(), true, CrcLowerString::empty);
+		}
+
 		PlaybackScriptManager::ConstPlaybackScriptVector playbackScripts;
 		PlaybackScriptManager::getPlaybackScriptsForActor(attackerObject, playbackScripts);
 
@@ -164,7 +181,15 @@ void SwooshEditorIoWin::alter(float const deltaTime)
 				// For animations check "swg\current\dsrc\sku.0\sys.client\compiled\game\combat\combat_manager.mif"
 				// For weapons check "swg\current\data\sku.0\sys.shared\compiled\game\object\weapon\"
 
-				m_defenderObject->setPosition_w(Vector(0.0f, 0.0f, m_defenderDistance));
+				// x64 usability pass (2026-08-29): the defender was pinned at the
+				// WORLD ORIGIN while the attacker is the player. On
+				// terrain/tatooine.trn (the magenta-sky fix, 2026-08-24) the player
+				// spawns kilometers from the origin, so the combat-swing demo never
+				// visibly engaged. Stage the defender in front of the player.
+				if (attackerObject != NULL)
+					m_defenderObject->setPosition_w(attackerObject->getPosition_w() + attackerObject->getObjectFrameK_w() * m_defenderDistance);
+				else
+					m_defenderObject->setPosition_w(Vector(0.0f, 0.0f, m_defenderDistance));
 
 				if (m_weaponName.empty())
 				{
@@ -195,7 +220,9 @@ void SwooshEditorIoWin::alter(float const deltaTime)
 
 				const ClientCombatActionInfo actionInfo(attacker, m_weaponObject, attackerPostureEndIndex, attackerTrailBits, attackerClientEffectId, actionNameCrc, attackerUseTarget, attackerTargetLocation, attackerTargetCell, actionId, defender, defenderEndPostureIndex, defense, defenderClientEffectId, defenderHitLocation, damageAmount);
 
+
 				ClientCombatPlaybackManager::handleCombatAction(actionInfo);
+
 
 				if (m_appearanceChanged)
 				{
@@ -316,9 +343,18 @@ void SwooshEditorIoWin::alter(float const deltaTime)
 							radius = 4.0f;
 						}
 
-						float const x = m_objectTransform.getPosition_p().x + sinf(radian) * radius;
-						float const y = m_objectTransform.getPosition_p().y;
-						float const z = m_objectTransform.getPosition_p().z + cosf(radian) * radius;
+						// x64 usability pass (2026-08-29): anchor the reference-swoosh
+						// orbit to the player - m_objectTransform is never set, so
+						// this orbited the world origin (same problem as the
+						// defender above).
+						Vector anchor(m_objectTransform.getPosition_p());
+						Object const * const playerForAnchor = Game::getPlayer();
+						if (playerForAnchor != NULL)
+							anchor += playerForAnchor->getPosition_w();
+
+						float const x = anchor.x + sinf(radian) * radius;
+						float const y = anchor.y;
+						float const z = anchor.z + cosf(radian) * radius;
 
 						radian += m_objectRotationSpeed * deltaTime;
 
@@ -363,7 +399,15 @@ void SwooshEditorIoWin::unequipWeapon()
 		{
 			if (!CuiInventoryManager::unequipItem(*obj, *target))
 			{
-				DEBUG_REPORT_LOG(true, ("Unable to unequip item: %s\n", obj->getObjectTemplateName()));
+				// x64 usability pass (2026-08-29): the serverless avatar has no
+				// inventory container, so unequipItem cannot stash the weapon
+				// and fails - and deleting a still-contained object leaves the
+				// hand slot occupied forever, making every SUBSEQUENT weapon
+				// equip fail silently (the first weapon works, all later ones
+				// stay invisible). Pull the item out of the slot into the world
+				// before deleting instead.
+				if (!ContainerInterface::transferItemToWorld(*obj, obj->getTransform_o2w()))
+					WARNING(true, ("SwooshEditor unequipWeapon: could not vacate hand slot for [%s]", obj->getObjectTemplateName()));
 			}
 		}
 
@@ -400,11 +444,12 @@ void SwooshEditorIoWin::equipWeapon(std::string const &weaponName)
 			if (   (obj != NULL)
 				&& (target != NULL))
 			{
+				// x64 usability pass (2026-08-29): equip failure was DEBUG-only and
+				// cost a debugging session - keep it release-visible.
 				if (!CuiInventoryManager::equipItem(*obj, *target))
-				{
-					DEBUG_REPORT_LOG(true, ("Unable to equip item: %s\n", obj->getObjectTemplateName()));
-				}
+					WARNING(true, ("SwooshEditor equipWeapon FAILED for [%s]", obj->getObjectTemplateName()));
 			}
+
 		}
 	}
 }

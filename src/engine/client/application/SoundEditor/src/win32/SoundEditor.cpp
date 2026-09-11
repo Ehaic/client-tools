@@ -284,7 +284,7 @@ void SoundEditorNamespace::addSpreadSheetData(QDir const &directory, QFile &file
 
 				// Fade out
 
-				if (soundTemplate->getFadeOutSampleRate() == SoundTemplate::FISR_noFade)
+				if (soundTemplate->getFadeOutSampleRate() == SoundTemplate::FOSR_noFade)
 				{
 					stream << "none" << '\t';
 				}
@@ -292,8 +292,8 @@ void SoundEditorNamespace::addSpreadSheetData(QDir const &directory, QFile &file
 				{
 					switch (soundTemplate->getFadeOutSampleRate())
 					{
-						case SoundTemplate::FISR_firstSample: { stream << "first "; } break;
-						case SoundTemplate::FISR_everySample: { stream << "every "; } break;
+						case SoundTemplate::FOSR_lastSample:  { stream << "last "; } break;
+						case SoundTemplate::FOSR_everySample: { stream << "every "; } break;
 						default:                              { stream << "invalid "; } break;
 					}
 
@@ -446,7 +446,13 @@ SoundEditor::SoundEditor(QWidget *parent, char const *name)
 	data.useWindowHandle    = true;
 	data.processMessagePump = false;
 	data.windowHandle       = static_cast<HWND>(winId());
-	data.configFile         = "client.cfg";
+	//-- MUST be SoundEditor.cfg, not client.cfg. This tool calls
+	//   SetupSharedFile::install(false) below with no skuBits, so
+	//   TreeFile::install builds legacy key names (searchTree0, not
+	//   searchTree_00_0). client.cfg carries ONLY the _00_ sku form, so
+	//   reading it here mounted ZERO TREs -- silently: startup survived
+	//   because nothing touches a TRE asset before the first file open.
+	data.configFile         = "SoundEditor.cfg";
 	data.clockUsesSleep     = true;
     data.writeMiniDumps		= ApplicationVersion::isBootlegBuild();
 	SetupSharedFoundation::install(data);
@@ -519,7 +525,7 @@ SoundEditor::SoundEditor(QWidget *parent, char const *name)
 
 	// Display the Miles version
 
-	sprintf(text, "Miles sound system version: %s\n", Audio::getMilesVersion());
+	sprintf(text, "Miles sound system version: %s\n", Audio::getMilesVersion().c_str());
 	m_debugInformationWidget->append(text);
 
 	// Display the max digital mixer channels

@@ -726,7 +726,19 @@ void TerrainGenerator::Layer::removeBoundary (const Boundary* const boundary, co
 			break;
 		}
 
-	DEBUG_FATAL (i == m_boundaryList.getNumberOfElements (), ("boundary not found in boundary list"));
+	//-- Not found. DEBUG_FATAL compiles out in release, and
+	//   removeIndexAndCompactList would then run with index == the element count -
+	//   its own DEBUG_FATAL (ArrayList.h:334) compiles out too - silently
+	//   decrementing the count, to -1 on an empty list. ArrayList::add then writes
+	//   to m_data[-1] (ArrayList.h:232), corrupting the heap before the buffer.
+	//   Bail out instead of compacting an index that was never found.
+	if (i == m_boundaryList.getNumberOfElements ())
+	{
+		WARNING (true, ("Layer::removeBoundary: boundary not present in layer '%s' - ignoring",
+			getName () ? getName () : "<unnamed>"));
+		return;
+	}
+
 	m_boundaryList.removeIndexAndCompactList (i);
 }
 
@@ -763,7 +775,19 @@ void TerrainGenerator::Layer::removeFilter (const Filter* const filter, const bo
 			break;
 		}
 
-	DEBUG_FATAL (i == m_filterList.getNumberOfElements (), ("filter not found in filter list"));
+	//-- Not found. DEBUG_FATAL compiles out in release, and
+	//   removeIndexAndCompactList would then run with index == the element count -
+	//   its own DEBUG_FATAL (ArrayList.h:334) compiles out too - silently
+	//   decrementing the count, to -1 on an empty list. ArrayList::add then writes
+	//   to m_data[-1] (ArrayList.h:232), corrupting the heap before the buffer.
+	//   Bail out instead of compacting an index that was never found.
+	if (i == m_filterList.getNumberOfElements ())
+	{
+		WARNING (true, ("Layer::removeFilter: filter not present in layer '%s' - ignoring",
+			getName () ? getName () : "<unnamed>"));
+		return;
+	}
+
 	m_filterList.removeIndexAndCompactList (i);
 }
 
@@ -800,7 +824,19 @@ void TerrainGenerator::Layer::removeAffector (const Affector* const affector, co
 			break;
 		}
 
-	DEBUG_FATAL (i == m_affectorList.getNumberOfElements (), ("affector not found in affector list"));
+	//-- Not found. DEBUG_FATAL compiles out in release, and
+	//   removeIndexAndCompactList would then run with index == the element count -
+	//   its own DEBUG_FATAL (ArrayList.h:334) compiles out too - silently
+	//   decrementing the count, to -1 on an empty list. ArrayList::add then writes
+	//   to m_data[-1] (ArrayList.h:232), corrupting the heap before the buffer.
+	//   Bail out instead of compacting an index that was never found.
+	if (i == m_affectorList.getNumberOfElements ())
+	{
+		WARNING (true, ("Layer::removeAffector: affector not present in layer '%s' - ignoring",
+			getName () ? getName () : "<unnamed>"));
+		return;
+	}
+
 	m_affectorList.removeIndexAndCompactList (i);
 }
 
@@ -1368,7 +1404,19 @@ void TerrainGenerator::Layer::removeLayer (const Layer* const layer, const bool 
 			break;
 		}
 
-	DEBUG_FATAL (i == m_subLayerList.getNumberOfElements (), ("layer not found in layer list"));
+	//-- Not found. DEBUG_FATAL compiles out in release, and
+	//   removeIndexAndCompactList would then run with index == the element count -
+	//   its own DEBUG_FATAL (ArrayList.h:334) compiles out too - silently
+	//   decrementing the count, to -1 on an empty list. ArrayList::add then writes
+	//   to m_data[-1] (ArrayList.h:232), corrupting the heap before the buffer.
+	//   Bail out instead of compacting an index that was never found.
+	if (i == m_subLayerList.getNumberOfElements ())
+	{
+		WARNING (true, ("Layer::removeLayer: sublayer not present in layer '%s' - ignoring",
+			getName () ? getName () : "<unnamed>"));
+		return;
+	}
+
 	m_subLayerList.removeIndexAndCompactList (i);
 }
 
@@ -1811,7 +1859,18 @@ void TerrainGenerator::removeLayer (Layer* const layer, const bool doDelete)
 			break;
 		}
 
-	DEBUG_FATAL (i == m_layerList.getNumberOfElements (), ("layer not found in layer list"));
+	//-- Not found. DEBUG_FATAL compiles out in release, and
+	//   removeIndexAndCompactList would then run with index == the element count -
+	//   its own DEBUG_FATAL (ArrayList.h:334) compiles out too - silently
+	//   decrementing the count, to -1 on an empty list. ArrayList::add then writes
+	//   to m_data[-1] (ArrayList.h:232), corrupting the heap before the buffer.
+	//   Bail out instead of compacting an index that was never found.
+	if (i == m_layerList.getNumberOfElements ())
+	{
+		WARNING (true, ("TerrainGenerator::removeLayer: layer not present in the layer list - ignoring"));
+		return;
+	}
+
 	m_layerList.removeIndexAndCompactList (i);
 }
 

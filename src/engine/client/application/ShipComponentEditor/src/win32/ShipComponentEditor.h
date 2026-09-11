@@ -31,7 +31,6 @@ public slots:
 	void onMenuRegenerateTemplateDb();
 	void onMenuSaveAll();
 	void onMenuExit();
-	void onMenuP4EditFiles();
 
 	void installEngine();
 	void alter();

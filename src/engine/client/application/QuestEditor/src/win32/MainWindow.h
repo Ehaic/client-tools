@@ -62,7 +62,6 @@ private slots:
 
 	void outputToConsole(const QString& text);
 
-	void addToPerforce();
 	void compile();
 	void buildQuestCrcStringTables();
 

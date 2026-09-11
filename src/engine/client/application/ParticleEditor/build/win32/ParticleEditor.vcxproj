@@ -115,6 +115,9 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..\..\..\..\..\build\win32\x64\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)_r</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -368,6 +371,26 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <!-- Isolate x64 generated and compiler outputs, and use the proven modern x64 editor dependency spine. -->
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IntDir);$(OutDir);..\..\..\..\..\..\..\deps\qt3-win64-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_r.pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL3.lib;archive.lib;blat.lib;clientAnimation.lib;clientAudio.lib;clientBugReporting.lib;clientDirectInput.lib;clientGame.lib;clientGraphics.lib;clientObject.lib;clientParticle.lib;clientSkeletalAnimation.lib;clientTerrain.lib;clientTextureRenderer.lib;clientUserInterface.lib;crypto.lib;fileInterface.lib;lcdui.lib;libEverQuestTCG.lib;libMozilla.lib;localization.lib;localizationArchive.lib;sharedCollision.lib;sharedCommandParser.lib;sharedCompression.lib;sharedDebug.lib;sharedFile.lib;sharedFoundation.lib;sharedFractal.lib;sharedGame.lib;sharedImage.lib;sharedInputMap.lib;sharedIoWin.lib;sharedLog.lib;sharedMath.lib;sharedMemoryManager.lib;sharedMessageDispatch.lib;sharedNetwork.lib;sharedNetworkMessages.lib;sharedObject.lib;sharedPathfinding.lib;sharedRandom.lib;sharedRegex.lib;sharedRemoteDebugServer.lib;sharedSkillSystem.lib;sharedStatusWindow.lib;sharedSwitcher.lib;sharedSynchronization.lib;sharedTerrain.lib;sharedThread.lib;sharedUtility.lib;sharedXml.lib;swgClientQtWidgets.lib;swgClientUserInterface.lib;swgSharedNetworkMessages.lib;swgSharedUtility.lib;udplibrary.lib;ui.lib;unicode.lib;unicodeArchive.lib;zlib.lib;dpvs.lib;d3d9.lib;d3dx9.lib;ddraw.lib;dinput8.lib;dsound.lib;dxguid.lib;qt-mt3.lib;qtmain.lib;libxml2.lib;pcre.lib;vivoxSharedWrapper.lib;swg-stubs.lib;shell32.lib;ole32.lib;gdi32.lib;ws2_32.lib;winmm.lib;mswsock.lib;odbc32.lib;odbccp32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);..\..\..\..\..\..\..\deps\x64\lib;..\..\..\..\..\..\..\deps\qt3-win64-src\lib;$(WindowsSDK_LibraryPath_x64)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libc;MSVCRT;lgLcd.lib</IgnoreSpecificDefaultLibraries>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <ProjectReference>
+      <BuildReference Condition="'$(BuildingSolutionFile)'!='true'">false</BuildReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\compile\win32\ParticleEditor\Debug\BaseAttributeWidgetParticleAttachment_d.cpp">
@@ -2353,6 +2376,27 @@
       <Project>{cf3b1ee2-d965-44e1-9464-01297964f2cb}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <!-- The Release x64 lane owns its generated Qt sources and headers under this project's IntDir. -->
+    <ClCompile Update="..\..\..\..\..\..\compile\win32\ParticleEditor\Release\*_r.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(IntDir)BaseAttribute_r.cpp;$(IntDir)BaseAttributeWidgetParticleAttachment_r.cpp;$(IntDir)BaseColorRampWidget_r.cpp;$(IntDir)BaseLightningDialog_r.cpp;$(IntDir)BaseMainWindow_r.cpp;$(IntDir)BaseParticleAttribute_r.cpp;$(IntDir)BaseParticleEffectAttribute_r.cpp;$(IntDir)BaseParticleEffectTransformEdit_r.cpp;$(IntDir)BaseParticleEmitterAttribute_r.cpp;$(IntDir)BaseParticleEmitterGroupAttribute_r.cpp;$(IntDir)BaseParticleNameAttribute_r.cpp;$(IntDir)BaseParticleTimingAttribute_r.cpp;$(IntDir)BaseTextureAttribute_r.cpp;$(IntDir)BaseWaveFormEdit_r.cpp;$(IntDir)PEBaseAttributeWidgetMesh_r.cpp">
+      <PrecompiledHeader></PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <ClInclude Include="$(IntDir)BaseAttribute.h;$(IntDir)BaseAttributeWidgetParticleAttachment.h;$(IntDir)BaseColorRampWidget.h;$(IntDir)BaseLightningDialog.h;$(IntDir)BaseMainWindow.h;$(IntDir)BaseParticleAttribute.h;$(IntDir)BaseParticleEffectAttribute.h;$(IntDir)BaseParticleEffectTransformEdit.h;$(IntDir)BaseParticleEmitterAttribute.h;$(IntDir)BaseParticleEmitterGroupAttribute.h;$(IntDir)BaseParticleNameAttribute.h;$(IntDir)BaseParticleTimingAttribute.h;$(IntDir)BaseTextureAttribute.h;$(IntDir)BaseWaveFormEdit.h;$(IntDir)PEBaseAttributeWidgetMesh.h" />
+    <CustomBuild Update="..\..\src\win32\*.h">
+      <Command>"..\..\..\..\..\..\external\3rd\library\qt\3.3.4\bin\moc" -i "%(FullPath)" -o "$(IntDir)%(Filename).moc"</Command>
+      <Outputs>$(IntDir)%(Filename).moc</Outputs>
+    </CustomBuild>
+    <CustomBuild Update="..\..\ui\*.ui">
+      <Command>"..\..\..\..\..\..\external\3rd\library\qt\3.3.4\bin\uic" -o "$(IntDir)%(Filename).h" "%(FullPath)"
+"..\..\..\..\..\..\external\3rd\library\qt\3.3.4\bin\uic" -o "$(IntDir)%(Filename)_r.cpp" -impl "$(IntDir)%(Filename).h" "%(FullPath)"
+"..\..\..\..\..\..\external\3rd\library\qt\3.3.4\bin\moc" "$(IntDir)%(Filename).h" &gt;&gt; "$(IntDir)%(Filename)_r.cpp"</Command>
+      <Outputs>$(IntDir)%(Filename).h;$(IntDir)%(Filename)_r.cpp</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

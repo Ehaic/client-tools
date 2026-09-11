@@ -212,7 +212,7 @@ void ProfileView::update (const TerrainGenerator::Layer* layer, HTREEITEM root)
 	const LayerView::LayerViewIconType icon = LayerView::getIcon (layer);
 
 	HTREEITEM item = m_wndTreeList.m_tree.InsertItem (layer->getName (), icon, icon, root);
-	IGNORE_RETURN (m_wndTreeList.m_tree.SetItemData (item, reinterpret_cast<DWORD> (layer)));
+	IGNORE_RETURN (m_wndTreeList.m_tree.SetItemData (item, reinterpret_cast<DWORD_PTR> (layer)));
 
 	updateTimes (profileData, item);
 

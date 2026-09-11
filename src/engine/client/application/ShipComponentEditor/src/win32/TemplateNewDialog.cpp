@@ -71,15 +71,11 @@ namespace TemplateNewDialogNamespace
 
 				std::string const cwd (_getcwd(buf, buf_size));
 				_chdir(tpfDirPath.c_str());
-				snprintf(buf, buf_size, "TemplateCompiler %s", tpfFileName);
+				snprintf(buf, buf_size, "TemplateCompiler %s", tpfFileName.c_str());
 				system(buf);
 				_chdir(cwd.c_str());
 			}
 		}
-
-		//-- add to perforce
-		snprintf(buf, buf_size, "p4 add %s %s", templatePathTpf.c_str(), templatePathIff.c_str());
-		system(buf);
 
 		//-- open in the text editor
 		snprintf(buf, buf_size, "start %s %s", ConfigShipComponentEditor::getTextEditorPath().c_str(), templatePathTpf.c_str());

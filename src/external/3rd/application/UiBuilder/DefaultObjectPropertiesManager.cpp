@@ -16,7 +16,7 @@ extern HWND	gTooltip;
 extern HWND	gMainWindow;
 
 extern void ClearDefPushButtonLook( HWND hwndDlg, UINT nControlID );
-extern void AddTooltipFromControlID( HWND TooltipWindow, HWND ParentWindow, UINT ControlID, char *Tooltip );
+extern void AddTooltipFromControlID( HWND TooltipWindow, HWND ParentWindow, UINT ControlID, const char *Tooltip );
 
 DefaultObjectPropertiesManager::DefaultObjectPropertiesManager( void )
 {
@@ -188,7 +188,7 @@ BOOL DefaultObjectPropertiesManager::DefaultObjectPropertiesManagerWindowProc( H
 	}
 }
 
-BOOL CALLBACK DefaultObjectPropertiesManager::DefaultObjectPropertiesManagerStaticWindowProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR CALLBACK DefaultObjectPropertiesManager::DefaultObjectPropertiesManagerStaticWindowProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	static const char *PropertyName = "DefaultObjectPropertiesManager::this";
 
@@ -310,7 +310,7 @@ void DefaultObjectPropertiesManager::HandleOwnerDraw( HWND hwndDlg, WPARAM wPara
 	if( pdis->itemID != -1 )
 	{
 		char *PropertyName = new char[ SendMessage( mPropertyListbox, LB_GETTEXTLEN, pdis->itemID, 0 ) + 1 ];
-		SendMessage( mPropertyListbox, LB_GETTEXT, pdis->itemID, (long)PropertyName );
+		SendMessage( mPropertyListbox, LB_GETTEXT, pdis->itemID, reinterpret_cast<LPARAM>( PropertyName ) );
 		DrawText( DoubleBufferDC, PropertyName, -1, &rcClip, DT_SINGLELINE );
 
 		rcClip.left  = rcClip.right;
@@ -361,7 +361,7 @@ void DefaultObjectPropertiesManager::RemoveSelectedProperty( HWND hwndDlg )
 		long  TextLength  = SendMessage( mPropertyListbox, LB_GETTEXTLEN, CurrentSelection, 0 );
 		char *ItemText    = new char[TextLength + 1];
 
-		SendMessage( mPropertyListbox, LB_GETTEXT, CurrentSelection, (LPARAM)ItemText );
+		SendMessage( mPropertyListbox, LB_GETTEXT, CurrentSelection, reinterpret_cast<LPARAM>( ItemText ) );
 		
 		StringMap::iterator i = mSelectedPropertyMap->find( ItemText );
 		
@@ -381,7 +381,7 @@ void DefaultObjectPropertiesManager::SaveTo( FILE *fp )
 	for( DefaultObjectPropertiesList::iterator i = mDefaultObjectProperties.begin();
 	     i != mDefaultObjectProperties.end(); ++i )
 	{
-		fprintf( fp, "<%s>\n", i->TypeName );
+		fprintf( fp, "<%s>\n", i->TypeName.c_str() );
 
 		for( StringMap::iterator j = i->Properties.begin(); j != i->Properties.end(); ++j )
 		{
@@ -391,7 +391,7 @@ void DefaultObjectPropertiesManager::SaveTo( FILE *fp )
 			fprintf( fp, "'%s' = '%s'\n", name.c_str (), value.c_str ());
 		}
 
-		fprintf( fp, "</%s>\n", i->TypeName );
+		fprintf( fp, "</%s>\n", i->TypeName.c_str() );
 	}
 
 	fprintf( fp, "</DefaultObjectPropertiesManager>\n" );

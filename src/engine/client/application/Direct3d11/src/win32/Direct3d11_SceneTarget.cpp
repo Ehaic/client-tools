@@ -80,7 +80,12 @@ namespace Direct3d11_SceneTargetNamespace
 	//
 	// A full-screen triangle from SV_VertexID rather than a quad from a vertex
 	// buffer: three vertices, no input layout, no buffer to bind, and no
-	// dependency on any of the resource machinery that does not exist yet.
+	// dependency on any of the resource machinery that does not exist yet. The
+	// pixel shader derives its source coordinate from SV_Position and the scene
+	// texture dimensions, rather than interpolating 0..1 across the destination.
+	// That preserves D3D9 Present's source-rectangle rule for editor windows: a
+	// WxH child displays the upper-left WxH pixels instead of scaling the entire
+	// scene target, while an equal-sized primary target is byte-for-byte the same.
 	//
 	// Colour correction is a 256-entry lookup sampled POINT, not a pow() per
 	// pixel. That is deliberate -- DX9 quantises the curve into 8 bits once and
@@ -94,7 +99,6 @@ namespace Direct3d11_SceneTargetNamespace
 		"struct Vertex\n"
 		"{\n"
 		"	float4 position : SV_Position;\n"
-		"	float2 texCoord : TEXCOORD0;\n"
 		"};\n"
 		"\n"
 		"Vertex vertexMain(uint vertexId : SV_VertexID)\n"
@@ -102,18 +106,25 @@ namespace Direct3d11_SceneTargetNamespace
 		"	Vertex output;\n"
 		"	float2 corner = float2((vertexId << 1) & 2, vertexId & 2);\n"
 		"	output.position = float4(corner * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);\n"
-		"	output.texCoord = corner;\n"
 		"	return output;\n"
+		"}\n"
+		"\n"
+		"float2 sceneTexCoord(Vertex input)\n"
+		"{\n"
+		"	uint sceneWidth;\n"
+		"	uint sceneHeight;\n"
+		"	SceneTexture.GetDimensions(sceneWidth, sceneHeight);\n"
+		"	return input.position.xy / float2(sceneWidth, sceneHeight);\n"
 		"}\n"
 		"\n"
 		"float4 pixelMainCopy(Vertex input) : SV_Target\n"
 		"{\n"
-		"	return float4(SceneTexture.Sample(PointSampler, input.texCoord).rgb, 1.0f);\n"
+		"	return float4(SceneTexture.Sample(PointSampler, sceneTexCoord(input)).rgb, 1.0f);\n"
 		"}\n"
 		"\n"
 		"float4 pixelMainCorrect(Vertex input) : SV_Target\n"
 		"{\n"
-		"	float3 scene = SceneTexture.Sample(PointSampler, input.texCoord).rgb;\n"
+		"	float3 scene = SceneTexture.Sample(PointSampler, sceneTexCoord(input)).rgb;\n"
 		"	// Index the table the same way DX9 does: by the 8-bit channel value.\n"
 		"	float3 corrected;\n"
 		"	corrected.r = ColorCorrectionTexture.Sample(PointSampler, float2((floor(scene.r * 255.0f + 0.5f) + 0.5f) / 256.0f, 0.5f)).r;\n"

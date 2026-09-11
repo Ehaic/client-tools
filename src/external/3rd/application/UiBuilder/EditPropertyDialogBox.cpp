@@ -22,7 +22,7 @@ bool EditPropertyDialogBox::EditProperty( HWND hwndParent, const char *Name, UIS
 	}
 }
 
-BOOL CALLBACK EditPropertyDialogBox::DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR CALLBACK EditPropertyDialogBox::DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	UI_UNREF (lParam);
 	

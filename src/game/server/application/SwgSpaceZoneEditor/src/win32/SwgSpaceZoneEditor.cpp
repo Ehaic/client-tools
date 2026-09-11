@@ -117,23 +117,19 @@ BOOL SwgSpaceZoneEditorApp::InitInstance()
 	TreeFile::addSearchAbsolute(0);
 
 	{
-		//-- Make sure we're running out of exe\win32
-		char buffer[1024];
-		if (GetCurrentDirectory(1024, buffer) != 0)
-		{
-			CString temp(buffer);
-			temp.Remove('/');
-			temp.Remove('\\');
-			if (temp.Find("exewin32") == -1)
-				AfxMessageBox ("SwgSpaceZoneEditor is not running from <branch>\\exe\\win32.  You may be running an older version.");
-		}
-
 		//-- Load ini file
 		if (!Configuration::install())
 			AfxMessageBox("SwgSpaceZoneEditor is not properly configured [SwgSpaceZoneEditor.ini or SwgSpaceZoneEditor.cfg not found].  Are you running the application in the correct directory?  Verify that SwgSpaceZoneEditor.cfg has all of the parameters found in template_SwgSpaceZoneEditor.cfg and that SwgSpaceZoneEditor.cfg is configured appropriately for your machine.");
 
 		//-- Make sure the config file is pointing to the same directories as the exe is run from
+		//   Relative cfg paths (the single-root SOE-shaped layout, ../../data/...) resolve
+		//   under the exe's own root and cannot mismatch, so only absolute paths are checked.
+		if (Configuration::getSpaceMobileDataTableFileName().Find(':') != -1)
 		{
+			char buffer[1024];
+			if (GetCurrentDirectory(1024, buffer) == 0)
+				buffer[0] = '\0';
+
 			CString const branch(Configuration::extractBranch(buffer));
 
 			if (branch != Configuration::extractBranch(Configuration::getSpaceMobileDataTableFileName()))

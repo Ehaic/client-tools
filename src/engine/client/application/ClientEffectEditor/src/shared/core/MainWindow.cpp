@@ -257,6 +257,7 @@ void ClientEffectEditorListViewItem::okRename(int const col)
 	//update the clienteffect
 	getInstance().copyGUIToIff();
 	getInstance().m_effectTemplateModified = true;
+	getInstance().updateCaption();
 }
 
 // ======================================================================
@@ -269,6 +270,10 @@ MainWindow::MainWindow(QWidget * const newParent, char const * newName, WFlags c
   m_avatar(NULL)
 {
 	m_listView->setSorting(-1);
+
+	//accept in-place edits when the editor loses focus; the Qt default (Reject)
+	//silently discards the edit unless the user presses Enter
+	m_listView->setDefaultRenameAction(QListView::Accept);
 
 	//ensure all root items already exist
 	QListViewItem * item = m_listView->findItem(cms_particleAppearanceBaseItemName, cms_nameColumn);
@@ -325,8 +330,8 @@ void MainWindow::newClientEffect()
 		{
 			//save, and if successful, clear the effect
 			case QMessageBox::Yes:
-				IGNORE_RETURN(saveClientEffect());
-				clearData = true;
+				if (saveClientEffect())
+					clearData = true;
 				break;
 
 			//clear the effect
@@ -378,15 +383,17 @@ void MainWindow::loadClientEffect()
 
 	if (!TreeFile::stripTreeFileSearchPathFromFile(std::string(ms_currentFile), treeFileRelativePath))
 	{
-		WARNING(true, ("User: the specified file [%s] is not mappable to your TreeFile path.  Fix path before opening.", static_cast<char const *>(ms_currentFile)));
-		return;
+		//not under any searchPath (e.g. a scratch directory): fall back to the
+		//absolute path, which the default SearchAbsolute node opens directly.
+		//The relative-name mapping only matters for data that ships in the tree.
+		treeFileRelativePath = static_cast<char const *>(ms_currentFile);
 	}
 
 	//Check if specified file exists.
 	if (!TreeFile::exists(treeFileRelativePath.c_str()))
 	{
-		// File doesn't exist, exit here.
-		REPORT_LOG(true, ("Specified file [%s] does not exist, skipping.", static_cast<char const *>(ms_currentFile)));
+		std::string error = "The file [" + treeFileRelativePath + "] could not be opened through TreeFile.";
+		IGNORE_RETURN(QMessageBox::warning(this, "Cannot open file", error.c_str()));
 		return;
 	}
 
@@ -394,7 +401,7 @@ void MainWindow::loadClientEffect()
 	std::string::size_type const extensionStartPosition = treeFileRelativePath.rfind('.');
 	if (static_cast<int>(extensionStartPosition) == static_cast<int>(std::string::npos))
 	{
-		WARNING(true, ("Could not determine a file type because specified path [%s] has no extension.", treeFileRelativePath.c_str()));
+		IGNORE_RETURN(QMessageBox::warning(this, "Cannot open file", "The specified file has no extension, so its type cannot be determined."));
 		return;
 	}
 
@@ -406,7 +413,9 @@ void MainWindow::loadClientEffect()
 	}
 	else
 	{
-		WARNING(true, ("openFile(): unsupported extension [%s] on file [%s].", extension.c_str(), treeFileRelativePath.c_str()));
+		std::string error = "Unsupported extension [." + extension + "] - only ." + cms_clientEffectExtension + " files can be opened.";
+		IGNORE_RETURN(QMessageBox::warning(this, "Cannot open file", error.c_str()));
+		return;
 	}
 
 	updateCaption();
@@ -416,34 +425,35 @@ void MainWindow::loadClientEffect()
 
 bool MainWindow::saveClientEffect()
 {
-	if(m_effectTemplateModified)
+	QString const pathName = QFileDialog::getSaveFileName(ms_currentFile, "ClientEffect Files (*.cef)", this, "save file dialog", "Choose a file to save into");
+	if (pathName == QString::null)
+		return false;
+
+	std::string path(pathName);
+
+	//append the extension if the user didn't type one
+	std::string::size_type const extensionStartPosition = path.rfind('.');
+	if (static_cast<int>(extensionStartPosition) == static_cast<int>(std::string::npos))
 	{
-		QString const pathName = QFileDialog::getSaveFileName(ms_currentFile, "ClientEffect Files (*.cef)", this, "save file dialog", "Choose a file to save into");
-		if (pathName == QString::null)
-			return false;
-
-		std::string const path(pathName);
-
-		//check extension.
-		std::string::size_type const extensionStartPosition = path.rfind('.');
-		if (static_cast<int>(extensionStartPosition) == static_cast<int>(std::string::npos))
-		{
-			WARNING(true, ("Could not determine a file type because specified path [%s] has no extension.", path.c_str()));
-			return false;
-		}
-
+		path += '.';
+		path += cms_clientEffectExtension;
+	}
+	else
+	{
 		std::string const extension(path, extensionStartPosition + 1);
-		if(extension == cms_clientEffectExtension.c_str())
+		if(extension != cms_clientEffectExtension)
 		{
-			IGNORE_RETURN(savePathedClientEffect(path));
-		}
-		else
-		{
-			WARNING(true, ("openFile(): unsupported extension [%s] on file [%s].", extension.c_str(), path.c_str()));
+			std::string error = "ClientEffect files must use the ." + cms_clientEffectExtension + " extension, not [." + extension + "].";
+			IGNORE_RETURN(QMessageBox::warning(this, "Bad extension", error.c_str()));
 			return false;
 		}
 	}
 
+	if (!savePathedClientEffect(path))
+		return false;
+
+	ms_currentFile = path.c_str();
+	updateCaption();
 	return true;
 }
 
@@ -457,10 +467,12 @@ bool MainWindow::closeClientEffect()
 		QMessageBox mb("Are you sure?", "Save before closing?", QMessageBox::Information, QMessageBox::Yes, QMessageBox::No | QMessageBox::Default, QMessageBox::Cancel | QMessageBox::Escape );
 		switch(mb.exec())
 		{
-			//save, and if successful, clear the effect
+			//save, and if successful, clear the effect; a cancelled or failed
+			//save must abort the close or the unsaved work is silently lost
 			case QMessageBox::Yes:
-				if (saveClientEffect())
-					resetClientEffect();
+				if (!saveClientEffect())
+					return false;
+				resetClientEffect();
 				break;
 
 			//clear the effect
@@ -597,6 +609,7 @@ void MainWindow::listViewContextMenuRequested(QListViewItem * const item, QPoint
 	{
 		copyGUIToIff();
 		m_effectTemplateModified = true;
+		updateCaption();
 	}
 	delete popupMenu;
 }
@@ -836,6 +849,8 @@ void MainWindow::updateCaption()
 		capt += " - ";
 		capt += ms_currentFile;
 	}
+	if(m_effectTemplateModified)
+		capt += " *";
 	setCaption(capt);
 }
 

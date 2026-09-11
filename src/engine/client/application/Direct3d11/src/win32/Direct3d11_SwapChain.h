@@ -51,6 +51,11 @@ public:
 	static void beginScene();
 	static void endScene();
 	static bool present();
+	// Editors render through the shared scene target but display it in a child
+	// HWND rather than the top-level window supplied at install. DXGI cannot
+	// redirect Present to another HWND, so this owns a cached swap chain for
+	// each destination window and composites the current scene into it.
+	static bool presentToWindow(HWND window, int width, int height);
 	static void resize(int width, int height);
 	static void setWindowedMode(bool windowed);
 	static void setViewport(int x, int y, int width, int height, real minZ, real maxZ);

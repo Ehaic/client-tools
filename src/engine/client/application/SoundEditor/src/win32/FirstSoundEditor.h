@@ -50,7 +50,7 @@
 #include <qgroupbox.h>
 #include <qhbox.h>
 #include <qheader.h>
-#include <qlabel.h.>
+#include <qlabel.h>
 #include <qlayout.h>
 #include <qlcdnumber.h>
 #include <qlineedit.h>

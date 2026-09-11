@@ -72,16 +72,16 @@ void ScriptShellView::OnUpdate(CView * const pSender, LPARAM const lHint, CObjec
 						CString const commandLine = mochaCommand + releaseOption + shellData->m_fullScriptFileName;
 
 						CString buffer;
-						buffer.Format ("-------------------- Compilation: %s %s --------------------\r\n", shellData->m_shortFileName, shellData->m_debug ? "Debug" : "Release");
+						buffer.Format ("-------------------- Compilation: %s %s --------------------\r\n", shellData->m_shortFileName.GetString (), shellData->m_debug ? "Debug" : "Release");
 						AddTexts (buffer);
 
-						buffer.Format ("Created %s.stf\r\n", shellData->m_shortFileName);
+						buffer.Format ("Created %s.stf\r\n", shellData->m_shortFileName.GetString ());
 						AddTexts (buffer);
 
-						buffer.Format ("Created %s.java\r\n", shellData->m_shortFileName);
+						buffer.Format ("Created %s.java\r\n", shellData->m_shortFileName.GetString ());
 						AddTexts (buffer);
 
-						buffer.Format ("Compiling %s.java\r\n", shellData->m_shortFileName);
+						buffer.Format ("Compiling %s.java\r\n", shellData->m_shortFileName.GetString ());
 						AddTexts (buffer);
 
 						CreateShellRedirect (commandLine);
@@ -89,39 +89,6 @@ void ScriptShellView::OnUpdate(CView * const pSender, LPARAM const lHint, CObjec
 				}
 				else
 					MessageBox ("Could not spawn script compiler because 'mochaCommand' has not been defined in SwgConversationEditor.cfg");
-
-				delete pHint;
-			}
-			break;
-
-		case SwgConversationEditorDoc::H_shellP4edit:
-			{
-				SwgConversationEditorDoc::ShellData * const shellData = safe_cast<SwgConversationEditorDoc::ShellData *> (pHint);
-				
-				char const * const p4Command = ConfigFile::getKeyString ("SwgConversationEditor", "p4Command", 0);
-				CString p4 = p4Command ? p4Command : "p4";
-
-				if (shellData)
-				{
-					AddTexts ("-------------------- Perforce Edit/Add --------------------\r\n");
-
-					CString pathName(GetDocument()->GetPathName());
-					pathName.MakeLower();
-					CreateShellRedirect (p4 + " edit " + pathName);
-					CreateShellRedirect (p4 + " add " + pathName);
-					CreateShellRedirect (p4 + " edit " + shellData->m_fullScriptFileName);
-					CreateShellRedirect (p4 + " add " + shellData->m_fullScriptFileName);
-
-					CString m_fullDataScriptFileName (shellData->m_fullScriptFileName);
-					m_fullDataScriptFileName.Replace ("/dsrc/", "/data/");
-					m_fullDataScriptFileName.Replace (".java", ".class");
-
-					CreateShellRedirect (p4 + " edit " + m_fullDataScriptFileName);
-					CreateShellRedirect (p4 + " add " + m_fullDataScriptFileName);
-
-					CreateShellRedirect (p4 + " edit " + shellData->m_fullStringTableFileName);
-					CreateShellRedirect (p4 + " add " + shellData->m_fullStringTableFileName);
-				}
 
 				delete pHint;
 			}

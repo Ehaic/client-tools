@@ -84,7 +84,7 @@ void CCrystalTextBuffer::SUndoRecord::SetText(LPCTSTR pszText)
 
 void CCrystalTextBuffer::SUndoRecord::FreeText()
 {
-	if (HIWORD((DWORD) m_pszText) != 0)
+	if (!IS_INTRESOURCE(m_pszText))
 		delete [] m_pszText;
 }
 
@@ -913,7 +913,7 @@ POSITION CCrystalTextBuffer::GetUndoDescription(CString &desc, POSITION pos /*= 
 	}
 	else
 	{
-		nPosition = (int) pos;
+		nPosition = static_cast<int>(reinterpret_cast<INT_PTR>(pos));
 		ASSERT(nPosition > 0 && nPosition < m_nUndoPosition);
 		ASSERT((m_aUndoBuf[nPosition].m_dwFlags & UNDO_BEGINGROUP) != 0);
 	}
@@ -929,7 +929,7 @@ POSITION CCrystalTextBuffer::GetUndoDescription(CString &desc, POSITION pos /*= 
 
 	//	Now, if we stop at zero position, this will be the last action,
 	//	since we return (POSITION) nPosition
-	return (POSITION) nPosition;
+	return reinterpret_cast<POSITION>(static_cast<INT_PTR>(nPosition));
 }
 
 POSITION CCrystalTextBuffer::GetRedoDescription(CString &desc, POSITION pos /*= NULL*/)
@@ -946,7 +946,7 @@ POSITION CCrystalTextBuffer::GetRedoDescription(CString &desc, POSITION pos /*= 
 	}
 	else
 	{
-		nPosition = (int) pos;
+		nPosition = static_cast<int>(reinterpret_cast<INT_PTR>(pos));
 		ASSERT(nPosition > m_nUndoPosition);
 		ASSERT((m_aUndoBuf[nPosition].m_dwFlags & UNDO_BEGINGROUP) != 0);
 	}
@@ -963,7 +963,7 @@ POSITION CCrystalTextBuffer::GetRedoDescription(CString &desc, POSITION pos /*= 
 
 	if (nPosition >= m_aUndoBuf.GetSize())
 		return NULL;	//	No more redo actions!
-	return (POSITION) nPosition;
+	return reinterpret_cast<POSITION>(static_cast<INT_PTR>(nPosition));
 }
 
 BOOL CCrystalTextBuffer::Undo(CPoint &ptCursorPos)

@@ -120,7 +120,7 @@ void CustomVariableWidget::setColors(PaletteArgb const * colorPalette)
 
 void CustomVariableWidget::slotColorButtonReleased()
 {
-	PaletteColorPicker * colorPicker = new PaletteColorPicker(this, m_colors.begin(), static_cast<int>(m_colors.size()), m_value);
+	PaletteColorPicker * colorPicker = new PaletteColorPicker(this, m_colors.empty() ? nullptr : m_colors.data(), static_cast<int>(m_colors.size()), m_value);
 
 	int result = colorPicker->exec();
 

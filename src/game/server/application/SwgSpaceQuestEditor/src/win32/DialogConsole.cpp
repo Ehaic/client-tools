@@ -225,7 +225,6 @@ BOOL DialogConsole::OnInitDialog()
 	m_initialized = true;
 
 	CreateShellRedirect();
-	execute("p4 info");
 
 	GetSelectorTabCtrl().SetCurSel(T_configuration);
 	LRESULT result;

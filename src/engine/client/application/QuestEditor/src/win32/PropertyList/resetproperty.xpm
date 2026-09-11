@@ -1,5 +1,5 @@
 /* XPM */
-static char * resetproperty_xpm[] = {
+static char const * const resetproperty_xpm[] = {
 "7 6 2 1",
 " 	c None",
 ".	c #910000",

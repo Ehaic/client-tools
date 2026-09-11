@@ -54,7 +54,6 @@ IMPLEMENT_DYNCREATE(SwgSpaceQuestEditorDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(SwgSpaceQuestEditorDoc, CDocument)
 	//{{AFX_MSG_MAP(SwgSpaceQuestEditorDoc)
-	ON_COMMAND(ID_BUTTON_P4EDIT, OnButtonP4edit)
 	ON_COMMAND(ID_BUTTON_SCAN, OnButtonScan)
 	ON_COMMAND(ID_BUTTON_INFORMATION, OnButtonInformation)
 	//}}AFX_MSG_MAP
@@ -162,80 +161,7 @@ void SwgSpaceQuestEditorDoc::SetModifiedFlag(BOOL const bModified)
 
 // ----------------------------------------------------------------------
 
-void SwgSpaceQuestEditorDoc::OnButtonP4edit() 
-{
-	edit(true);
-}
-
-// ----------------------------------------------------------------------
-
-void SwgSpaceQuestEditorDoc::edit(bool interactive) const
-{
-	CString pathName = Configuration::extractRootName(GetPathName());
-	pathName.MakeLower();
-
-	if (pathName.GetLength() == 0)
-	{
-		if (interactive)
-			MessageBox(0, "Please save the quest before editing/adding to Perforce.", AfxGetApp()->m_pszAppName, MB_OK);
-		else
-			SQE_CONSOLE_WARNING("Quest must be saved before editing/adding to Perforce");
-		return;
-	}
-
-	DEBUG_REPORT_LOG(true, ("Perforce add/edit of %s\n", (LPCSTR)pathName));
-
-	//-- Mission Data Table
-	{
-		CString dataTableName(Configuration::createServerMissionDataTableName(pathName, m_missionTemplateType));
-		CONSOLE_EXECUTE("p4 edit " + dataTableName);
-		CONSOLE_EXECUTE("p4 add " + dataTableName);
-
-		dataTableName.Replace("/dsrc/", "/data/");
-		dataTableName.Replace(".tab", ".iff");	
-		CONSOLE_EXECUTE("p4 edit " + dataTableName);
-		CONSOLE_EXECUTE("p4 add " + dataTableName);
-	}
-
-	//-- String Table
-	{
-		CString sharedStringTableName(Configuration::createSharedStringTableName(pathName, m_missionTemplateType));
-		CONSOLE_EXECUTE("p4 edit " + sharedStringTableName);
-		CONSOLE_EXECUTE("p4 add " + sharedStringTableName);
-	}
-
-	Configuration::MissionTemplate const * const missionTemplate = Configuration::getMissionTemplate(m_missionTemplateType);
-	if (missionTemplate && missionTemplate->getNumberOfQuestStringSuffixTemplates() > 0)
-	{
-		//-- Quest Task Data Table
-		{
-			CString dataTableName(Configuration::createSharedQuestTaskDataTableName(pathName, m_missionTemplateType));
-			CONSOLE_EXECUTE("p4 edit " + dataTableName);
-			CONSOLE_EXECUTE("p4 add " + dataTableName);
-
-			dataTableName.Replace("/dsrc/", "/data/");
-			dataTableName.Replace(".tab", ".iff");	
-			CONSOLE_EXECUTE("p4 edit " + dataTableName);
-			CONSOLE_EXECUTE("p4 add " + dataTableName);
-		}
-
-		//-- Quest List Data Table
-		{
-			CString dataTableName(Configuration::createSharedQuestListDataTableName(pathName, m_missionTemplateType));
-			CONSOLE_EXECUTE("p4 edit " + dataTableName);
-			CONSOLE_EXECUTE("p4 add " + dataTableName);
-
-			dataTableName.Replace("/dsrc/", "/data/");
-			dataTableName.Replace(".tab", ".iff");	
-			CONSOLE_EXECUTE("p4 edit " + dataTableName);
-			CONSOLE_EXECUTE("p4 add " + dataTableName);
-		}
-	}
-}
-
-// ----------------------------------------------------------------------
-
-void SwgSpaceQuestEditorDoc::OnButtonScan() 
+void SwgSpaceQuestEditorDoc::OnButtonScan()
 {
 	scan(true);
 }
@@ -369,7 +295,7 @@ void SwgSpaceQuestEditorDoc::scan(bool const showHeader)
 						CString const & navPoint = m_spaceQuest.getProperty(propertyTemplate.m_columnName);
 
 						if (!navPoint.IsEmpty() && !Configuration::isValidNavPoint(spaceZone, navPoint, missionTemplate->getAllowNavPointsInMultipleZones()))
-							warningList.push_back("ERROR: property [" + propertyTemplate.m_columnName + "] points invalid nav point " + (!navPoint.IsEmpty() ? navPoint : "<blank>") + " for space zone " + (!spaceZone.IsEmpty() ? spaceZone : "<blank>") + "\n");
+							warningList.push_back("ERROR: property [" + propertyTemplate.m_columnName + "] points invalid nav point " + (!navPoint.IsEmpty() ? navPoint : CString("<blank>")) + " for space zone " + (!spaceZone.IsEmpty() ? spaceZone : CString("<blank>")) + "\n");
 					}
 					break;
 
@@ -384,7 +310,7 @@ void SwgSpaceQuestEditorDoc::scan(bool const showHeader)
 							CString const & navPoint = navPointList[i];
 
 							if (!Configuration::isValidNavPoint(spaceZone, navPoint, missionTemplate->getAllowNavPointsInMultipleZones()))
-								warningList.push_back("ERROR: property [" + propertyTemplate.m_columnName + "] points invalid nav point " + navPoint + " for space zone " + (!spaceZone.IsEmpty() ? spaceZone : "<blank>") + "\n");
+								warningList.push_back("ERROR: property [" + propertyTemplate.m_columnName + "] points invalid nav point " + navPoint + " for space zone " + (!spaceZone.IsEmpty() ? spaceZone : CString("<blank>")) + "\n");
 						}
 					}
 					break;
@@ -454,7 +380,7 @@ void SwgSpaceQuestEditorDoc::scan(bool const showHeader)
 							}
 
 							if (!valid)
-								warningList.push_back("ERROR: cargo " + (!cargo.IsEmpty() ? cargo : "<None>") + " is not valid for space mobile " + (!spaceMobilePropertyName.IsEmpty() ? spaceMobilePropertyName : "<None>") + "\n");
+								warningList.push_back("ERROR: cargo " + (!cargo.IsEmpty() ? cargo : CString("<None>")) + " is not valid for space mobile " + (!spaceMobilePropertyName.IsEmpty() ? spaceMobilePropertyName : CString("<None>")) + "\n");
 						}
 					}
 					break;

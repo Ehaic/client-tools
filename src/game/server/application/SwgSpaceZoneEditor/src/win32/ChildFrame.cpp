@@ -54,7 +54,6 @@ BEGIN_MESSAGE_MAP(ChildFrame, CMDIChildWnd)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_HIDE_PATHS, OnUpdateButtonHidePaths)
 	ON_WM_SIZE()
 	ON_COMMAND(ID_BUTTON_VALIDATE, OnButtonValidate)
-	ON_COMMAND(ID_BUTTON_P4, OnButtonP4)
 	ON_COMMAND(ID_BUTTON_HIDE_GRID, OnButtonHideGrid)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_HIDE_GRID, OnUpdateButtonHideGrid)
 	ON_WM_CREATE()
@@ -311,13 +310,6 @@ void ChildFrame::resize()
 void ChildFrame::OnButtonValidate() 
 {
 	m_treeView->validate();
-}
-
-// ----------------------------------------------------------------------
-
-void ChildFrame::OnButtonP4()
-{
-	m_treeView->perforceEdit();
 }
 
 // ----------------------------------------------------------------------

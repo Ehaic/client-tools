@@ -3,7 +3,6 @@
 
 #include "_precompile.h"
 
-#include <afxres.h>
 #include <assert.h>
 #include <windows.h>
 

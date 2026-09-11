@@ -95,7 +95,6 @@ BEGIN
     SEPARATOR
     BUTTON      ID_FILE_PRINT
     SEPARATOR
-    BUTTON      ID_BUTTON_P4EDIT
     BUTTON      ID_BUTTON_SCAN
     SEPARATOR
     BUTTON      ID_BUTTON_INFORMATION
@@ -132,7 +131,6 @@ BEGIN
             MENUITEM "&Open All",                   ID_TOOLS_OPENALL
             MENUITEM "Open/&Scan All",              ID_TOOLS_SCANALL
             MENUITEM "Open/Save &All",              ID_TOOLS_OPENSAVEALL
-            MENUITEM "Open/Edit All",               ID_TOOLS_OPENEDITALL
             , GRAYED
         END
     END
@@ -654,7 +652,6 @@ END
 STRINGTABLE DISCARDABLE 
 BEGIN
     ID_BUTTON_COMPILEDEBUG  "Create the DEBUG version of the script file and string file"
-    ID_BUTTON_P4EDIT        "Open for add/edit all relevant files related to this mission template"
     ID_BUTTON_SCAN          "Validate all of the data within this mission template"
 END
 

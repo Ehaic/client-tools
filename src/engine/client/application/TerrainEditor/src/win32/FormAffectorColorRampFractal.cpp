@@ -337,7 +337,7 @@ void FormAffectorColorRampFractal::OnButtonBrowse()
 			IGNORE_RETURN (RecentDirectory::update ("Targa", dlg.GetPathName ()));
 
 			//-- get new name
-			const CString name = FileName (FileName::P_terrain, dlg.GetFileName (), "");
+			const CString name = FileName (FileName::P_terrain, dlg.GetFileName (), "").getString ();
 
 			if (TreeFile::exists (name))
 			{

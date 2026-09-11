@@ -414,7 +414,7 @@ BOOL ScriptView::PreCreateWindow(CREATESTRUCT& cs)
 // ======================================================================
 
 //	C++ keywords (MSVC5.0 + POET5.0)
-static LPTSTR s_apszCppKeywordList[] =
+static LPCTSTR s_apszCppKeywordList[] =
 {
 	_T("string"),
 	_T("obj_id"),

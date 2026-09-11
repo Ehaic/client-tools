@@ -93,7 +93,7 @@ static void Cleanup( void )
 	}
 }
 
-BOOL CALLBACK GridSettingsDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR CALLBACK GridSettingsDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch( uMsg )
 	{
@@ -138,7 +138,7 @@ BOOL CALLBACK GridSettingsDlgProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 				SetTextColor( (HDC)wParam, col );
 				SetBkColor( (HDC)wParam, col );
 
-				return (BOOL)gBrush;
+				return reinterpret_cast<INT_PTR>( gBrush );
 			}
 			return 0;
 
