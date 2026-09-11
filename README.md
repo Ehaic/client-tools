@@ -23,7 +23,7 @@ Check the build environment:
 
 The required environment is Visual Studio or Build Tools with the selected MSVC toolset, a Windows SDK, and the Microsoft DirectX SDK (June 2010). Architecture-specific SDL3 inputs and the x64 compatibility libraries are vendored under `deps`.
 
-Build the complete Release matrix (Win32 and x64, with DX9 and DX11) using JUCE audio:
+Build the primary Release x64 DX11 client using JUCE audio:
 
 ```powershell
 .\scripts\Build-Client.ps1
@@ -71,9 +71,7 @@ Development and contribution information is maintained in the [Galaxies Reborn r
 This repository and code has undergone extensive renovations and refactoring since its release in 2013 and some history isn't included in GitHub. If you're looking for how these files were originally received from SOE without modification, see the [whitengold repository](https://github.com/Galaxies-Reborn/whitengold).
 
 ## Branches
-* **master** - The primary development and release branch.
-* **stdlib** - Current "work in progress" for building on Visual Studio 2015, which includes it's own, complete STL implementation.
-* **wolfssl** - A test branch where Darth was trying to implement DTLS SSL to make the connection secure. Feel free to finish this implementation.
+`main` is the primary x64 DX11 development branch. See the [maintained branch policy](https://github.com/Galaxies-Reborn/galaxies-reborn/blob/main/BRANCHES.md) for the preserved gameplay and platform efforts.
 
 ## Contributing and More Information
 Contributions and improvements are welcome and encouraged, please submit a pull request. Please note that any changes to the client-tools that requires a rebuild of the SwgClient, will also mean a newly compiled client binary must be added to the [client-assets repository](https://github.com/Galaxies-Reborn/client-assets) so it can be shipped to end users.
