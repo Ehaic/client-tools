@@ -17,15 +17,15 @@ From a Developer PowerShell prompt:
 
 ```powershell
 .\scripts\Build-SteamDeckClient.ps1 `
-    -ClientAssetRoot 'E:\SWG\SWGSource\SWGSource Client v3.0' `
-    -OutputRoot 'E:\SWG\SWGSource\SteamDeck'
+    -ClientAssetRoot 'E:\SWG\Reborn\client-runtime-x64-dx11' `
+    -OutputRoot 'E:\SWG\Reborn\SteamDeck'
 ```
 
 The command creates two separate trees:
 
-- `E:\SWG\SWGSource\SteamDeck\build\Release` contains compiler and linker
+- `E:\SWG\Reborn\SteamDeck\build\Release` contains compiler and linker
   outputs.
-- `E:\SWG\SWGSource\SteamDeck\client` is the clean, copyable runtime package.
+- `E:\SWG\Reborn\SteamDeck\client` is the clean, copyable runtime package.
 
 The staging step refuses a non-empty destination. This prevents an old DLL,
 binary, profile, or configuration file from silently surviving into a release.
