@@ -4,10 +4,10 @@ param(
     [string]$Configuration = "Release",
 
     [ValidateSet("x86", "x64", "All")]
-    [string]$Architecture = "All",
+    [string]$Architecture = "x64",
 
     [ValidateSet("DX9", "DX11", "All")]
-    [string]$Renderer = "All",
+    [string]$Renderer = "DX11",
 
     [ValidateSet("Juce", "Miles")]
     [string]$AudioBackend = "Juce",
