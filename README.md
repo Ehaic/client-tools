@@ -96,3 +96,7 @@ Most of the development tools use the [Qt framework](https://www.qt.io/) to rend
 * Other linker errors sometimes throw, you have to work on these case by case. Please pull request any changes you make.
 * cmd.exe issues sometimes occur as SOE originally had the build setup copying files to a proper game bin directory. You can just remove these from projects that complain about them, just copy the output files manually.
 * Plenty of warnings and sometimes even errors regarding deprecated libs happen. Fixes for these are case by case.
+
+## Galaxies Reborn community
+
+Join the [Galaxies Reborn Discord](https://discord.gg/CEwKVvKxK5) for project discussion, support, and announcements.
