@@ -148,13 +148,16 @@ SwgCuiOpt::SwgCuiOpt(UIPage &page) : CuiMediator("SwgCuiOpt", page),
 	// getCodeDataObject (TUIPage, optionPage, "pageVoice");
 	//(*m_optionPages) [OT_voice] = new SwgCuiOptVoice (*optionPage);
 
-	// Keymap: in NGE-retail the bind table lives at the standalone /PDA.keymap
-	// page (defined in ui_pda.inc) rather than as an OptMain sub-tab. /PDA is
-	// declared Visible='false' in the .ui XML, so we duplicate the keymap page
-	// under a known-visible parent (HUD root) and bind a mediator to the
-	// duplicate - the canonical pattern used by other PDA sub-pages (see
-	// SwgCuiCharacterSheet::createInto). The mediator pops up when the Keymap
-	// tab is clicked.
+	// Prefer the embedded options page supplied by SWG Source assets. Binding
+	// it through m_optionPages gives it the normal activation/apply/cancel lifecycle.
+	optionPage = 0;
+	getCodeDataObject(TUIPage, optionPage, "pageKeymap", true);
+	if (optionPage)
+		(*m_optionPages)[OT_keymap] = new SwgCuiOptKeymap(*optionPage, Game::getHudSceneType());
+
+	// Some asset bundles instead provide a standalone page under /PDA.
+	// Only duplicate that page when no embedded keymap page was found.
+	if (!optionPage)
 	{
 		UIPage *dupParent = 0;
 		UIBaseObject *const groundHud = getPage().GetParent();
@@ -351,9 +354,8 @@ void SwgCuiOpt::OnTabbedPaneChanged(UIWidget *context)
 {
 	if (context == m_tabs)
 	{
-		// Keymap-tab intercept. The NGE-retail UI doesn't ship a
-		// real keymap page so we pop a CuiMessageBox instead of trying to
-		// show the empty cloned page.
+		// Embedded keymap pages follow the same lifecycle as all other tabs.
+		// Intercept only bundles that need the standalone dialog fallback.
 		long const activeTabIndex = m_tabs->GetActiveTab();
 		UIData const *const activeTabData = (activeTabIndex >= 0) ? m_tabs->GetTabData(activeTabIndex) : NULL;
 		std::string const activeName = activeTabData ? activeTabData->GetName() : std::string("<none>");
@@ -362,7 +364,7 @@ void SwgCuiOpt::OnTabbedPaneChanged(UIWidget *context)
 		// "@ui_opt:b_keymap". Match by substring instead of exact equality.
 		bool const isKeymapTab = activeTabData &&
 								 (activeName.find("keymap") != std::string::npos || activeName.find("Keymap") != std::string::npos || activeName.find("KEYMAP") != std::string::npos);
-		if (isKeymapTab)
+		if (isKeymapTab && m_optionPages->find(OT_keymap) == m_optionPages->end())
 		{
 			// The Keymap tab in NGE-retail's OptMain has no target page; it
 			// was paired with a "/ui action keymap" button on the Controls

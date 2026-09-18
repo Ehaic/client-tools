@@ -58,10 +58,8 @@ private:
 
 	bool                 m_keepSettings;
 
-	// Standalone keymap dialog. In NGE-retail the keymap UI lives at
-	// /PDA.keymap rather than as a sub-tab of OptMain. We construct a
-	// SwgCuiOptKeymap pointing at it and pop it up when the Keymap tab is
-	// clicked.
+	// Fallback for asset bundles that provide /PDA.keymap instead of an
+	// embedded options page.
 	SwgCuiOptKeymap *m_standaloneKeymap;
 };
 
