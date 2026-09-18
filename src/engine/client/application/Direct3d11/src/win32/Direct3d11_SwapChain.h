@@ -58,6 +58,8 @@ public:
 	static bool presentToWindow(HWND window, int width, int height);
 	static void resize(int width, int height);
 	static void setWindowedMode(bool windowed);
+	static void setAdvancedDisplayOptions(bool borderless, bool vsync);
+	static void getAdvancedDisplayOptions(bool &borderless, bool &vsync);
 	static void setViewport(int x, int y, int width, int height, real minZ, real maxZ);
 	static void flushResources(bool fullReset);
 

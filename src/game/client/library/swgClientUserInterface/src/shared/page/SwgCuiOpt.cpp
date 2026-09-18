@@ -31,6 +31,7 @@
 #include "swgClientUserInterface/SwgCuiOptCombat.h"
 #include "swgClientUserInterface/SwgCuiOptControls.h"
 #include "swgClientUserInterface/SwgCuiOptGraphics.h"
+#include "SwgCuiOptAdvancedGraphics.h"
 #include "swgClientUserInterface/SwgCuiOptKeymap.h"
 #include "swgClientUserInterface/SwgCuiOptMisc.h"
 #include "swgClientUserInterface/SwgCuiOptSound.h"
@@ -59,6 +60,7 @@ namespace SwgCuiOptNamespace
 		OT_ui,
 		OT_keymap,
 		//OT_voice,
+		OT_advancedGraphics,
 		OT_numTabs
 	};
 
@@ -123,6 +125,11 @@ SwgCuiOpt::SwgCuiOpt(UIPage &page) : CuiMediator("SwgCuiOpt", page),
 	getCodeDataObject(TUIPage, optionPage, "pageGraphics", true);
 	if (optionPage)
 		(*m_optionPages)[OT_graphics] = new SwgCuiOptGraphics(*optionPage);
+
+    optionPage = 0;
+    getCodeDataObject(TUIPage, optionPage, "pageAdvancedGraphics", true);
+    if (optionPage)
+        (*m_optionPages)[OT_advancedGraphics] = new SwgCuiOptAdvancedGraphics(*optionPage);
 
 	optionPage = 0;
 	getCodeDataObject(TUIPage, optionPage, "pageMisc", true);

@@ -142,6 +142,10 @@ public:
 	static void                          setGamma(float gamma);
 
 	static void                          resize(int newWidth, int newHeight);
+    static bool supportsAdvancedDisplayOptions();
+    static void getAdvancedDisplayOptions(bool &borderless, bool &vsync);
+    static void applyAdvancedDisplayOptions(int width, int height, bool borderless, bool vsync);
+    static void rememberAdvancedDisplayOptions();
 	static void                          setWindowedMode(bool windowed);
 	static void                          toggleWindowedMode();
 	static bool                          isWindowed();

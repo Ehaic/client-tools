@@ -1246,3 +1246,12 @@ void Direct3d11Namespace::remove()
 }
 
 // ======================================================================
+
+extern "C" __declspec(dllexport) void SetAdvancedDisplayOptions(bool borderless, bool vsync)
+{
+    Direct3d11_SwapChain::setAdvancedDisplayOptions(borderless, vsync);
+}
+extern "C" __declspec(dllexport) void GetAdvancedDisplayOptions(bool &borderless, bool &vsync)
+{
+    Direct3d11_SwapChain::getAdvancedDisplayOptions(borderless, vsync);
+}

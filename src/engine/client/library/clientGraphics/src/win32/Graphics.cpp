@@ -66,6 +66,10 @@ namespace GraphicsNamespace
 	const Tag TAG_DX9 = TAG3(D,X,9);
 
 	HINSTANCE                                 ms_dll;
+    int ms_advancedWidth = 0;
+    int ms_advancedHeight = 0;
+    int ms_advancedMode = -1;
+    int ms_advancedVsync = -1;
 	const Gl_api                             *ms_api;
 
 	int                                       ms_frameNumber;
@@ -286,6 +290,20 @@ bool Graphics::install()
 	LocalMachineOptionManager::registerOption(ms_windowX, "ClientGraphics", "windowX");
 	LocalMachineOptionManager::registerOption(ms_windowY, "ClientGraphics", "windowY");
 
+    if (supportsAdvancedDisplayOptions())
+    {
+        LocalMachineOptionManager::registerOption(ms_advancedWidth, "ClientGraphics", "advancedWidth");
+        LocalMachineOptionManager::registerOption(ms_advancedHeight, "ClientGraphics", "advancedHeight");
+        LocalMachineOptionManager::registerOption(ms_advancedMode, "ClientGraphics", "advancedMode");
+        LocalMachineOptionManager::registerOption(ms_advancedVsync, "ClientGraphics", "advancedVsync");
+        if (ms_advancedMode >= 0 && ms_advancedMode <= 1 && ms_advancedWidth >= 800 && ms_advancedWidth <= 16384 && ms_advancedHeight >= 600 && ms_advancedHeight <= 16384)
+        {
+            ms_frameBufferMaxWidth = ms_advancedWidth;
+            ms_frameBufferMaxHeight = ms_advancedHeight;
+            ms_windowed = ms_advancedMode == 0;
+        }
+    }
+
 	// setup the install struct
 	Gl_install gl_install;
 	Zero(gl_install);
@@ -299,7 +317,7 @@ bool Graphics::install()
 	gl_install.windowed                 = ms_engineOwnsWindow ? ms_windowed : true;
 	gl_install.skipInitialClearViewport = ConfigClientGraphics::getSkipInitialClearViewport();
 	gl_install.engineOwnsWindow         = ms_engineOwnsWindow;
-	gl_install.borderlessWindow         = ConfigClientGraphics::getBorderlessWindow();
+	gl_install.borderlessWindow         = supportsAdvancedDisplayOptions() && ms_advancedMode >= 0 ? false : ConfigClientGraphics::getBorderlessWindow();
 	gl_install.windowX                  = ms_windowX;
 	gl_install.windowY                  = ms_windowY;
 	gl_install.windowedModeChanged      = windowedModeChanged;
@@ -317,6 +335,14 @@ bool Graphics::install()
 	ms_currentRenderTargetMaxHeight = gl_install.height;
 
 	ms_windowed = gl_install.windowed;
+    if (supportsAdvancedDisplayOptions() && ms_advancedMode >= 0 && ms_advancedMode <= 1)
+    {
+        typedef void (*SetOptions)(bool, bool);
+        SetOptions setter = reinterpret_cast<SetOptions>(GetProcAddress(ms_dll, "SetAdvancedDisplayOptions"));
+        bool borderless, vsync;
+        getAdvancedDisplayOptions(borderless, vsync);
+        setter(ms_advancedMode == 1, ms_advancedVsync >= 0 ? ms_advancedVsync != 0 : vsync);
+    }
 
 #if PRODUCTION == 0
 	Os::setIsGdiVisibleHookFunction(isGdiVisible);
@@ -3570,3 +3596,33 @@ void Graphics::releaseVideoBuffers()
 #endif // PRODUCTION
 
 // ----------------------------------------------------------------------
+
+bool Graphics::supportsAdvancedDisplayOptions()
+{
+    return ms_engineOwnsWindow && ms_dll && GetProcAddress(ms_dll, "SetAdvancedDisplayOptions") && GetProcAddress(ms_dll, "GetAdvancedDisplayOptions");
+}
+void Graphics::getAdvancedDisplayOptions(bool &borderless, bool &vsync)
+{
+    borderless = !ms_windowed;
+    vsync = true;
+    if (!supportsAdvancedDisplayOptions()) return;
+    typedef void (*GetOptions)(bool &, bool &);
+    reinterpret_cast<GetOptions>(GetProcAddress(ms_dll, "GetAdvancedDisplayOptions"))(borderless, vsync);
+}
+void Graphics::applyAdvancedDisplayOptions(int width, int height, bool borderless, bool vsync)
+{
+    if (!supportsAdvancedDisplayOptions() || width < 800 || height < 600 || width > 16384 || height > 16384) return;
+    resize(width, height);
+    typedef void (*SetOptions)(bool, bool);
+    reinterpret_cast<SetOptions>(GetProcAddress(ms_dll, "SetAdvancedDisplayOptions"))(borderless, vsync);
+}
+void Graphics::rememberAdvancedDisplayOptions()
+{
+    if (!supportsAdvancedDisplayOptions()) return;
+    bool borderless, vsync;
+    getAdvancedDisplayOptions(borderless, vsync);
+    ms_advancedWidth = getFrameBufferMaxWidth();
+    ms_advancedHeight = getFrameBufferMaxHeight();
+    ms_advancedMode = borderless ? 1 : 0;
+    ms_advancedVsync = vsync ? 1 : 0;
+}

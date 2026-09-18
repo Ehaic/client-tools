@@ -65,6 +65,7 @@ namespace Direct3d11_SwapChainNamespace
 	bool ms_engineOwnsWindow;
 	bool ms_borderlessWindow;
 	bool ms_windowed = true;
+	bool ms_vsync = true;
 	int ms_windowX;
 	int ms_windowY;
 	void (*ms_windowedModeChanged)(bool windowed);
@@ -176,7 +177,8 @@ bool Direct3d11_SwapChainNamespace::createSwapChain()
 	IDXGIFactory2 *const factory = Direct3d11_Device::getFactory();
 	NOT_NULL(factory);
 
-	bool const wantTearing = ConfigDirect3d11::getAllowTearing() && Direct3d11_Device::supportsTearing();
+	// Request the capability at creation so VSync can change without a rebuild.
+	bool const wantTearing = Direct3d11_Device::supportsTearing();
 
 	ms_swapChainFlags = wantTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
@@ -553,6 +555,7 @@ bool Direct3d11_SwapChain::install(Gl_install *gl_install)
 	ms_width = gl_install->width;
 	ms_height = gl_install->height;
 	ms_windowed = gl_install->windowed;
+	ms_vsync = !ConfigDirect3d11::getAllowTearing();
 	ms_engineOwnsWindow = gl_install->engineOwnsWindow;
 	ms_borderlessWindow = gl_install->borderlessWindow;
 	ms_windowX = gl_install->windowX;
@@ -916,8 +919,8 @@ bool Direct3d11_SwapChain::present()
 			frameCallback();
 	}
 
-	UINT const syncInterval = (ms_swapChainFlags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING) ? 0 : 1;
-	UINT const presentFlags = (ms_swapChainFlags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING) ? DXGI_PRESENT_ALLOW_TEARING : 0;
+	UINT const syncInterval = ms_vsync ? 1 : 0;
+	UINT const presentFlags = !ms_vsync && (ms_swapChainFlags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING) ? DXGI_PRESENT_ALLOW_TEARING : 0;
 
 	HRESULT const hresult = ms_swapChain->Present(syncInterval, presentFlags);
 
@@ -989,7 +992,7 @@ bool Direct3d11_SwapChain::presentToWindow(HWND window, int width, int height)
 	// still provides the configured no-vblank-wait mode. The consumer frame
 	// callback remains primary-only: its HWND-less resize contract describes
 	// the primary back buffer, not any one member of this child-window cache.
-	UINT const syncInterval = ConfigDirect3d11::getAllowTearing() ? 0 : 1;
+	UINT const syncInterval = ms_vsync ? 1 : 0;
 	HRESULT const hresult = target->swapChain->Present(syncInterval, 0);
 
 	++Direct3d11_Metrics::presents;
@@ -1143,3 +1146,28 @@ void Direct3d11_SwapChain::flushResources(bool fullReset)
 }
 
 // ======================================================================
+
+// Optional named exports keep this extension independent of the shared Gl_api ABI.
+void Direct3d11_SwapChain::getAdvancedDisplayOptions(bool &borderless, bool &vsync)
+{
+    borderless = !ms_windowed || ms_borderlessWindow;
+    vsync = ms_vsync;
+}
+
+void Direct3d11_SwapChain::setAdvancedDisplayOptions(bool borderless, bool vsync)
+{
+    DX11_ASSERT_MAIN_THREAD();
+    ms_vsync = vsync;
+    ms_borderlessWindow = false;
+    MONITORINFO monitor = {};
+    monitor.cbSize = sizeof(monitor);
+    if (GetMonitorInfo(MonitorFromWindow(ms_window, MONITOR_DEFAULTTONEAREST), &monitor))
+    {
+        RECT const &area = borderless ? monitor.rcMonitor : monitor.rcWork;
+        ms_windowX = area.left + (area.right - area.left - ms_width) / 2;
+        ms_windowY = area.top + (area.bottom - area.top - ms_height) / 2;
+        if (ms_windowX < area.left) ms_windowX = area.left;
+        if (ms_windowY < area.top) ms_windowY = area.top;
+    }
+    setWindowedMode(!borderless);
+}
