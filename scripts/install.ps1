@@ -21,9 +21,9 @@ param(
     [string]$AppSource = 'D:\Code\swg-qt-tools-worktree\src\build\win32\x64\Release',
     [string]$OverrideSource = 'D:\Code\Galaxies-Reborn\stage-B-override',
     [string]$DsrcPin = 'a05279872',
-    [string]$DsrcUrl = 'https://github.com/SWG-Source/dsrc.git',
-    [string]$ServerdataUrl = 'https://github.com/SWG-Source/serverdata.git',
-    [string]$PayloadUrl = 'https://github.com/Galaxies-Reborn/legacy-tools-payload.git',
+    [string]$DsrcUrl = 'https://github.com/Ehaic/dsrc.git',
+    [string]$ServerdataUrl = 'https://github.com/Ehaic/serverdata.git',
+    [string]$PayloadUrl = 'https://github.com/Ehaic/legacy-tools-payload.git',
     [switch]$SkipSmoke
 )
 

@@ -1,3 +1,4 @@
 [submodule "tools-payload"]
 	path = tools-payload
-	url = https://github.com/Galaxies-Reborn/legacy-tools-payload.git
+	url = https://github.com/Ehaic/legacy-tools-payload.git
+	branch = experiment-galaxies-reborn
