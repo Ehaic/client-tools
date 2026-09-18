@@ -1,0 +1,51 @@
+name: Build x64 DX11 client
+
+on:
+  push:
+    branches: [experiment-galaxies-reborn]
+    paths:
+      - '.github/workflows/build-dx11-client.yml'
+      - 'scripts/Build-Client.ps1'
+      - 'scripts/Build-HostedDx11Client.ps1'
+      - 'scripts/Test-ClientBuildPrerequisites.ps1'
+      - 'Directory.Build.*'
+      - 'deps/**'
+      - 'src/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dx11-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'Ehaic/client-tools' && github.event.repository.private == false
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Enable long paths
+        run: git config --global core.longpaths true
+      - name: Check out client source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Build and package Release x64 DX11 with JUCE audio
+        run: ./scripts/Build-HostedDx11Client.ps1
+      # Standard runners are free for public repos. Use a draft release rather
+      # than metered Actions artifacts or caches for the resulting binary.
+      - name: Save build as a draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "dx11-build-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT"
+          gh release create $tag "$env:RUNNER_TEMP/swg-dx11-x64.zip" `
+            --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --draft `
+            --title "DX11 x64 development build $env:GITHUB_RUN_NUMBER" `
+            --notes "Release x64 client with DX11 renderer and JUCE audio, built from $env:GITHUB_SHA. Requires an existing game-data installation. Runtime testing is pending."
+          if ($LASTEXITCODE -ne 0) { throw 'Draft release upload failed.' }
