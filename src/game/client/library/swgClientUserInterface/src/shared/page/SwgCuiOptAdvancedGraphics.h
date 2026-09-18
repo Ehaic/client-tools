@@ -18,7 +18,7 @@ protected:
 private:
     struct Display { int width, height; bool borderless, vsync; };
     static Display current();
-    static void apply(Display const &display);
+    void apply(Display const &display);
     void refresh();
     void rollback();
     UIComboBox *m_resolution;

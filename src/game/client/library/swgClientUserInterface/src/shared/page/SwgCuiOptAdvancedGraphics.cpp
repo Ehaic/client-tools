@@ -1,6 +1,7 @@
 #include "swgClientUserInterface/FirstSwgClientUserInterface.h"
 #include "SwgCuiOptAdvancedGraphics.h"
 #include "clientGraphics/Graphics.h"
+#include "clientUserInterface/CuiManager.h"
 #include "sharedFoundation/Os.h"
 #include "UIButton.h"
 #include "UIComboBox.h"
@@ -41,6 +42,24 @@ SwgCuiOptAdvancedGraphics::Display SwgCuiOptAdvancedGraphics::current()
 void SwgCuiOptAdvancedGraphics::apply(Display const &d)
 {
     Graphics::applyAdvancedDisplayOptions(d.width, d.height, d.borderless, d.vsync);
+    CuiManager::setSize(Graphics::getFrameBufferMaxWidth(), Graphics::getFrameBufferMaxHeight());
+    // A smaller resolution must not strand the confirmation buttons off-screen.
+    for (UIBaseObject *node = &getPage(); node; node = node->GetParent())
+    {
+        if (node->GetName() != "OptMain" || !node->IsA(TUIWidget)) continue;
+        UIWidget *window = static_cast<UIWidget *>(node);
+        UIBaseObject *parent = window->GetParent();
+        if (!parent || !parent->IsA(TUIWidget)) break;
+        UISize const available = static_cast<UIWidget *>(parent)->GetSize();
+        UISize const size = window->GetSize();
+        UIPoint position = window->GetLocation();
+        if (position.x + size.x > available.x) position.x = available.x - size.x;
+        if (position.y + size.y > available.y) position.y = available.y - size.y;
+        if (position.x < 0) position.x = 0;
+        if (position.y < 0) position.y = 0;
+        window->SetLocation(position);
+        break;
+    }
 }
 void SwgCuiOptAdvancedGraphics::storeRevertData()
 {
@@ -62,7 +81,7 @@ void SwgCuiOptAdvancedGraphics::refresh()
     m_modes.push_back(active);
     MONITORINFOEX monitor = {};
     monitor.cbSize = sizeof(monitor);
-    bool const haveMonitor = GetMonitorInfo(MonitorFromWindow(Os::getWindow(), MONITOR_DEFAULTTONEAREST), &monitor) != FALSE;
+    bool const haveMonitor = GetMonitorInfo(MonitorFromWindow(Os::getWindow(), MONITOR_DEFAULTTONEAREST), reinterpret_cast<MONITORINFO *>(&monitor)) != FALSE;
     DEVMODE mode = {};
     mode.dmSize = sizeof(mode);
     for (DWORD i = 0; EnumDisplaySettings(haveMonitor ? monitor.szDevice : NULL, i, &mode); ++i)
