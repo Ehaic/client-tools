@@ -12,8 +12,13 @@
 #include "Direct3d11_Device.h"
 #include "Direct3d11_ImageWriter.h"
 
-// TEMPORARY DIAGNOSTIC: RenderDoc's in-application API, from the installed SDK.
-#include "C:/Program Files/RenderDoc/renderdoc_app.h"
+// Optional capture support: add the RenderDoc SDK to the include path to enable it.
+#if __has_include(<renderdoc_app.h>)
+#include <renderdoc_app.h>
+#define SWG_HAS_RENDERDOC 1
+#else
+#define SWG_HAS_RENDERDOC 0
+#endif
 #include "Direct3d11_StateCache.h"
 #include "Direct3d11_Metrics.h"
 #include "Direct3d11_ConstantBuffers.h"
@@ -841,6 +846,7 @@ bool Direct3d11_SwapChain::present()
 		Direct3d11_SceneTarget::composite();
 	}
 
+#if SWG_HAS_RENDERDOC
 	// TEMPORARY DIAGNOSTIC: ask RenderDoc for a capture at a chosen frame.
 	{
 		int const captureFrame = ConfigDirect3d11::getDebugRenderDocFrame();
@@ -876,6 +882,8 @@ bool Direct3d11_SwapChain::present()
 			}
 		}
 	}
+
+#endif
 
 	// TEMPORARY DIAGNOSTIC: an automatic screenshot, taken before Present while the back buffer
 	// still holds this frame. Written through Direct3d11_ImageWriter, which is the same path the

@@ -20,7 +20,7 @@ if ($LASTEXITCODE -ne 0) { throw 'DirectX SDK extraction failed.' }
 $env:DXSDK_DIR = (Join-Path $sdkRoot 'DXSDK') + '\'
 
 & (Join-Path $PSScriptRoot 'Build-Client.ps1') -Configuration Release `
-    -Architecture x64 -Renderer DX11 -AudioBackend Juce -MaxCpuCount 2
+    -Architecture x64 -Renderer DX11 -AudioBackend Juce -MaxCpuCount 4
 
 $output = Join-Path $repoRoot 'src/build/win32/x64/Release'
 $stage = Join-Path $env:RUNNER_TEMP 'swg-dx11-x64'
