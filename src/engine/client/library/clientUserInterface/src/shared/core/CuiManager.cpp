@@ -889,6 +889,14 @@ void CuiManager::render ()
 	bool wasDropShadowEnabled = UITextStyle::GetGlobalDropShadowEnabled();
 	UITextStyle::SetGlobalDropShadowEnabled(s_textDropShadow);
 
+	// The canvas survives resolution changes. World text only updates its clip
+	// when there are queued labels, so a previous frame's screen rectangle can
+	// otherwise clip the HUD to the old resolution. Start every UI frame with
+	// the actual viewport bounds, and isolate world-overlay clipping from CUI.
+	ms_uiCanvas->SetSize(UISize(Graphics::getCurrentRenderTargetWidth(), Graphics::getCurrentRenderTargetHeight()));
+	ms_uiCanvas->SetClip(UIRect(0, 0, Graphics::getCurrentRenderTargetWidth(), Graphics::getCurrentRenderTargetHeight()));
+	ms_uiCanvas->PushState();
+
 	// World-space stuff first, UNscaled - these project from the 3D camera
 	// onto pixel coords and need to stay anchored to in-world objects, not
 	// magnify away from them.
@@ -898,6 +906,8 @@ void CuiManager::render ()
 	const Camera * const camera = Game::getCamera ();
 	if (camera)
 		CuiChatBubbleManager::render (*ms_uiCanvas, *camera);
+
+	ms_uiCanvas->PopState();
 
 	UITextStyle::SetGlobalDropShadowEnabled(wasDropShadowEnabled);
 

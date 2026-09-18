@@ -1862,6 +1862,9 @@ void  UIManager::PushContextWidget           (UIWidget & context, ContextWidgetA
 		mContextPage->SetAbsorbsInput (false);
 		mContextPage->Attach (0);
 		mContextPage->SetName ("InvisibleContextPage");
+		// Dropdowns and popup menus share this full-screen clipping/input layer.
+		// Follow root resizes instead of retaining the dimensions at creation.
+		mContextPage->SetPageAttribute(UIPage::PA_ParentSize, true);
 	}
 	
 	assert (mContextPage);
