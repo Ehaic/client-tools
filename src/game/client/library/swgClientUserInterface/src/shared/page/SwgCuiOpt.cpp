@@ -311,6 +311,10 @@ void SwgCuiOpt::OnButtonPressed   (UIWidget * context)
 {
 	if (context == m_buttonOk)
 	{
+        // Confirm before closing: deactivation rolls back unconfirmed previews.
+        BaseMap::iterator const advanced = m_optionPages->find(OT_advancedGraphics);
+        if (advanced != m_optionPages->end())
+            static_cast<SwgCuiOptAdvancedGraphics *>(advanced->second)->confirmPreview();
 		closeThroughWorkspace ();
 	}
 	else if (context == m_buttonCancel)

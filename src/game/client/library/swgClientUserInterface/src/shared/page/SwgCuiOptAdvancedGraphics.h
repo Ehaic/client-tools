@@ -9,6 +9,7 @@ class SwgCuiOptAdvancedGraphics : public SwgCuiOptBase
 public:
     explicit SwgCuiOptAdvancedGraphics(UIPage &page);
     virtual void OnButtonPressed(UIWidget *context);
+    void confirmPreview();
     virtual void storeRevertData();
     virtual void revert();
     virtual void update(float deltaTimeSecs);

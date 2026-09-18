@@ -116,7 +116,7 @@ void SwgCuiOptAdvancedGraphics::refresh()
     m_revert->SetVisible(m_preview);
     if (!m_preview)
         m_status->SetLocalText(Unicode::narrowToWide(supported ?
-            "Choose settings, then Apply. Confirm with Keep settings within 15 seconds. Use the options OK button to save." :
+            "Choose settings, then Apply. Choose Keep settings or the options OK button within 15 seconds. OK also saves." :
             "These controls require the updated DX11 renderer."));
 }
 void SwgCuiOptAdvancedGraphics::performActivate()
@@ -138,6 +138,16 @@ void SwgCuiOptAdvancedGraphics::rollback()
     apply(m_previous);
     refresh();
     m_status->SetLocalText(Unicode::narrowToWide("Previous display settings restored."));
+}
+void SwgCuiOptAdvancedGraphics::confirmPreview()
+{
+    if (!m_preview) return;
+    // OK and Keep must observe the same deadline, even between update ticks.
+    if (GetTickCount() - m_previewStart >= 15000) { rollback(); return; }
+    m_preview = false;
+    Graphics::rememberAdvancedDisplayOptions();
+    refresh();
+    m_status->SetLocalText(Unicode::narrowToWide("Settings kept. Choose OK to save, or Cancel to restore the settings from when you opened options."));
 }
 void SwgCuiOptAdvancedGraphics::OnButtonPressed(UIWidget *context)
 {
@@ -165,10 +175,7 @@ void SwgCuiOptAdvancedGraphics::OnButtonPressed(UIWidget *context)
     }
     else if (context == m_keep && m_preview)
     {
-        m_preview = false;
-        Graphics::rememberAdvancedDisplayOptions();
-        refresh();
-        m_status->SetLocalText(Unicode::narrowToWide("Settings kept. Choose OK to save, or Cancel to restore the settings from when you opened options."));
+        confirmPreview();
     }
     else if (context == m_revert)
         rollback();
@@ -182,6 +189,6 @@ void SwgCuiOptAdvancedGraphics::update(float deltaTimeSecs)
     DWORD const elapsed = GetTickCount() - m_previewStart;
     if (elapsed >= 15000) { rollback(); return; }
     char text[160];
-    _snprintf_s(text, sizeof(text), _TRUNCATE, "Keep these settings? Reverting in %lu seconds. Leaving this page also reverts the preview.", (15000 - elapsed + 999) / 1000);
+    _snprintf_s(text, sizeof(text), _TRUNCATE, "Choose Keep settings or OK. Reverting in %lu seconds. Leaving this page reverts the preview.", (15000 - elapsed + 999) / 1000);
     m_status->SetLocalText(Unicode::narrowToWide(text));
 }
